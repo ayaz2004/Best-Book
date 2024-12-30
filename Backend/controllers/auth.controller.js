@@ -1,7 +1,8 @@
 import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
+import { errorhandler } from "../utils/error.js";
 
-export const signup = async (req, res) => {
+export const signup = async (req, res, next) => {
   const {
     username,
     email,
@@ -25,9 +26,7 @@ export const signup = async (req, res) => {
     targetExam === "" ||
     targetYear === ""
   ) {
-    return res.status(400).json({
-      message: "All fields are required except Email(Email is optional)",
-    });
+    next(errorhandler(400, "All fields are required except email"));
   }
 
   const hashedPassword = bcryptjs.hashSync(password, 10);
@@ -46,6 +45,6 @@ export const signup = async (req, res) => {
     await newUser.save();
     res.json("Sign Up successful");
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
