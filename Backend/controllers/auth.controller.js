@@ -5,7 +5,6 @@ import { errorhandler } from "../utils/error.js";
 export const signup = async (req, res, next) => {
   const {
     username,
-    email,
     phoneNumber,
     password,
     currentClass,
@@ -26,14 +25,13 @@ export const signup = async (req, res, next) => {
     targetExam === "" ||
     targetYear === ""
   ) {
-    next(errorhandler(400, "All fields are required except email"));
+    next(errorhandler(400, "All fields are required."));
   }
 
   const hashedPassword = bcryptjs.hashSync(password, 10);
 
   const newUser = new User({
     username,
-    email,
     phoneNumber,
     password: hashedPassword,
     currentClass,

@@ -1,14 +1,72 @@
-import { Button, Label, Select, TextInput } from "flowbite-react";
-import {
-  FaEnvelope,
-  FaGraduationCap,
-  FaLock,
-  FaPhone,
-  FaUser,
-} from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
+import { useState } from "react";
+import { FaGraduationCap, FaLock, FaPhone, FaUser } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function SignUp() {
+  const [formData, setFormData] = useState({
+    username: "",
+    phoneNumber: "",
+    password: "",
+    currentClass: "",
+    targetExam: [],
+    targetYear: [],
+  });
+
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  const handleCheckboxChange = (e, field) => {
+    const { value, checked } = e.target;
+    setFormData((prevData) => {
+      const updatedField = checked
+        ? [...prevData[field], value]
+        : prevData[field].filter((item) => item !== value);
+      return { ...prevData, [field]: updatedField };
+    });
+  };
+
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData({ ...formData, [id]: value.trim() });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (
+      !formData.username ||
+      !formData.phoneNumber ||
+      !formData.password ||
+      !formData.currentClass ||
+      !formData.targetExam.length ||
+      !formData.targetYear.length
+    ) {
+      setErrorMessage("PLease fill out all the fields.");
+    }
+    try {
+      setLoading(true);
+      setErrorMessage(null);
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        return setErrorMessage(data.message);
+      }
+      setLoading(false);
+      if (res.ok) {
+        navigate("/sign-in");
+      }
+    } catch (error) {
+      setErrorMessage(error.message);
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen mt-20">
       <div className="flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5">
@@ -20,34 +78,24 @@ export default function SignUp() {
             </span>
           </Link>
           <p className="text-sm mt-5">
-            A website designed for best resoureces for education along with
+            A website designed for best resources for education along with a
             section where you can practice questions and get your doubts
             cleared.
           </p>
         </div>
         {/* right */}
         <div className="flex-1">
-          <form className=" flex flex-col gap-4">
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
             <div>
               <Label value="Your Username" />
               <div className="relative">
                 <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <TextInput
+                  type="text"
                   id="username"
                   placeholder="Enter your username"
                   className="pl-10"
-                />
-              </div>
-            </div>
-            <div>
-              <Label value="Your Email" />
-              <div className="relative">
-                <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <TextInput
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  className="pl-10"
+                  onChange={handleChange}
                 />
               </div>
             </div>
@@ -59,10 +107,11 @@ export default function SignUp() {
                   🇮🇳 +91
                 </span>
                 <TextInput
-                  id="phone"
+                  id="phoneNumber"
                   type="text"
                   placeholder="Enter your phone number"
                   className="rounded-l-md"
+                  onChange={handleChange}
                 />
               </div>
             </div>
@@ -76,6 +125,7 @@ export default function SignUp() {
                   type="password"
                   placeholder="Enter your password"
                   className="pl-10"
+                  onChange={handleChange}
                 />
               </div>
             </div>
@@ -87,7 +137,11 @@ export default function SignUp() {
               />
               <div className="relative">
                 <FaGraduationCap className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <Select id="currentClass" className="pl-10">
+                <select
+                  id="currentClass"
+                  className="pl-10 w-full"
+                  onChange={handleChange}
+                >
                   <option value="">Select Class</option>
                   <option value="class 6">class 6</option>
                   <option value="class 7">class 7</option>
@@ -96,51 +150,76 @@ export default function SignUp() {
                   <option value="class 10">class 10</option>
                   <option value="class 11">class 11</option>
                   <option value="class 12">class 12</option>
-                </Select>
+                </select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-6">
               <div>
-                <Label
-                  htmlFor="targetExam"
-                  value="Target Exam"
-                  className="text-gray-700"
-                />
-                <Select id="targetExam">
-                  <option value="">Select Exam</option>
-                  <option value="XIth Entrance">XIth Entrance</option>
-                  <option value="NEET">NEET</option>
-                  <option value="JEE">JEE</option>
-                </Select>
+                <Label value="Target Exam" />
+                <div className="bg-gray-100 p-4 rounded-lg shadow">
+                  {["XIth Entrance", "NEET", "JEE"].map((exam) => (
+                    <label
+                      key={exam}
+                      className="flex items-center gap-2 text-gray-700 mb-2"
+                    >
+                      <input
+                        type="checkbox"
+                        value={exam}
+                        onChange={(e) => handleCheckboxChange(e, "targetExam")}
+                      />
+                      {exam}
+                    </label>
+                  ))}
+                </div>
               </div>
               <div>
-                <Label
-                  htmlFor="targetYear"
-                  value="Target Year"
-                  className="text-gray-700"
-                />
-                <Select id="targetYear">
-                  <option value="">Select Year</option>
-                  <option value="2025">2025</option>
-                  <option value="2026">2026</option>
-                  <option value="2027">2027</option>
-                  <option value="2028">2028</option>
-                  <option value="2029">2029</option>
-                  <option value="2030">2030</option>
-                </Select>
+                <Label value="Target Year" />
+                <div className="bg-gray-100 p-4 rounded-lg shadow">
+                  {["2025", "2026", "2027", "2028", "2029", "2030"].map(
+                    (year) => (
+                      <label
+                        key={year}
+                        className="flex items-center gap-2 text-gray-700 mb-2"
+                      >
+                        <input
+                          type="checkbox"
+                          value={year}
+                          onChange={(e) =>
+                            handleCheckboxChange(e, "targetYear")
+                          }
+                        />
+                        {year}
+                      </label>
+                    )
+                  )}
+                </div>
               </div>
             </div>
-            <Button gradientDuoTone="purpleToBlue" type="submit">
-              Sign Up
+            <Button
+              gradientDuoTone="purpleToBlue"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Spinner size="sm" /> <span className="pl-3">Loading...</span>
+                </>
+              ) : (
+                "Sign Up"
+              )}
             </Button>
           </form>
           <div className="flex gap-2 text-sm mt-5">
             <span>Have an account?</span>
             <Link to="/sign-in" className="text-blue-500">
-              {" "}
               Sign In
             </Link>
           </div>
+          {errorMessage && (
+            <Alert className="mt-5 " color="failure">
+              {errorMessage}
+            </Alert>
+          )}
         </div>
       </div>
     </div>
