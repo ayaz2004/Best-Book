@@ -43,7 +43,7 @@ export default function SignUp() {
       !formData.targetExam.length ||
       !formData.targetYear.length
     ) {
-      setErrorMessage("PLease fill out all the fields.");
+      return setErrorMessage("PLease fill out all the fields.");
     }
     try {
       setLoading(true);
