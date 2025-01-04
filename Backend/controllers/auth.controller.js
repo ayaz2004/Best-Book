@@ -2,6 +2,10 @@ import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
 import { errorhandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
+import { sendOTP } from "../utils/Twilio.js";
+
+let OTP = "";
+let newUser = null;
 
 export const signup = async (req, res, next) => {
   const {
@@ -12,6 +16,7 @@ export const signup = async (req, res, next) => {
     targetExam,
     targetYear,
   } = req.body;
+  console.log(req.body);
   if (
     !username ||
     !phoneNumber ||
@@ -31,7 +36,7 @@ export const signup = async (req, res, next) => {
 
   const hashedPassword = bcryptjs.hashSync(password, 10);
 
-  const newUser = new User({
+  newUser = new User({
     username,
     phoneNumber,
     password: hashedPassword,
@@ -41,11 +46,32 @@ export const signup = async (req, res, next) => {
   });
 
   try {
-    await newUser.save();
-    res.json("Sign Up successful");
+    console.log("Sign Up successful");
+
+    const otpResult = await sendOTP(phoneNumber); // Get OTP from sendOTP function
+    if (otpResult.otp) {
+      OTP = otpResult.otp;
+      res.json(`OTP sent successfully to ${phoneNumber}`);
+      await newUser.save();
+    } else {
+      next(errorhandler(500, "Internal Server Error"));
+    }
   } catch (error) {
     next(error);
   }
+};
+export const verifyOTP = async (req, res, next) => {
+  const { otp } = req.body;
+  console.log(req.body);
+  if (!otp || otp === "") {
+    return next(errorhandler(400, "OTP is required."));
+  }
+  if (otp !== OTP) {
+    return next(errorhandler(400, "Invalid OTP"));
+  }
+
+  newUser.save();
+  res.json({ message: "OTP verified successfully" });
 };
 
 export const signin = async (req, res, next) => {

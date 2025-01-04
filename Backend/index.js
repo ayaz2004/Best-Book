@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRoutes from "./routes/user.route.js"; // We can change name as userRouter as we have exported as default.
 import authRoutes from "./routes/auth.route.js";
-
+import bookRoutes from "./routes/book.route.js";
+import reviewRoutes from "./routes/reviews.routes.js";
+import bodyParser from "body-parser";
 dotenv.config();
 
 mongoose
@@ -18,14 +20,16 @@ mongoose
 const app = express();
 
 app.use(express.json());
-
+app.use(bodyParser.json());
+app.use(express.static("public"));
 app.listen(3000, () => {
   console.log("Server is running on port 3000!");
 });
 
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
-
+app.use("/api/book", bookRoutes);
+app.use("/api/reviews", reviewRoutes);
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || "Internal Server Error";
