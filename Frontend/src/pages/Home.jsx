@@ -1,5 +1,10 @@
 import React from "react";
+import PopularBooks from "../components/PopularBooks";
 
 export default function Home() {
-  return <div>Home</div>;
+  return (
+    <div>
+      <PopularBooks />
+    </div>
+  );
 }
