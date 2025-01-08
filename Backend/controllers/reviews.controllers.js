@@ -1,5 +1,5 @@
 import Reviews from "../models/reviews.model.js";
-import { errorhandler } from "../utils/error.js";
+import { errorHandler } from "../utils/error.js";
 import User from "../models/user.model.js";
 import Book from "../models/book.model.js";
 export const addReview = async (req, res, next) => {
@@ -10,17 +10,17 @@ export const addReview = async (req, res, next) => {
     ) ||
     !rating
   ) {
-    next(errorhandler(400, "All fields are required."));
+    next(errorHandler(400, "All fields are required."));
   }
   const user = await User.findById(userid);
   if (!user) {
-    return next(errorhandler(404, `No user found with ID: ${userid}`));
+    return next(errorHandler(404, `No user found with ID: ${userid}`));
   }
 
   const Model = itemType === "Book" ? Book : "Quiz";
   const item = await Model.findById(itemId);
   if (!item) {
-    return next(errorhandler(400, "no item is found"));
+    return next(errorHandler(400, "no item is found"));
   }
 
   const newReview = new Reviews({
@@ -41,7 +41,7 @@ export const addReview = async (req, res, next) => {
       newReview,
     });
   } catch (error) {
-    next(errorhandler(500, "Database error"));
+    next(errorHandler(500, "Database error"));
   }
 };
 
@@ -51,7 +51,7 @@ export const updateReview = async (req, res, next) => {
   const review = await Reviews.findById(reviewsId);
 
   if (!review) {
-    return next(errorhandler(400, "no review found with passed id"));
+    return next(errorHandler(400, "no review found with passed id"));
   }
 
   try {
@@ -62,26 +62,26 @@ export const updateReview = async (req, res, next) => {
       review,
     });
   } catch (error) {
-    next(errorhandler(500, "Database error"));
+    next(errorHandler(500, "Database error"));
   }
 };
 
 export const deleteReview = async (req, res, next) => {
   const { reviewsId } = req.params;
   if (!reviewsId) {
-    return next(errorhandler(400, "Review ID is required"));
+    return next(errorHandler(400, "Review ID is required"));
   }
   try {
     const review = await Reviews.findById(reviewsId);
     if (!review) {
-      return next(errorhandler(404, "Review not found"));
+      return next(errorHandler(404, "Review not found"));
     }
     // getting the model based on item type
     const Model = review.itemType === "Book" ? Book : "Quiz";
 
     const item = await Model.findById(review.itemId);
     if (!item) {
-      return next(errorhandler(404, "Item not found"));
+      return next(errorHandler(404, "Item not found"));
     }
 
     // removing the review id from the item reviewsId array
@@ -89,14 +89,14 @@ export const deleteReview = async (req, res, next) => {
     await item.save();
     const deleteResponse = await Reviews.findByIdAndDelete(reviewsId);
     if (!deleteResponse) {
-      return next(errorhandler(404, "Review not found"));
+      return next(errorHandler(404, "Review not found"));
     }
     res.status(200).json({
       message: "Review deleted successfully ",
-      deleteResponse
+      deleteResponse,
     });
   } catch (error) {
     console.log(error.message);
-    next(errorhandler(500, error.message));
+    next(errorHandler(500, error.message));
   }
 };

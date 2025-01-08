@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRoutes from "./routes/user.route.js"; // We can change name as userRouter as we have exported as default.
 import authRoutes from "./routes/auth.route.js";
+import cookieParser from "cookie-parser";
 import bookRoutes from "./routes/book.route.js";
 import reviewRoutes from "./routes/reviews.routes.js";
 import bodyParser from "body-parser";
@@ -20,6 +21,7 @@ mongoose
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(express.static("public"));
 app.listen(3000, () => {
