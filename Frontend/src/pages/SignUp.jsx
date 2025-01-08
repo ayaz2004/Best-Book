@@ -42,6 +42,7 @@ export default function SignUp() {
       !formData.currentClass ||
       !formData.targetExam.length ||
       !formData.targetYear.length
+      
     ) {
       return setErrorMessage("PLease fill out all the fields.");
     }
@@ -53,7 +54,9 @@ export default function SignUp() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
+      
       const data = await res.json();
+      console.log(data.success);
       if (data.success === false) {
         return setErrorMessage(data.message);
       }

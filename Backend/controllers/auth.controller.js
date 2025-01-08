@@ -4,9 +4,9 @@ import { errorhandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
 import { sendOTP } from "../utils/Twilio.js";
 
-let OTP = "";
+const OTP_STORE = {};
 let newUser = null;
-
+let OTP = null;
 export const signup = async (req, res, next) => {
   const {
     username,
@@ -50,27 +50,51 @@ export const signup = async (req, res, next) => {
 
     const otpResult = await sendOTP(phoneNumber); // Get OTP from sendOTP function
     if (otpResult.otp) {
+      OTP_STORE[phoneNumber] = otpResult.otp;
+      OTP_STORE[`${phoneNumber}_user`] = {
+        username,
+        phoneNumber,
+        password: hashedPassword,
+        currentClass,
+        targetExam,
+        targetYear,
+      };
       OTP = otpResult.otp;
-      res.json(`OTP sent successfully to ${phoneNumber}`);
+      console.log(OTP);
+     return res.json({success:true,message:`OTP sent successfully to ${phoneNumber}`});
+
       await newUser.save();
     } else {
       next(errorhandler(500, "Internal Server Error"));
+      return res.json({ success: false, message: "Internal Server Error" });
     }
   } catch (error) {
-    next(error);
+    // return next(error);
   }
 };
 export const verifyOTP = async (req, res, next) => {
-  const { otp } = req.body;
+  const { otp,phoneNumber } = req.body;
   console.log(req.body);
-  if (!otp || otp === "") {
+  if (!otp || otp === "" || !phoneNumber || phoneNumber === "") {
     return next(errorhandler(400, "OTP is required."));
   }
-  if (otp !== OTP) {
+  if (!OTP_STORE[phoneNumber]) {
     return next(errorhandler(400, "Invalid OTP"));
   }
+  if(OTP_STORE[phoneNumber] !== otp){
+    return next(errorhandler(400, "Invalid OTP"));
+  }
+  const userData = OTP_STORE[`${phoneNumber}_user`];
+  if (!userData) {
+    return next(errorhandler(400, "User data not found. Please register again."));
+  }
 
-  newUser.save();
+  const user = new User(userData);
+  await user.save();
+
+  // Clear OTP and user data from the temporary store
+  delete OTP_STORE[phoneNumber];
+  delete OTP_STORE[`${phoneNumber}_user`];
   res.json({ message: "OTP verified successfully" });
 };
 
