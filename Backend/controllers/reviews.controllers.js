@@ -2,8 +2,9 @@ import Reviews from "../models/reviews.model.js";
 import { errorhandler } from "../utils/error.js";
 import User from "../models/user.model.js";
 import Book from "../models/book.model.js";
+import mongoose from "mongoose";
 export const addReview = async (req, res, next) => {
-  const { userid, description, rating, username, itemType, itemId } = req.body;
+  const { userid, description, rating, itemType, itemId } = req.body;
   if (
     [userid, description, itemType, itemId].some(
       (feild) => feild?.trim() === ""
@@ -27,6 +28,7 @@ export const addReview = async (req, res, next) => {
     userid: userid,
     description,
     rating,
+    username: user.username && user.username,
     itemId,
     itemType,
     username: user.username,
@@ -93,10 +95,53 @@ export const deleteReview = async (req, res, next) => {
     }
     res.status(200).json({
       message: "Review deleted successfully ",
-      deleteResponse
+      deleteResponse,
     });
   } catch (error) {
     console.log(error.message);
     next(errorhandler(500, error.message));
+  }
+};
+export const getReview = async (req, res, next) => {
+  const { bookId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(bookId)) {
+    return next(errorhandler(400, "Invalid book ID"));
+  }
+
+  try {
+    const reviews = await Reviews.aggregate([
+      {
+        $match: {
+          itemId: new mongoose.Types.ObjectId(bookId),
+        },
+      },
+      {
+        $group: {
+          _id: "$itemId", // Group by book ID
+          reviewsCount: { $sum: 1 }, // Count the number of reviews
+          reviews: {
+            $push: {
+              reviewId: "$_id", // Review ID
+              description: "$description", // Review description
+              userId: "$userid", // User ID
+            },
+          },
+        },
+      },
+    ]);
+
+    if (!reviews.length) {
+      return next(errorhandler(404, "No reviews found for this book"));
+    }
+
+    res.status(200).json({
+      message: "Reviews fetched successfully",
+      reviews: reviews[0].reviews, // Array of reviews with required fields
+      reviewsCount: reviews[0].reviewsCount, // Total count of reviews
+    });
+  } catch (error) {
+    console.error(error.message);
+    next(errorhandler(500, "Internal server error"));
   }
 };

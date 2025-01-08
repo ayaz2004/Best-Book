@@ -5,6 +5,10 @@ import userRoutes from "./routes/user.route.js"; // We can change name as userRo
 import authRoutes from "./routes/auth.route.js";
 import bookRoutes from "./routes/book.route.js";
 import reviewRoutes from "./routes/reviews.routes.js";
+import examRoutes from "./routes/exam.route.js";
+import subjectRoutes from "./routes/subject.route.js";
+import chapterRoutes from "./routes/chapter.route.js";
+import quizRoutes from  "./routes/quiz.routes.js"
 import bodyParser from "body-parser";
 dotenv.config();
 
@@ -30,6 +34,12 @@ app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/book", bookRoutes);
 app.use("/api/reviews", reviewRoutes);
+
+// following routes are for quiz and ther calling is nested as per there downward order
+app.use("/api/exams", examRoutes);
+app.use("/api/subjects", subjectRoutes);
+app.use("/api/chapters", chapterRoutes);
+app.use("/api/quizzes", quizRoutes);
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || "Internal Server Error";
