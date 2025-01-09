@@ -159,7 +159,7 @@ export default function DashProfile() {
               gradientDuoTone="purpleToPink"
               className="w-full"
             >
-              Create a product
+              Manage Books
             </Button>
           </Link>
         )}
