@@ -4,7 +4,7 @@ import {
   getBooks,
   uploadBooks,
   deleteBook,
-  updateBook
+  updateBook,
 } from "../controllers/book.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
 
@@ -12,7 +12,7 @@ const router = Router();
 
 // admin upload books
 router.post(
-  "/admin/ulpoadbook",
+  "/admin/uploadbook",
   upload.fields([
     {
       // field name in frontend
@@ -30,7 +30,7 @@ router.post(
 
 // admin get list of all books
 router.get("/admin/getbook", getBooks);
-// admin delete a particular book b y passing id
+// admin delete a particular book by passing id
 router.delete("/admin/deletebook/:bookId", deleteBook);
 // admin update a particular book by passing id
 router.put("/admin/updatebook/:bookId", updateBook);
