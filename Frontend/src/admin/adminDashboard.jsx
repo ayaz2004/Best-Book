@@ -97,7 +97,7 @@ const AdminDashboard = () => {
           ],
         });
         alert("Quiz added successfully!");
-        resetForm();
+        // resetForm();
       }
     } catch (error) {
       console.error("Error:", error);

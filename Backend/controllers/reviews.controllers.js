@@ -39,6 +39,7 @@ export const addReview = async (req, res, next) => {
     item.reviewsId = [...item.reviewsId, newReview._id];
     await item.save();
     res.status(200).send({
+      success: true,
       message: "reviewAdded success fully",
       newReview,
     });
@@ -60,6 +61,7 @@ export const updateReview = async (req, res, next) => {
     Object.assign(review, dataToUpdate);
     await review.save();
     res.status(200).send({
+      success: true,
       message: "review updated successfully",
       review,
     });
@@ -94,6 +96,7 @@ export const deleteReview = async (req, res, next) => {
       return next(errorhandler(404, "Review not found"));
     }
     res.status(200).json({
+      success: true,
       message: "Review deleted successfully ",
       deleteResponse,
     });
@@ -136,6 +139,7 @@ export const getReview = async (req, res, next) => {
     }
 
     res.status(200).json({
+      success: true,
       message: "Reviews fetched successfully",
       reviews: reviews[0].reviews, // Array of reviews with required fields
       reviewsCount: reviews[0].reviewsCount, // Total count of reviews

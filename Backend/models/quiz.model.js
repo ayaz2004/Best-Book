@@ -8,6 +8,9 @@ const questionSchema = new mongoose.Schema({
       isCorrect: { type: Boolean, required: true },
     },
   ],
+  questionFig:{type:String},
+  answerFig:{type:String},
+
   explanation: { type: String },
   difficulty: {
     type: String,

@@ -1,6 +1,7 @@
 import { Exam } from "../models/exam.model.js";
 import { Subject } from "../models/subject.model.js";
 import { errorhandler } from "../utils/error.js";
+import mongoose from "mongoose";
 export const addSubject = async (req, res, next) => {
   try {
     const { name, examId } = req.body;
@@ -51,5 +52,44 @@ export const addSubject = async (req, res, next) => {
   } catch (error) {
     console.error("Error adding subject:", error); // Log error for debugging
     next(errorhandler("An error occurred while adding the subject", 500));
+  }
+};
+export const getAllSubjectsByExamId = async (req, res, next) => {
+  const { examId } = req.params; // Use route params (or req.body/examId if needed)
+
+  try {
+    if (!examId) {
+      return next(errorhandler(400, "Exam ID is required"));
+    }
+    console.log("exam id", examId);
+    const subjects = await Subject.aggregate([
+      {
+        $match: {
+          exam: new mongoose.Types.ObjectId(examId), // Match the exam field in the Subject collection
+        },
+      },
+      {
+        $lookup: {
+          from: "exams", // Collection name for Exam
+          localField: "exam", // Field in the Subject collection
+          foreignField: "_id", // Field in the Exam collection
+          as: "examDetails", // Output array field
+        },
+      },
+    
+    ]);
+
+    if (!subjects.length) {
+      return next(errorhandler(404, "No subjects found for the provided exam ID"));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Subjects retrieved successfully",
+      subjects,
+    });
+  } catch (error) {
+    console.error("Error fetching subjects:", error); // Log error for debugging
+    next(errorhandler(500, "An error occurred while fetching subjects"));
   }
 };

@@ -57,6 +57,7 @@ export const uploadBooks = async (req, res, next) => {
 
     // Send success response
     res.status(201).json({
+      success:true,
       message: "Book uploaded successfully",
       book: newBook,
     });
@@ -79,6 +80,7 @@ export const deleteBook = async (req, res, next) => {
     }
 
     res.status(200).json({
+      success: true,
       message: "Book deleted successfully",
     });
   } catch (error) {
@@ -107,6 +109,7 @@ export const updateBook = async (req, res, next) => {
     await book.save({validateModifiedOnly:true});
 
     res.status(200).json({
+      success: true,
       message: "Book updated successfully",
       book,
     });
@@ -123,6 +126,7 @@ export const getBooks = async (req, res, next) => {
 
     // Send success response
     res.status(200).json({
+      success: true,
       message: "Books fetched successfully",
       books,
     });
@@ -145,6 +149,7 @@ export const getBookById = async (req, res, next) => {
     }
 
     res.status(200).json({
+      success: true,
       message: "Book fetched successfully",
       book,
     });

@@ -31,7 +31,7 @@ export const addExam = async (req, res, next) => {
     }
 
     res.status(200).send({
-      status:"true",
+      success:true,
       message: "Exam Added Successfully",
       exam: examResponse, // Ensure you're returning the correct ID
     });
@@ -56,6 +56,7 @@ export const updateExam = async (req, res, next) => {
     Object.assign(exam, updatedExamData);
     await exam.save();
     res.status(200).send({
+      success:true,
       message: "Exam Updated Successfully",
       exam,
     });
@@ -69,6 +70,7 @@ export const getAllExams = async (req, res, next) => {
   try {
     const exams = await Exam.find();
     res.status(200).send({
+      success:true,
       message: "All Exams",
       exams,
     });
@@ -85,6 +87,7 @@ export const getExamById = async (req, res, next) => {
       return next(errorhandler(400, "no exam found with passed id"));
     }
     res.status(200).send({
+      success:true,
       message: "Exam",
       exam,
     });
