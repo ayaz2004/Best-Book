@@ -1,6 +1,6 @@
 import { Exam } from "../models/exam.model.js";
 import { Subject } from "../models/subject.model.js";
-import { errorhandler } from "../utils/error.js";
+import { errorHandler } from "../utils/error.js";
 import mongoose from "mongoose";
 export const addSubject = async (req, res, next) => {
   try {
@@ -8,13 +8,13 @@ export const addSubject = async (req, res, next) => {
 
     // Validate input fields
     if (!name?.trim() || !examId?.trim()) {
-      return next(errorhandler(400, "Please fill all the fields"));
+      return next(errorHandler(400, "Please fill all the fields"));
     }
 
     // Check if the exam exists
     const exam = await Exam.findById(examId);
     if (!exam) {
-      return next(errorhandler(404, "Exam not found"));
+      return next(errorHandler(404, "Exam not found"));
     }
 
     // Normalize the name (optional, e.g., lowercase and trim spaces)
@@ -51,7 +51,7 @@ export const addSubject = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error adding subject:", error); // Log error for debugging
-    next(errorhandler("An error occurred while adding the subject", 500));
+    next(errorHandler("An error occurred while adding the subject", 500));
   }
 };
 export const getAllSubjectsByExamId = async (req, res, next) => {
@@ -59,7 +59,7 @@ export const getAllSubjectsByExamId = async (req, res, next) => {
 
   try {
     if (!examId) {
-      return next(errorhandler(400, "Exam ID is required"));
+      return next(errorHandler(400, "Exam ID is required"));
     }
     console.log("exam id", examId);
     const subjects = await Subject.aggregate([
@@ -80,7 +80,7 @@ export const getAllSubjectsByExamId = async (req, res, next) => {
     ]);
 
     if (!subjects.length) {
-      return next(errorhandler(404, "No subjects found for the provided exam ID"));
+      return next(errorHandler(404, "No subjects found for the provided exam ID"));
     }
 
     res.status(200).json({
@@ -90,6 +90,6 @@ export const getAllSubjectsByExamId = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error fetching subjects:", error); // Log error for debugging
-    next(errorhandler(500, "An error occurred while fetching subjects"));
+    next(errorHandler(500, "An error occurred while fetching subjects"));
   }
 };

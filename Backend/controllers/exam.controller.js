@@ -1,18 +1,18 @@
 import { Exam } from "../models/exam.model.js";
-import { errorhandler } from "../utils/error.js";
+import { errorHandler } from "../utils/error.js";
 export const addExam = async (req, res, next) => {
   try {
     let { name,description,discount,price } = req.body;
 
     // Ensure the name is present
     if (!name) {
-      return next(errorhandler(400, "All fields are required."));
+      return next(errorHandler(400, "All fields are required."));
     }
 
     if(!description){ description = "";}
     if(!discount){ discount = 0;}
     if(!price){
-      return next(errorhandler(400, "Price is required."));
+      return next(errorHandler(400, "Price is required."));
     }
     // Process the name to remove spaces and convert to lowercase
     name = name.replace(/\s+/g, "").toLowerCase(); // Remove spaces and convert to lowercase
@@ -37,7 +37,7 @@ export const addExam = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error saving exam:", error); // Log detailed error
-    next(errorhandler(500, "Database error"));
+    next(errorHandler(500, "Database error"));
   }
 };
 
@@ -50,7 +50,7 @@ export const updateExam = async (req, res, next) => {
     const exam = await Exam.findById(examId);
 
     if (!exam) {
-      return next(errorhandler(400, "no exam found with passed id"));
+      return next(errorHandler(400, "no exam found with passed id"));
     }
 
     Object.assign(exam, updatedExamData);
@@ -61,7 +61,7 @@ export const updateExam = async (req, res, next) => {
       exam,
     });
   } catch (error) {
-    next(errorhandler(500, "Database error"));
+    next(errorHandler(500, "Database error"));
   }
 };
 
@@ -75,7 +75,7 @@ export const getAllExams = async (req, res, next) => {
       exams,
     });
   } catch (error) {
-    next(errorhandler(500, "Database error"));
+    next(errorHandler(500, "Database error"));
   }
 }
 
@@ -84,7 +84,7 @@ export const getExamById = async (req, res, next) => {
     const { examId } = req.params;
     const exam = await Exam.findById(examId);
     if (!exam) {
-      return next(errorhandler(400, "no exam found with passed id"));
+      return next(errorHandler(400, "no exam found with passed id"));
     }
     res.status(200).send({
       success:true,
@@ -92,6 +92,6 @@ export const getExamById = async (req, res, next) => {
       exam,
     });
   } catch (error) {
-    next(errorhandler(500, "Database error"));
+    next(errorHandler(500, "Database error"));
   }
 }

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { Chapter } from "../models/chapter.model.js";
 import { Subject } from "../models/subject.model.js";
-import { errorhandler } from "../utils/error.js";
+import { errorHandler } from "../utils/error.js";
 
 export const addChapter = async (req, res, next) => {
   try {
@@ -9,13 +9,13 @@ export const addChapter = async (req, res, next) => {
 
     // Validate input fields
     if (!name?.trim() || !subjectId?.trim()) {
-      return next(errorhandler(400, "Please fill all the fields"));
+      return next(errorHandler(400, "Please fill all the fields"));
     }
 
     // Check if the subject exists
     const subject = await Subject.findById(subjectId);
     if (!subject) {
-      return next(errorhandler(404, "Subject not found"));
+      return next(errorHandler(404, "Subject not found"));
     }
 
     // Normalize the name (optional, e.g., lowercase and trim spaces)
@@ -51,7 +51,7 @@ export const addChapter = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error adding chapter:", error); // Log error for debugging
-    next(errorhandler("An error occurred while adding the chapter", 500));
+    next(errorHandler("An error occurred while adding the chapter", 500));
   }
 };
 
@@ -59,7 +59,7 @@ export const getChaptersBySubjectId = async (req, res, next) => {
   try {
     const { subjectId } = req.params;
     if (!subjectId) {
-      return next(errorhandler(400, "Please provide subject id"));
+      return next(errorHandler(400, "Please provide subject id"));
     }
     const chapters = await Chapter.aggregate([
       {
@@ -81,7 +81,7 @@ export const getChaptersBySubjectId = async (req, res, next) => {
     ]);
 
     if (!chapters.length) {
-      return next(errorhandler(404, "No chapters found"));
+      return next(errorHandler(404, "No chapters found"));
     }
 
     res.status(200).json({

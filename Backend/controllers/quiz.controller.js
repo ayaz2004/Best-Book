@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { Quiz } from "../models/quiz.model.js";
-import { errorhandler } from "../utils/error.js";
+import { errorHandler } from "../utils/error.js";
 import { uploadImagesToCloudinary } from "../utils/cloudinary.js";
 
 export const addQuiz = async (req, res, next) => {
@@ -83,7 +83,7 @@ export const addQuiz = async (req, res, next) => {
     }
   } catch (error) {
     console.error("Error creating/updating quiz:", error);
-    next(errorhandler(400, "An error occurred while creating the quiz."));
+    next(errorHandler(400, "An error occurred while creating the quiz."));
   }
 };
 
@@ -92,7 +92,7 @@ export const getQuizbyChapterId = async (req, res, next) => {
     const { chapterId } = req.params;
 
     if (!chapterId) {
-      return next(errorhandler(400, "Please provide a chapter ID"));
+      return next(errorHandler(400, "Please provide a chapter ID"));
     }
 
     const quizes = await Quiz.aggregate([
@@ -116,7 +116,7 @@ export const getQuizbyChapterId = async (req, res, next) => {
 
     if (!quizes || quizes.length === 0) {
       return next(
-        errorhandler(404, "No quiz found for the provided chapter ID")
+        errorHandler(404, "No quiz found for the provided chapter ID")
       );
     }
 
@@ -126,20 +126,20 @@ export const getQuizbyChapterId = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error fetching quizzes:", error);
-    next(errorhandler(500, "Database error"));
+    next(errorHandler(500, "Database error"));
   }
 };
 
 export const deleteQuiz = async (req, res, next) => {
   const { quizId } = req.params;
   if (!quizId) {
-    return next(errorhandler(400, "Quiz ID is required"));
+    return next(errorHandler(400, "Quiz ID is required"));
   }
 
   try {
     const quiz = await Quiz.findByIdAndDelete(quizId);
     if (!quiz) {
-      return next(errorhandler(404, "Quiz not found"));
+      return next(errorHandler(404, "Quiz not found"));
     }
 
     res.status(200).json({
@@ -148,6 +148,6 @@ export const deleteQuiz = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error.message);
-    next(errorhandler(500, error.message));
+    next(errorHandler(500, error.message));
   }
 };
