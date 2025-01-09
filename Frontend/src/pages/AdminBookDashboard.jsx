@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, TextInput } from "flowbite-react";
 import { HiPlus, HiPencilAlt, HiTrash } from "react-icons/hi";
-
 const AdminDashboard = () => {
   const [books, setBooks] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -18,7 +17,6 @@ const AdminDashboard = () => {
     coverImage: null,
     eBook: null,
   });
-
   // Fetch books from the server
   const fetchBooks = async () => {
     try {
@@ -30,11 +28,9 @@ const AdminDashboard = () => {
       console.error("Error fetching books:", error);
     }
   };
-
   useEffect(() => {
     fetchBooks();
   }, []);
-
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setBookData({
@@ -42,7 +38,6 @@ const AdminDashboard = () => {
       [name]: type === "checkbox" ? checked : value,
     });
   };
-
   const handleFileChange = (e) => {
     const { name } = e.target;
     setBookData({
@@ -50,51 +45,42 @@ const AdminDashboard = () => {
       [name]: e.target.files[0],
     });
   };
-
   const handleAddEditBook = async () => {
     const formData = new FormData();
     for (const key in bookData) {
       formData.append(key, bookData[key]);
     }
-
     try {
       const url = isEdit
         ? `/api/book/admin/updatebook/${bookData._id}`
         : "/api/book/admin/uploadbook";
       const method = isEdit ? "PUT" : "POST";
-
       const response = await fetch(url, {
         method,
         body: formData,
       });
-
       if (!response.ok) {
         throw new Error("Failed to add/update book.");
       }
-
       setShowModal(false);
       fetchBooks();
     } catch (error) {
       console.error("Error adding/updating book:", error);
     }
   };
-
   const handleDeleteBook = async (id) => {
     try {
       const response = await fetch(`/api/book/admin/deletebook/${id}`, {
         method: "DELETE",
       });
-
       if (!response.ok) {
         throw new Error("Failed to delete book.");
       }
-
       fetchBooks();
     } catch (error) {
       console.error("Error deleting book:", error);
     }
   };
-
   const openModal = (book = null) => {
     setIsEdit(!!book);
     setBookData(
@@ -113,7 +99,6 @@ const AdminDashboard = () => {
     );
     setShowModal(true);
   };
-
   return (
     <div className="p-5">
       <div className="flex justify-between items-center mb-5">
@@ -126,7 +111,6 @@ const AdminDashboard = () => {
           Add Book
         </Button>
       </div>
-
       <Table hoverable>
         <Table.Head>
           <Table.HeadCell>Title</Table.HeadCell>
@@ -165,7 +149,6 @@ const AdminDashboard = () => {
           ))}
         </Table.Body>
       </Table>
-
       <Modal
         show={showModal}
         onClose={() => setShowModal(false)}
@@ -265,5 +248,4 @@ const AdminDashboard = () => {
     </div>
   );
 };
-
 export default AdminDashboard;
