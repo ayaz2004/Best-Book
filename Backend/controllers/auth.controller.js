@@ -65,7 +65,7 @@ export const signup = async (req, res, next) => {
 
       await newUser.save();
     } else {
-      next(errorhandler(500, "Internal Server Error"));
+      next(errorHandler(500, "Internal Server Error"));
       return res.json({ success: false, message: "Internal Server Error" });
     }
   } catch (error) {
@@ -76,17 +76,17 @@ export const verifyOTP = async (req, res, next) => {
   const { otp,phoneNumber } = req.body;
   console.log(req.body);
   if (!otp || otp === "" || !phoneNumber || phoneNumber === "") {
-    return next(errorhandler(400, "OTP is required."));
+    return next(errorHandler(400, "OTP is required."));
   }
   if (!OTP_STORE[phoneNumber]) {
-    return next(errorhandler(400, "Invalid OTP"));
+    return next(errorHandler(400, "Invalid OTP"));
   }
   if(OTP_STORE[phoneNumber] !== otp){
-    return next(errorhandler(400, "Invalid OTP"));
+    return next(errorHandler(400, "Invalid OTP"));
   }
   const userData = OTP_STORE[`${phoneNumber}_user`];
   if (!userData) {
-    return next(errorhandler(400, "User data not found. Please register again."));
+    return next(errorHandler(400, "User data not found. Please register again."));
   }
 
   const user = new User(userData);

@@ -12,6 +12,7 @@ router.post(
     {
       name: "questionFigure",
       maxCount: 1,
+      
     },
     {
       name: "answerFigure",
