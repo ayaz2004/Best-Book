@@ -39,6 +39,10 @@ const userSchema = new mongoose.Schema(
         ref: "Book",
       },
     ],
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

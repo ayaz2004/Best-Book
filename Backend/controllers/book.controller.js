@@ -3,7 +3,7 @@ import {
   uploadImagesToCloudinary,
   uploadPdftoCloudinary,
 } from "../utils/cloudinary.js";
-import { errorhandler } from "../utils/error.js";
+import { errorHandler } from "../utils/error.js";
 
 // admin portion
 export const uploadBooks = async (req, res, next) => {
@@ -70,13 +70,13 @@ export const uploadBooks = async (req, res, next) => {
 export const deleteBook = async (req, res, next) => {
   const { bookId } = req.params;
   if (!bookId) {
-    return next(errorhandler(400, "Book ID is required"));
+    return next(errorHandler(400, "Book ID is required"));
   }
 
   try {
     const book = await Book.findByIdAndDelete(bookId);
     if (!book) {
-      return next(errorhandler(404, "Book not found"));
+      return next(errorHandler(404, "Book not found"));
     }
 
     res.status(200).json({
@@ -85,7 +85,7 @@ export const deleteBook = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error.message);
-    next(errorhandler(500, error.message));
+    next(errorHandler(500, error.message));
   }
 };
 
@@ -94,19 +94,19 @@ export const updateBook = async (req, res, next) => {
 
   const updateBookData = req.body;
   if (!bookId) {
-    return next(errorhandler(400, "Book ID is required"));
+    return next(errorHandler(400, "Book ID is required"));
   }
 
   try {
     const book = await Book.findById(bookId);
 
     if (!book) {
-      return next(errorhandler(404, "Book not found"));
+      return next(errorHandler(404, "Book not found"));
     }
 
     await Object.assign(book, updateBookData);
 
-    await book.save({validateModifiedOnly:true});
+    await book.save({ validateModifiedOnly: true });
 
     res.status(200).json({
       success: true,
@@ -115,7 +115,7 @@ export const updateBook = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error.message);
-    next(errorhandler(500, error.message));
+    next(errorHandler(500, error.message));
   }
 };
 
@@ -139,13 +139,13 @@ export const getBooks = async (req, res, next) => {
 export const getBookById = async (req, res, next) => {
   const { bookId } = req.params;
   if (!bookId) {
-    return next(errorhandler(400, "Book ID is required"));
+    return next(errorHandler(400, "Book ID is required"));
   }
 
   try {
     const book = await Book.findById(bookId);
     if (!book) {
-      return next(errorhandler(404, "Book not found"));
+      return next(errorHandler(404, "Book not found"));
     }
 
     res.status(200).json({
@@ -155,6 +155,6 @@ export const getBookById = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error.message);
-    next(errorhandler(500, error.message));
+    next(errorHandler(500, error.message));
   }
 };
