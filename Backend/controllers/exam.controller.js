@@ -2,13 +2,18 @@ import { Exam } from "../models/exam.model.js";
 import { errorhandler } from "../utils/error.js";
 export const addExam = async (req, res, next) => {
   try {
-    let { name } = req.body;
+    let { name,description,discount,price } = req.body;
 
     // Ensure the name is present
     if (!name) {
       return next(errorhandler(400, "All fields are required."));
     }
 
+    if(!description){ description = "";}
+    if(!discount){ discount = 0;}
+    if(!price){
+      return next(errorhandler(400, "Price is required."));
+    }
     // Process the name to remove spaces and convert to lowercase
     name = name.replace(/\s+/g, "").toLowerCase(); // Remove spaces and convert to lowercase
 
@@ -18,7 +23,7 @@ export const addExam = async (req, res, next) => {
     const exam = await Exam.findOne({ name });
     if (!exam) {
       // Create a new exam if it doesn't exist
-      const newExam = new Exam({ name });
+      const newExam = new Exam({ name,description,discount,price });
       examResponse = await newExam.save(); // Save the new exam
     } else {
       // Use the existing exam
@@ -26,6 +31,7 @@ export const addExam = async (req, res, next) => {
     }
 
     res.status(200).send({
+      status:"true",
       message: "Exam Added Successfully",
       exam: examResponse, // Ensure you're returning the correct ID
     });

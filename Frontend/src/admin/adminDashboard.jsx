@@ -6,8 +6,11 @@ const AdminDashboard = () => {
   const [formData, setFormData] = useState({
     examName: "",
     subjectName: "",
+    description:"",
     chapterName: "",
     quizTitle: "",
+    discount:0,
+    price:0,
     quizPrice: "",
     questionText: "",
     options: [{ text: "", isCorrect: false }],
@@ -54,6 +57,9 @@ const AdminDashboard = () => {
         // Add Exam
         const examResponse = await axios.post("/api/exams/addexam", {
           name: formData.examName,
+          description:formData.description,
+          discount:formData.discount,
+          price:formData.price
         });
         setIds((prev) => ({ ...prev, examId: examResponse.data.exam._id }));
         setStep(2);
@@ -104,6 +110,10 @@ const AdminDashboard = () => {
       examName: "",
       subjectName: "",
       chapterName: "",
+      description:"",
+
+      discount:0,
+      price:0,
       quizTitle: "",
       quizPrice: "",
       questionText: "",
@@ -127,6 +137,33 @@ const AdminDashboard = () => {
               type="text"
               name="examName"
               value={formData.examName}
+              onChange={handleInputChange}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              required
+            />
+              <label className="block text-sm font-medium text-gray-700">Description</label>
+            <input
+              type="text"
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              required
+            />
+              <label className="block text-sm font-medium text-gray-700">Price</label>
+            <input
+              type="Number"
+              name="price"
+              value={formData.price}
+              onChange={handleInputChange}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              required
+            />
+              <label className="block text-sm font-medium text-gray-700">Discount</label>
+            <input
+              type="Number"
+              name="discount"
+              value={formData.discount}
               onChange={handleInputChange}
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               required
