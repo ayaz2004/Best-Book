@@ -12,7 +12,7 @@ const router = Router();
 
 // admin upload books
 router.post(
-  "/admin/ulpoadbook",
+  "/admin/uploadbook",
   upload.fields([
     {
       // field name in frontend

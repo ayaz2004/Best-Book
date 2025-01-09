@@ -1,68 +1,68 @@
 import { Alert, Button, Modal, TextInput } from "flowbite-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
 import {
   deleteUserStart,
   deleteUserSuccess,
   deleteUserFailure,
   signoutSuccess,
 } from "../redux/user/userSlice";
-import { app } from "../firebase";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
+import { Link } from "react-router-dom";
 
 export default function DashProfile() {
   const { currentUser, error } = useSelector((state) => state.user);
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
-  const [imageFileUploadProgress, setImageFileUploadProgress] = useState(null);
   const [imageFileUploadError, setImageFileUploadError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const filePickerRef = useRef();
   const dispatch = useDispatch();
-  const handleImageChange = (e) => {
+
+  // Cloudinary Image Upload
+  const uploadImagesToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "profilePicture");
+    formData.append("cloud_name", "dniu1zxdq");
+
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/dniu1zxdq/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      const data = await response.json();
+      if (data.secure_url) {
+        console.log("Uploaded successfully:", data.secure_url);
+        return data.secure_url;
+      } else {
+        throw new Error("Failed to upload image");
+      }
+    } catch (error) {
+      console.error("Error uploading to Cloudinary:", error);
+      setImageFileUploadError("Failed to upload image. Please try again.");
+      return null;
+    }
+  };
+
+  // Handle Image Change
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       setImageFile(file);
-      setImageFileUrl(URL.createObjectURL(file));
-    }
-  };
-  useEffect(() => {
-    if (imageFile) {
-      uploadImage();
-    }
-  }, [imageFile]);
-
-  const uploadImage = async () => {
-    console.log("Uploading Image....");
-    const storage = getStorage(app);
-    const fileName = new Date().getTime() + imageFile.name;
-    const storageRef = ref(storage, fileName);
-    const uploadTask = uploadBytesResumable(storageRef, imageFile);
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progess = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setImageFileUploadProgress(progess.toFixed(0));
-      },
-      (error) => {
-        setImageFileUploadError(
-          "Could not upload image (File must be less than 2MB)"
-        );
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setImageFileUrl(downloadURL);
-        });
+      const url = await uploadImagesToCloudinary(file);
+      if (url) {
+        setImageFileUrl(url); // Set the uploaded image URL
+      } else {
+        setImageFileUploadError("Failed to upload image. Please try again.");
       }
-    );
+    }
   };
 
+  // Handle Delete User
   const handleDeleteUser = async () => {
     setShowModal(false);
     try {
@@ -81,6 +81,7 @@ export default function DashProfile() {
     }
   };
 
+  // Handle Sign Out
   const handleSignout = async () => {
     try {
       const res = await fetch("/api/user/signout", {
@@ -96,6 +97,20 @@ export default function DashProfile() {
       console.log(error.message);
     }
   };
+
+  // // Handle Form Submission (Update Profile)
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   // Implement your form submission logic here, for example:
+  //   // You might want to send the updated profile to your backend API.
+  //   console.log("Form submitted with data:", {
+  //     username: e.target.username.value,
+  //     phoneNumber: e.target.phoneNumber.value,
+  //     password: e.target.password.value,
+  //     profilePicture: imageFileUrl || currentUser.profilePicture, // Use uploaded image URL if available
+  //   });
+  // };
+
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="my-7 text-center font-semibold text-3xl">Profile</h1>
@@ -103,8 +118,8 @@ export default function DashProfile() {
         <input
           type="file"
           accept="image/*"
-          onChange={handleImageChange}
-          ref={filePickerRef}
+          // onChange={handleImageChange}
+          // ref={filePickerRef}
           hidden
         />
         <div
@@ -118,7 +133,7 @@ export default function DashProfile() {
               "/default-profile.png"
             }
             alt="user"
-            className="rounded-full w-full h-full  object-cover border-8 border-[lightgray]"
+            className="rounded-full w-full h-full object-cover border-8 border-[lightgray]"
           />
         </div>
         <TextInput
@@ -137,6 +152,17 @@ export default function DashProfile() {
         <Button type="submit" gradientDuoTone="purpleToBlue" outline>
           Update
         </Button>
+        {currentUser.isAdmin && (
+          <Link to={"/create-product"}>
+            <Button
+              type="button"
+              gradientDuoTone="purpleToPink"
+              className="w-full"
+            >
+              Create a product
+            </Button>
+          </Link>
+        )}
       </form>
       <div className="text-red-500 flex justify-between mt-5">
         <span onClick={() => setShowModal(true)} className="cursor-pointer">
@@ -151,6 +177,11 @@ export default function DashProfile() {
           {error}
         </Alert>
       )}
+      {imageFileUploadError && (
+        <Alert color="failure" className="mt-5">
+          {imageFileUploadError}
+        </Alert>
+      )}
       <Modal
         show={showModal}
         onClose={() => setShowModal(false)}
@@ -161,8 +192,8 @@ export default function DashProfile() {
         <Modal.Body>
           <div className="text-center">
             <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto" />
-            <h3 className="mb-5  text-lg text-gray-500">
-              Are you sure you want to delete ypur account?
+            <h3 className="mb-5 text-lg text-gray-500">
+              Are you sure you want to delete your account?
             </h3>
             <div className="flex justify-center gap-4">
               <Button color="failure" onClick={handleDeleteUser}>
