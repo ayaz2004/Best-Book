@@ -81,6 +81,7 @@ export const verifyOTP = async (req, res, next) => {
   if (!OTP_STORE[phoneNumber]) {
     return next(errorHandler(400, "Invalid OTP"));
   }
+  console.log(OTP_STORE[phoneNumber]);
   if(OTP_STORE[phoneNumber] !== otp){
     return next(errorHandler(400, "Invalid OTP"));
   }
