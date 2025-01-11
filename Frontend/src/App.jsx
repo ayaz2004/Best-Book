@@ -9,7 +9,7 @@ import Footer from "./components/Footer";
 import PrivateRoute from "./components/PrivateRoute";
 import OnlyAdminPrivateRoute from "./components/OnlyAdminPrivateRoute";
 import AdminDashboard from "./pages/AdminBookDashboard";
-
+import { TempDashBoard } from "./admin/TempAdminDashboard";
 export default function App() {
   return (
     <BrowserRouter>
@@ -19,6 +19,7 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/admin-dashboard" element={<TempDashBoard />} />
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>
@@ -28,5 +29,7 @@ export default function App() {
       </Routes>
       <Footer />
     </BrowserRouter>
+
+    
   );
 }

@@ -46,8 +46,7 @@ export const signup = async (req, res, next) => {
   });
 
   try {
-    console.log("Sign Up successful");
-
+    
     const otpResult = await sendOTP(phoneNumber); // Get OTP from sendOTP function
     if (otpResult.otp) {
       OTP_STORE[phoneNumber] = otpResult.otp;
@@ -105,9 +104,10 @@ export const signin = async (req, res, next) => {
   if (!username || !password || username === "" || password === "") {
     next(errorHandler(400, "All fields are required."));
   }
-
+  console.log(username)
   try {
     const validUser = await User.findOne({ username });
+    
     if (!validUser) {
       return next(errorHandler(404, "Wrong Credentials"));
     }

@@ -76,11 +76,20 @@ export const getAllSubjectsByExamId = async (req, res, next) => {
           as: "examDetails", // Output array field
         },
       },
-    
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          exam: 1,
+         
+        },
+      },
     ]);
 
     if (!subjects.length) {
-      return next(errorHandler(404, "No subjects found for the provided exam ID"));
+      return next(
+        errorHandler(404, "No subjects found for the provided exam ID")
+      );
     }
 
     res.status(200).json({

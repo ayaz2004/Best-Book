@@ -72,12 +72,17 @@ export const getChaptersBySubjectId = async (req, res, next) => {
           from: "subjects",
           localField: "subject",
           foreignField: "_id",
-          as: "subject",
+          as: "chapters",
         },
       },
+      
       {
-        $unwind: "$subject",
-      },
+        $project:{
+            _id:1,
+            name:1,
+            subject:1,
+        }
+      }
     ]);
 
     if (!chapters.length) {

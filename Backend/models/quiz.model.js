@@ -23,7 +23,7 @@ const questionSchema = new mongoose.Schema({
 const quizSchema = new mongoose.Schema(
   {
     title: { type: String, required: true,lowercase: true },
-    price: { type: Number, required: true },
+   
     chapterId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Chapter",

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const AdminDashboard = () => {
+const TempDashBoard = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     examName: "",
@@ -84,7 +84,7 @@ const AdminDashboard = () => {
         // Add Quiz
         await axios.post("/api/quizzes/addquiz", {
           title: formData.quizTitle,
-          price: formData.quizPrice,
+        
           chapterId: ids.chapterId,
           questions: [
             {
@@ -317,4 +317,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export  {TempDashBoard};
