@@ -50,22 +50,35 @@ function PrevArrow(props) {
   );
 }
 
-export default function PopularBooks() {
-  const [books, setBooks] = useState([]);
+function getRandomLightColor() {
+  const colors = [
+    "#FFB6C1",
+    "#FFDAB9",
+    "#E6E6FA",
+    "#FFFACD",
+    "#E0FFFF",
+    "#F0FFF0",
+    "#F5F5DC",
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+export default function PopularQuizzes() {
+  const [quizzes, setQuizzes] = useState([]);
 
   useEffect(() => {
-    const fetchBooks = async () => {
+    const fetchQuizzes = async () => {
       try {
-        const response = await fetch("/api/book/popularBooks");
-        if (!response.ok) throw new Error("Failed to fetch popular books.");
+        const response = await fetch("/api/quizzes/popularQuizzes");
+        if (!response.ok) throw new Error("Failed to fetch popular quizzes.");
         const data = await response.json();
-        setBooks(data.books);
+        setQuizzes(data.quizzes);
       } catch (error) {
-        console.error("Error fetching popular books:", error);
+        console.error("Error fetching popular quizzes:", error);
       }
     };
 
-    fetchBooks();
+    fetchQuizzes();
   }, []);
 
   const settings = {
@@ -105,24 +118,24 @@ export default function PopularBooks() {
 
   return (
     <div className="py-10">
-      <h2 className="text-2xl font-bold mb-4">Popular Books</h2>
+      <h2 className="text-2xl font-bold mb-4">Popular Quizzes</h2>
       <Slider {...settings}>
-        {books.map((book) => (
-          <div key={book._id} className="p-4">
-            <div className="bg-white p-4 rounded shadow">
-              <img
-                src={book.coverImage}
-                alt={book.title}
-                className="w-full h-64 object-cover mb-4"
-              />
-              <h3 className="text-lg font-semibold">{book.title}</h3>
-              <p>{book.description}</p>
+        {quizzes.map((quiz) => (
+          <div key={quiz._id} className="p-4">
+            <div
+              className="bg-white p-4 rounded shadow"
+              style={{ backgroundColor: getRandomLightColor() }}
+            >
+              <h3 className="text-lg font-semibold">{quiz.title}</h3>
+              <p>{quiz.chapterId?.subject?.exam?.name || "N/A"}</p>
+              <p>{quiz.chapterId?.subject?.name || "N/A"}</p>
+              <p>{quiz.chapterId?.name || "N/A"}</p>
             </div>
           </div>
         ))}
       </Slider>
       <div className="mt-4 text-right">
-        <Link to="/all-books">
+        <Link to="/all-quizzes">
           <button className="bg-blue-500 text-white px-4 py-2 rounded">
             See More
           </button>

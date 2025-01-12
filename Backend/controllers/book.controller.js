@@ -57,7 +57,7 @@ export const uploadBooks = async (req, res, next) => {
 
     // Send success response
     res.status(201).json({
-      success:true,
+      success: true,
       message: "Book uploaded successfully",
       book: newBook,
     });
@@ -156,5 +156,22 @@ export const getBookById = async (req, res, next) => {
   } catch (error) {
     console.log(error.message);
     next(errorHandler(500, error.message));
+  }
+};
+
+// Fetch popular books (example: based on stock or any other criteria)
+export const getPopularBooks = async (req, res, next) => {
+  try {
+    // Fetch books sorted by stock in descending order as an example
+    const books = await Book.find().sort({ stock: -1 }).limit(10);
+
+    res.status(200).json({
+      success: true,
+      message: "Popular books fetched successfully",
+      books,
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
 };

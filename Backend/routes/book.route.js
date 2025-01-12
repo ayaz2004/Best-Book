@@ -5,6 +5,7 @@ import {
   uploadBooks,
   deleteBook,
   updateBook,
+  getPopularBooks,
 } from "../controllers/book.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
 
@@ -37,4 +38,8 @@ router.put("/admin/updatebook/:bookId", updateBook);
 
 // for gettting details of book by id
 router.get("/getbookbyid/:bookId", getBookById);
+
+// new route for fetching popular books
+router.get("/popularBooks", getPopularBooks);
+
 export default router;

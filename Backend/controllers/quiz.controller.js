@@ -168,3 +168,31 @@ export const getAllQuizzes = async (req, res, next) => {
     next(error);
   }
 };
+
+// Fetch popular quizzes (example: based on some criteria)
+export const getPopularQuizzes = async (req, res, next) => {
+  try {
+    // Fetch quizzes sorted by some criteria as an example
+    const quizzes = await Quiz.find()
+      .populate({
+        path: "chapterId",
+        populate: {
+          path: "subject",
+          populate: {
+            path: "exam",
+          },
+        },
+      })
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    res.status(200).json({
+      success: true,
+      message: "Popular quizzes fetched successfully",
+      quizzes,
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};

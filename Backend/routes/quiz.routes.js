@@ -4,6 +4,7 @@ import {
   deleteQuiz,
   getQuizbyChapterId,
   getAllQuizzes,
+  getPopularQuizzes,
 } from "../controllers/quiz.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
 const router = Router();
@@ -24,4 +25,5 @@ router.post(
 router.get("/getquizbyid/:chapterId", getQuizbyChapterId);
 router.delete("/deletequiz/:quizId", deleteQuiz);
 router.get("/getallquizzes", getAllQuizzes);
+router.get("/popularQuizzes", getPopularQuizzes);
 export default router;
