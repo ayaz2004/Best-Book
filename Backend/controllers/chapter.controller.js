@@ -64,7 +64,7 @@ export const getChaptersBySubjectId = async (req, res, next) => {
     const chapters = await Chapter.aggregate([
       {
         $match: {
-          subject:new mongoose.Types.ObjectId(subjectId),
+          subject: new mongoose.Types.ObjectId(subjectId),
         },
       },
       {
@@ -75,14 +75,14 @@ export const getChaptersBySubjectId = async (req, res, next) => {
           as: "chapters",
         },
       },
-      
+
       {
-        $project:{
-            _id:1,
-            name:1,
-            subject:1,
-        }
-      }
+        $project: {
+          _id: 1,
+          name: 1,
+          subject: 1,
+        },
+      },
     ]);
 
     if (!chapters.length) {
@@ -94,4 +94,20 @@ export const getChaptersBySubjectId = async (req, res, next) => {
       chapters,
     });
   } catch (error) {}
+};
+
+export const getAllChapters = async (req, res, next) => {
+  try {
+    const chapters = await Chapter.find().select('_id name subject');;
+    if (!chapters.length) {
+      return next(errorHandler(404, "No chapters found"));
+    }
+    res.status(200).json({
+      success: true,
+      chapters,
+    });
+  } catch (error) {
+    console.error("Error getting chapters:", error);
+    return next(errorHandler("An error occurred while getting chapters", 500));
+  }
 };
