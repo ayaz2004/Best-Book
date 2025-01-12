@@ -217,7 +217,7 @@ const CreateQuiz = () => {
           throw new Error(quizData.message || "Failed to create quiz");
         }
 
-        navigate("/admin/manage-quiz");
+        navigate("/manage-quiz");
       }
     } catch (err) {
       setError(err.message);

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, TextInput } from "flowbite-react";
 import { HiPlus, HiPencilAlt, HiTrash } from "react-icons/hi";
-const AdminDashboard = () => {
+
+const AdminBookDashboard = () => {
   const [books, setBooks] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -17,6 +18,7 @@ const AdminDashboard = () => {
     coverImage: null,
     eBook: null,
   });
+
   // Fetch books from the server
   const fetchBooks = async () => {
     try {
@@ -28,9 +30,11 @@ const AdminDashboard = () => {
       console.error("Error fetching books:", error);
     }
   };
+
   useEffect(() => {
     fetchBooks();
   }, []);
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setBookData({
@@ -38,6 +42,7 @@ const AdminDashboard = () => {
       [name]: type === "checkbox" ? checked : value,
     });
   };
+
   const handleFileChange = (e) => {
     const { name } = e.target;
     setBookData({
@@ -45,6 +50,7 @@ const AdminDashboard = () => {
       [name]: e.target.files[0],
     });
   };
+
   const handleAddEditBook = async () => {
     const formData = new FormData();
     for (const key in bookData) {
@@ -68,6 +74,7 @@ const AdminDashboard = () => {
       console.error("Error adding/updating book:", error);
     }
   };
+
   const handleDeleteBook = async (id) => {
     try {
       const response = await fetch(`/api/book/admin/deletebook/${id}`, {
@@ -81,6 +88,7 @@ const AdminDashboard = () => {
       console.error("Error deleting book:", error);
     }
   };
+
   const openModal = (book = null) => {
     setIsEdit(!!book);
     setBookData(
@@ -99,15 +107,13 @@ const AdminDashboard = () => {
     );
     setShowModal(true);
   };
+
   return (
     <div className="p-5">
       <div className="flex justify-between items-center mb-5">
         <h1 className="text-2xl font-bold">Admin Dashboard - Manage Books</h1>
-        <Button
-          onClick={() => openModal()}
-          icon={HiPlus}
-          gradientDuoTone="greenToBlue"
-        >
+        <Button onClick={() => openModal()} gradientDuoTone="greenToBlue">
+          <HiPlus className="mr-2" />
           Add Book
         </Button>
       </div>
@@ -123,25 +129,25 @@ const AdminDashboard = () => {
           {books.map((book) => (
             <Table.Row key={book._id}>
               <Table.Cell>{book.title}</Table.Cell>
-              <Table.Cell>${book.price}</Table.Cell>
+              <Table.Cell>Rs {book.price}</Table.Cell>
               <Table.Cell>{book.stock}</Table.Cell>
               <Table.Cell>{book.targetExam}</Table.Cell>
               <Table.Cell>
                 <Button
                   onClick={() => openModal(book)}
-                  icon={HiPencilAlt}
                   size="xs"
                   gradientDuoTone="purpleToBlue"
                 >
+                  <HiPencilAlt className="mr-2" />
                   Edit
                 </Button>
                 <Button
                   onClick={() => handleDeleteBook(book._id)}
-                  icon={HiTrash}
                   size="xs"
                   gradientDuoTone="redToPink"
                   className="ml-2"
                 >
+                  <HiTrash className="mr-2" />
                   Delete
                 </Button>
               </Table.Cell>
@@ -161,47 +167,47 @@ const AdminDashboard = () => {
             <TextInput
               name="title"
               placeholder="Title"
-              value={bookData.title}
+              value={bookData.title || ""}
               onChange={handleInputChange}
             />
             <TextInput
               name="price"
               placeholder="Price"
-              value={bookData.price}
+              value={bookData.price || ""}
               onChange={handleInputChange}
               type="number"
             />
             <TextInput
               name="stock"
               placeholder="Stock"
-              value={bookData.stock}
+              value={bookData.stock || ""}
               onChange={handleInputChange}
               type="number"
             />
             <TextInput
               name="targetExam"
               placeholder="Target Exam"
-              value={bookData.targetExam}
+              value={bookData.targetExam || ""}
               onChange={handleInputChange}
             />
             <TextInput
               name="ebookDiscount"
               placeholder="eBook Discount"
-              value={bookData.ebookDiscount}
+              value={bookData.ebookDiscount || ""}
               onChange={handleInputChange}
               type="number"
             />
             <TextInput
               name="hardcopyDiscount"
               placeholder="Hardcopy Discount"
-              value={bookData.hardcopyDiscount}
+              value={bookData.hardcopyDiscount || ""}
               onChange={handleInputChange}
               type="number"
             />
             <textarea
               name="description"
               placeholder="Description"
-              value={bookData.description}
+              value={bookData.description || ""}
               onChange={handleInputChange}
               className="w-full border rounded p-2"
             ></textarea>
@@ -228,7 +234,7 @@ const AdminDashboard = () => {
                 <input
                   type="checkbox"
                   name="isEbookAvailable"
-                  checked={bookData.isEbookAvailable}
+                  checked={bookData.isEbookAvailable || false}
                   onChange={handleInputChange}
                 />
                 eBook Available
@@ -248,4 +254,5 @@ const AdminDashboard = () => {
     </div>
   );
 };
-export default AdminDashboard;
+
+export default AdminBookDashboard;

@@ -9,7 +9,7 @@ import Footer from "./components/Footer";
 import PrivateRoute from "./components/PrivateRoute";
 import OnlyAdminPrivateRoute from "./components/OnlyAdminPrivateRoute";
 import AdminBookDashboard from "./pages/AdminBookDashboard";
-import AdminQuizDashboard from "./pages/dminQuizDashboard";
+import AdminQuizDashboard from "./pages/AdminQuizDashboard";
 import CreateQuiz from "./pages/CreateQuiz";
 
 export default function App() {

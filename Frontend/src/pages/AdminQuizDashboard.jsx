@@ -10,7 +10,6 @@ const AdminQuizDashboard = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [quizData, setQuizData] = useState({
     title: "",
-    price: "",
     chapterId: "",
     questions: [],
   });
@@ -39,30 +38,6 @@ const AdminQuizDashboard = () => {
     });
   };
 
-  const handleAddEditQuiz = async () => {
-    const formData = new FormData();
-    for (const key in quizData) {
-      formData.append(key, quizData[key]);
-    }
-    try {
-      const url = isEdit
-        ? `/api/quizzes/updatequiz/${quizData._id}`
-        : "/api/quizzes/addquiz";
-      const method = isEdit ? "PUT" : "POST";
-      const response = await fetch(url, {
-        method,
-        body: formData,
-      });
-      if (!response.ok) {
-        throw new Error("Failed to add/update quiz.");
-      }
-      setShowModal(false);
-      fetchQuizzes();
-    } catch (error) {
-      console.error("Error adding/updating quiz:", error);
-    }
-  };
-
   const handleDeleteQuiz = async (id) => {
     try {
       const response = await fetch(`/api/quizzes/deletequiz/${id}`, {
@@ -82,7 +57,6 @@ const AdminQuizDashboard = () => {
     setQuizData(
       quiz || {
         title: "",
-        price: "",
         chapterId: "",
         questions: [],
       }
@@ -96,49 +70,57 @@ const AdminQuizDashboard = () => {
         <h1 className="text-2xl font-bold">Admin Dashboard - Manage Quizzes</h1>
         <Button
           onClick={() => navigate("/create-quiz")}
-          icon={HiPlus}
           gradientDuoTone="greenToBlue"
         >
-          Add Quiz
+          <HiPlus className="mr-2" />
+          Create Quiz
         </Button>
       </div>
       <Table hoverable>
         <Table.Head>
+          <Table.HeadCell>Creation Date</Table.HeadCell>
           <Table.HeadCell>Title</Table.HeadCell>
           <Table.HeadCell>Price</Table.HeadCell>
+          <Table.HeadCell>Discount Price</Table.HeadCell>
           <Table.HeadCell>Chapter</Table.HeadCell>
           <Table.HeadCell>Subject</Table.HeadCell>
           <Table.HeadCell>Exam</Table.HeadCell>
-          <Table.HeadCell>Creation Date</Table.HeadCell>
           <Table.HeadCell>Actions</Table.HeadCell>
         </Table.Head>
         <Table.Body>
           {quizzes.map((quiz) => (
             <Table.Row key={quiz._id}>
-              <Table.Cell>{quiz.title}</Table.Cell>
-              <Table.Cell>${quiz.price}</Table.Cell>
-              <Table.Cell>{quiz.chapter.name}</Table.Cell>
-              <Table.Cell>{quiz.chapter.subject.name}</Table.Cell>
-              <Table.Cell>{quiz.chapter.subject.exam.name}</Table.Cell>
               <Table.Cell>
                 {new Date(quiz.createdAt).toLocaleDateString()}
+              </Table.Cell>
+              <Table.Cell>{quiz.title}</Table.Cell>
+              <Table.Cell>
+                Rs {quiz.chapterId?.subject?.exam?.price || "N/A"}
+              </Table.Cell>
+              <Table.Cell>
+                Rs {quiz.chapterId?.subject?.exam?.discount || "N/A"}
+              </Table.Cell>
+              <Table.Cell>{quiz.chapterId?.name || "N/A"}</Table.Cell>
+              <Table.Cell>{quiz.chapterId?.subject?.name || "N/A"}</Table.Cell>
+              <Table.Cell>
+                {quiz.chapterId?.subject?.exam?.name || "N/A"}
               </Table.Cell>
               <Table.Cell>
                 <Button
                   onClick={() => openModal(quiz)}
-                  icon={HiPencilAlt}
                   size="xs"
                   gradientDuoTone="purpleToBlue"
                 >
+                  <HiPencilAlt className="mr-2" />
                   Edit
                 </Button>
                 <Button
                   onClick={() => handleDeleteQuiz(quiz._id)}
-                  icon={HiTrash}
                   size="xs"
                   gradientDuoTone="redToPink"
                   className="ml-2"
                 >
+                  <HiTrash className="mr-2" />
                   Delete
                 </Button>
               </Table.Cell>
@@ -158,27 +140,20 @@ const AdminQuizDashboard = () => {
             <TextInput
               name="title"
               placeholder="Title"
-              value={quizData.title}
+              value={quizData.title || ""}
               onChange={handleInputChange}
-            />
-            <TextInput
-              name="price"
-              placeholder="Price"
-              value={quizData.price}
-              onChange={handleInputChange}
-              type="number"
             />
             <TextInput
               name="chapterId"
               placeholder="Chapter ID"
-              value={quizData.chapterId}
+              value={quizData.chapterId || ""}
               onChange={handleInputChange}
             />
             {/* Add more fields as needed */}
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={handleAddEditQuiz}>
+          <Button onClick={() => setShowModal(false)}>
             {isEdit ? "Update" : "Add"}
           </Button>
           <Button color="gray" onClick={() => setShowModal(false)}>
