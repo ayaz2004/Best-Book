@@ -5,12 +5,12 @@ import { uploadImagesToCloudinary } from "../utils/cloudinary.js";
 
 export const addQuiz = async (req, res, next) => {
   try {
-    const { title, price, chapterId, questions } = req.body;
+    const { title,  chapterId, questions } = req.body;
 
     // Validate input
     if (
       !title ||
-      !price ||
+      
       !chapterId ||
       !Array.isArray(questions) ||
       questions.length === 0
@@ -72,7 +72,7 @@ export const addQuiz = async (req, res, next) => {
       // Create a new quiz
       quiz = new Quiz({
         title,
-        price,
+      
         chapterId,
         questions: processedQuestions,
       });

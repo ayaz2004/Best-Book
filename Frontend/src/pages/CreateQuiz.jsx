@@ -212,7 +212,7 @@ const CreateQuiz = () => {
           body: quizFormData,
         });
 
-        const quizData = await quizResponse.json();
+        const quizData = await quizResponse;
         if (!quizResponse.ok) {
           throw new Error(quizData.message || "Failed to create quiz");
         }
