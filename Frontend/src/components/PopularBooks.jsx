@@ -50,6 +50,19 @@ function PrevArrow(props) {
   );
 }
 
+function getRandomLightColor() {
+  const colors = [
+    "#FFB6C1",
+    "#FFDAB9",
+    "#E6E6FA",
+    "#FFFACD",
+    "#E0FFFF",
+    "#F0FFF0",
+    "#F5F5DC",
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
 export default function PopularBooks() {
   const [books, setBooks] = useState([]);
 
@@ -109,14 +122,18 @@ export default function PopularBooks() {
       <Slider {...settings}>
         {books.map((book) => (
           <div key={book._id} className="p-4">
-            <div className="bg-white p-4 rounded shadow">
+            <div
+              className="bg-white p-4 rounded shadow"
+              style={{ backgroundColor: getRandomLightColor() }}
+            >
               <img
                 src={book.coverImage}
                 alt={book.title}
                 className="w-full h-64 object-cover mb-4"
               />
-              <h3 className="text-lg font-semibold">{book.title}</h3>
-              <p>{book.description}</p>
+              <h3 className="text-lg font-semibold text-center">
+                {book.title}
+              </h3>
             </div>
           </div>
         ))}

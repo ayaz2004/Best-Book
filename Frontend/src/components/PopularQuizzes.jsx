@@ -124,12 +124,15 @@ export default function PopularQuizzes() {
           <div key={quiz._id} className="p-4">
             <div
               className="bg-white p-4 rounded shadow"
-              style={{ backgroundColor: getRandomLightColor() }}
+              style={{
+                backgroundColor: getRandomLightColor(),
+                textAlign: "center",
+              }}
             >
               <h3 className="text-lg font-semibold">{quiz.title}</h3>
-              <p>{quiz.chapterId?.subject?.exam?.name || "N/A"}</p>
-              <p>{quiz.chapterId?.subject?.name || "N/A"}</p>
-              <p>{quiz.chapterId?.name || "N/A"}</p>
+              <p>Exam: {quiz.chapterId?.subject?.exam?.name || "N/A"}</p>
+              <p>Subject: {quiz.chapterId?.subject?.name || "N/A"}</p>
+              <p>Chapter: {quiz.chapterId?.name || "N/A"}</p>
             </div>
           </div>
         ))}
