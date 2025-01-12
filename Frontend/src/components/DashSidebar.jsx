@@ -51,13 +51,24 @@ export default function DashSidebar() {
             </Sidebar.Item>
           </Link>
           {currentUser && currentUser.isAdmin && (
-            <Link to="/create-product">
+            <Link to="/manage-books">
               <Sidebar.Item
                 active={tab === "manage-books"}
                 icon={HiBookOpen}
                 as="div"
               >
                 Manage Books
+              </Sidebar.Item>
+            </Link>
+          )}
+          {currentUser && currentUser.isAdmin && (
+            <Link to="/manage-quiz">
+              <Sidebar.Item
+                active={tab === "manage-quiz"}
+                icon={HiBookOpen}
+                as="div"
+              >
+                Manage Quiz
               </Sidebar.Item>
             </Link>
           )}

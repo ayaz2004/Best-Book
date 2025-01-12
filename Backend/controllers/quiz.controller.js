@@ -151,3 +151,20 @@ export const deleteQuiz = async (req, res, next) => {
     next(errorHandler(500, error.message));
   }
 };
+
+export const getAllQuizzes = async (req, res, next) => {
+  try {
+    const quizzes = await Quiz.find().populate({
+      path: "chapters",
+      populate: {
+        path: "subjects",
+        populate: {
+          path: "exams",
+        },
+      },
+    });
+    res.status(200).json({ quizzes });
+  } catch (error) {
+    next(error);
+  }
+};

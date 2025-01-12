@@ -3,6 +3,7 @@ import {
   addQuiz,
   deleteQuiz,
   getQuizbyChapterId,
+  getAllQuizzes,
 } from "../controllers/quiz.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
 const router = Router();
@@ -12,7 +13,6 @@ router.post(
     {
       name: "questionFigure",
       maxCount: 1,
-      
     },
     {
       name: "answerFigure",
@@ -23,4 +23,5 @@ router.post(
 );
 router.get("/getquizbyid/:chapterId", getQuizbyChapterId);
 router.delete("/deletequiz/:quizId", deleteQuiz);
+router.get("/getallquizzes", getAllQuizzes);
 export default router;

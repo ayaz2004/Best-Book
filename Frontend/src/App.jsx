@@ -8,7 +8,9 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import PrivateRoute from "./components/PrivateRoute";
 import OnlyAdminPrivateRoute from "./components/OnlyAdminPrivateRoute";
-import AdminDashboard from "./pages/AdminBookDashboard";
+import AdminBookDashboard from "./pages/AdminBookDashboard";
+import AdminQuizDashboard from "./pages/dminQuizDashboard";
+import CreateQuiz from "./pages/CreateQuiz";
 
 export default function App() {
   return (
@@ -23,7 +25,9 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>
         <Route element={<OnlyAdminPrivateRoute />}>
-          <Route path="/create-product" element={<AdminDashboard />} />
+          <Route path="/manage-books" element={<AdminBookDashboard />} />
+          <Route path="/manage-quiz" element={<AdminQuizDashboard />} />
+          <Route path="/create-quiz" element={<CreateQuiz />} />
         </Route>
       </Routes>
       <Footer />

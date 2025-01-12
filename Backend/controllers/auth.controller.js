@@ -61,7 +61,10 @@ export const signup = async (req, res, next) => {
       };
       OTP = otpResult.otp;
       console.log(OTP);
-     return res.json({success:true,message:`OTP sent successfully to ${phoneNumber}`});
+      return res.json({
+        success: true,
+        message: `OTP sent successfully to ${phoneNumber}`,
+      });
 
       await newUser.save();
     } else {
@@ -72,8 +75,9 @@ export const signup = async (req, res, next) => {
     // return next(error);
   }
 };
+
 export const verifyOTP = async (req, res, next) => {
-  const { otp,phoneNumber } = req.body;
+  const { otp, phoneNumber } = req.body;
   console.log(req.body);
   if (!otp || otp === "" || !phoneNumber || phoneNumber === "") {
     return next(errorHandler(400, "OTP is required."));
@@ -81,12 +85,14 @@ export const verifyOTP = async (req, res, next) => {
   if (!OTP_STORE[phoneNumber]) {
     return next(errorHandler(400, "Invalid OTP"));
   }
-  if(OTP_STORE[phoneNumber] !== otp){
+  if (OTP_STORE[phoneNumber] !== otp) {
     return next(errorHandler(400, "Invalid OTP"));
   }
   const userData = OTP_STORE[`${phoneNumber}_user`];
   if (!userData) {
-    return next(errorHandler(400, "User data not found. Please register again."));
+    return next(
+      errorHandler(400, "User data not found. Please register again.")
+    );
   }
 
   const user = new User(userData);
