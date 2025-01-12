@@ -119,6 +119,7 @@ const AdminBookDashboard = () => {
       </div>
       <Table hoverable>
         <Table.Head>
+          <Table.HeadCell>Creation Date</Table.HeadCell>
           <Table.HeadCell>Title</Table.HeadCell>
           <Table.HeadCell>Price</Table.HeadCell>
           <Table.HeadCell>Stock</Table.HeadCell>
@@ -128,7 +129,17 @@ const AdminBookDashboard = () => {
         <Table.Body>
           {books.map((book) => (
             <Table.Row key={book._id}>
-              <Table.Cell>{book.title}</Table.Cell>
+              <Table.Cell>
+                {new Date(book.createdAt).toLocaleDateString()}
+              </Table.Cell>
+              <Table.Cell>
+                <img
+                  src={book.coverImage}
+                  alt={book.title}
+                  style={{ width: "50px", height: "50px", marginRight: "10px" }}
+                />
+                {book.title}
+              </Table.Cell>
               <Table.Cell>Rs {book.price}</Table.Cell>
               <Table.Cell>{book.stock}</Table.Cell>
               <Table.Cell>{book.targetExam}</Table.Cell>
@@ -150,6 +161,16 @@ const AdminBookDashboard = () => {
                   <HiTrash className="mr-2" />
                   Delete
                 </Button>
+                {book.eBook && (
+                  <Button
+                    onClick={() => window.open(book.eBook, "_blank")}
+                    size="xs"
+                    gradientDuoTone="blueToGreen"
+                    className="ml-2"
+                  >
+                    View PDF
+                  </Button>
+                )}
               </Table.Cell>
             </Table.Row>
           ))}
