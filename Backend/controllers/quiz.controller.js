@@ -154,15 +154,7 @@ export const deleteQuiz = async (req, res, next) => {
 
 export const getAllQuizzes = async (req, res, next) => {
   try {
-    const quizzes = await Quiz.find().populate({
-      path: "chapters",
-      populate: {
-        path: "subjects",
-        populate: {
-          path: "exams",
-        },
-      },
-    });
+    const quizzes = await Quiz.find()
     res.status(200).json({ quizzes });
   } catch (error) {
     next(error);
