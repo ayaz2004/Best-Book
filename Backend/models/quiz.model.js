@@ -29,7 +29,7 @@ const quizSchema = new mongoose.Schema(
       ref: "Chapter",
       required: true,
     },
-    price: { type: Number, required: true },
+    price: { type: Number },
     discountPrice: { type: Number, default: 0 },
     questions: [questionSchema], // Embedded questions
   },
