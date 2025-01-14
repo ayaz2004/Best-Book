@@ -22,7 +22,7 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
-        <Route path="/admin-dashboard" element={<TempDashBoard />} />
+        {/* <Route path="/admin-dashboard" element={<TempDashBoard />} /> */}
         <Route element={<PrivateRoute />}>
           <Route path="/book/:bookId" element={<BookDetails />} />
           <Route path="/dashboard" element={<Dashboard />} />

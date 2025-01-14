@@ -86,6 +86,10 @@ export default function DashProfile() {
     try {
       const res = await fetch("/api/user/signout", {
         method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
       const data = await res.json();
       if (!res.ok) {

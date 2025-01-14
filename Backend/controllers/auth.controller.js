@@ -108,7 +108,7 @@ export const signin = async (req, res, next) => {
   const { username, password } = req.body;
 
   if (!username || !password || username === "" || password === "") {
-    next(errorHandler(400, "All fields are required."));
+    return next(errorHandler(400, "All fields are required."));
   }
 
   try {
@@ -122,12 +122,27 @@ export const signin = async (req, res, next) => {
     }
     const token = jwt.sign(
       { id: validUser._id, isAdmin: validUser.isAdmin },
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
     );
+    const sessionToken = jwt.sign(
+      { id: validUser._id, isAdmin: validUser.isAdmin },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+
+    // Save the tokens in the user's record
+    validUser.currentToken = token;
+    validUser.sessionToken = sessionToken;
+    await validUser.save();
+
     const { password: pass, ...rest } = validUser._doc;
     res
       .status(200)
       .cookie("access_token", token, {
+        httpOnly: true,
+      })
+      .cookie("session_token", sessionToken, {
         httpOnly: true,
       })
       .json(rest);
