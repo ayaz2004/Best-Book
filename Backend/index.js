@@ -10,6 +10,7 @@ import examRoutes from "./routes/exam.route.js";
 import subjectRoutes from "./routes/subject.route.js";
 import chapterRoutes from "./routes/chapter.route.js";
 import quizRoutes from  "./routes/quiz.routes.js"
+import cartRoutes from "./routes/cart.route.js";
 import bodyParser from "body-parser";
 dotenv.config();
 
@@ -42,6 +43,8 @@ app.use("/api/exams", examRoutes);
 app.use("/api/subjects", subjectRoutes);
 app.use("/api/chapters", chapterRoutes);
 app.use("/api/quizzes", quizRoutes);
+// cart
+app.use("/api/cart", cartRoutes);
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || "Internal Server Error";
