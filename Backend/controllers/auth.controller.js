@@ -95,7 +95,7 @@ export const verifyOTP = async (req, res, next) => {
   // Clear OTP and user data from the temporary store
   delete OTP_STORE[phoneNumber];
   delete OTP_STORE[`${phoneNumber}_user`];
-  res.json({ message: "OTP verified successfully" });
+  res.json({ success:true,message: "OTP verified successfully" });
 };
 
 export const signin = async (req, res, next) => {
