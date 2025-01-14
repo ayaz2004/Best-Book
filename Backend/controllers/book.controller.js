@@ -123,7 +123,7 @@ export const getBooks = async (req, res, next) => {
   try {
     // Fetch all books from the database
     const books = await Book.find();
-
+    console.log(req.user);
     // Send success response
     res.status(200).json({
       success: true,
