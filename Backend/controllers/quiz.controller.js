@@ -5,13 +5,11 @@ import { uploadImagesToCloudinary } from "../utils/cloudinary.js";
 
 export const addQuiz = async (req, res, next) => {
   try {
-    const { title,  chapterId, questions } = req.body;
+    const { title, chapterId, questions } = req.body;
 
-  
     // Validate input
     if (
       !title ||
-      
       !chapterId ||
       !Array.isArray(questions) ||
       questions.length === 0
@@ -73,6 +71,7 @@ export const addQuiz = async (req, res, next) => {
       // Create a new quiz
       quiz = new Quiz({
         title,
+
         chapterId,
         questions: processedQuestions,
       });
@@ -116,9 +115,8 @@ export const getQuizbyChapterId = async (req, res, next) => {
         $project: {
           title: 1,
           questions: 1,
-          
         },
-      }
+      },
     ]);
 
     if (!quizes || quizes.length === 0) {
@@ -156,5 +154,51 @@ export const deleteQuiz = async (req, res, next) => {
   } catch (error) {
     console.log(error.message);
     next(errorHandler(500, error.message));
+  }
+};
+
+export const getAllQuizzes = async (req, res, next) => {
+  try {
+    const quizzes = await Quiz.find().populate({
+      path: "chapterId",
+      populate: {
+        path: "subject",
+        populate: {
+          path: "exam",
+        },
+      },
+    });
+    res.status(200).json({ quizzes });
+  } catch (error) {
+    console.error("Error fetching quizzes:", error);
+    next(error);
+  }
+};
+
+// Fetch popular quizzes (example: based on some criteria)
+export const getPopularQuizzes = async (req, res, next) => {
+  try {
+    // Fetch quizzes sorted by some criteria as an example
+    const quizzes = await Quiz.find()
+      .populate({
+        path: "chapterId",
+        populate: {
+          path: "subject",
+          populate: {
+            path: "exam",
+          },
+        },
+      })
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    res.status(200).json({
+      success: true,
+      message: "Popular quizzes fetched successfully",
+      quizzes,
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
 };

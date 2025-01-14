@@ -46,7 +46,8 @@ export const signup = async (req, res, next) => {
   });
 
   try {
-    
+    console.log("Sign Up successful");
+
     const otpResult = await sendOTP(phoneNumber); // Get OTP from sendOTP function
     if (otpResult.otp) {
       OTP_STORE[phoneNumber] = otpResult.otp;
@@ -60,7 +61,10 @@ export const signup = async (req, res, next) => {
       };
       OTP = otpResult.otp;
       console.log(OTP);
-     return res.json({success:true,message:`OTP sent successfully to ${phoneNumber}`});
+      return res.json({
+        success: true,
+        message: `OTP sent successfully to ${phoneNumber}`,
+      });
 
       await newUser.save();
     } else {
@@ -71,8 +75,9 @@ export const signup = async (req, res, next) => {
     // return next(error);
   }
 };
+
 export const verifyOTP = async (req, res, next) => {
-  const { otp,phoneNumber } = req.body;
+  const { otp, phoneNumber } = req.body;
   console.log(req.body);
   if (!otp || otp === "" || !phoneNumber || phoneNumber === "") {
     return next(errorHandler(400, "OTP is required."));
@@ -80,13 +85,14 @@ export const verifyOTP = async (req, res, next) => {
   if (!OTP_STORE[phoneNumber]) {
     return next(errorHandler(400, "Invalid OTP"));
   }
-  console.log(OTP_STORE[phoneNumber]);
-  if(OTP_STORE[phoneNumber] !== otp){
+  if (OTP_STORE[phoneNumber] !== otp) {
     return next(errorHandler(400, "Invalid OTP"));
   }
   const userData = OTP_STORE[`${phoneNumber}_user`];
   if (!userData) {
-    return next(errorHandler(400, "User data not found. Please register again."));
+    return next(
+      errorHandler(400, "User data not found. Please register again.")
+    );
   }
 
   const user = new User(userData);
@@ -95,7 +101,7 @@ export const verifyOTP = async (req, res, next) => {
   // Clear OTP and user data from the temporary store
   delete OTP_STORE[phoneNumber];
   delete OTP_STORE[`${phoneNumber}_user`];
-  res.json({ success:true,message: "OTP verified successfully" });
+  res.json({ message: "OTP verified successfully" });
 };
 
 export const signin = async (req, res, next) => {
@@ -104,10 +110,9 @@ export const signin = async (req, res, next) => {
   if (!username || !password || username === "" || password === "") {
     next(errorHandler(400, "All fields are required."));
   }
-  console.log(username)
+
   try {
     const validUser = await User.findOne({ username });
-    
     if (!validUser) {
       return next(errorHandler(404, "Wrong Credentials"));
     }

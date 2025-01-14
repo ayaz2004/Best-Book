@@ -1,15 +1,15 @@
 import mongoose from "mongoose";
 
 const questionSchema = new mongoose.Schema({
-  text: { type: String, required: true,lowercase: true },
+  text: { type: String, required: true, lowercase: true },
   options: [
     {
       text: { type: String, required: true },
       isCorrect: { type: Boolean, required: true },
     },
   ],
-  questionFig:{type:String},
-  answerFig:{type:String},
+  questionFig: { type: String },
+  answerFig: { type: String },
 
   explanation: { type: String },
   difficulty: {
@@ -22,13 +22,15 @@ const questionSchema = new mongoose.Schema({
 
 const quizSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true,lowercase: true },
-   
+    title: { type: String, required: true, lowercase: true },
+
     chapterId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Chapter",
       required: true,
     },
+    price: { type: Number },
+    discountPrice: { type: Number, default: 0 },
     questions: [questionSchema], // Embedded questions
   },
   { timestamps: true }
