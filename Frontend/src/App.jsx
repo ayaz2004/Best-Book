@@ -11,6 +11,7 @@ import OnlyAdminPrivateRoute from "./components/OnlyAdminPrivateRoute";
 import AdminBookDashboard from "./pages/AdminBookDashboard";
 import AdminQuizDashboard from "./pages/AdminQuizDashboard";
 import CreateQuiz from "./pages/CreateQuiz";
+import BookDetails from "./pages/BookDetails";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route element={<PrivateRoute />}>
+          <Route path="/book/:bookId" element={<BookDetails />} />
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>
         <Route element={<OnlyAdminPrivateRoute />}>

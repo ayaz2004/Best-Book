@@ -122,19 +122,21 @@ export default function PopularBooks() {
       <Slider {...settings}>
         {books.map((book) => (
           <div key={book._id} className="p-4">
-            <div
-              className="bg-white p-4 rounded shadow"
-              style={{ backgroundColor: getRandomLightColor() }}
-            >
-              <img
-                src={book.coverImage}
-                alt={book.title}
-                className="w-full h-64 object-cover mb-4"
-              />
-              <h3 className="text-lg font-semibold text-center">
-                {book.title}
-              </h3>
-            </div>
+            <Link to={`/book/${book._id}`}>
+              <div
+                className="bg-white p-4 rounded shadow"
+                style={{ backgroundColor: getRandomLightColor() }}
+              >
+                <img
+                  src={book.coverImage}
+                  alt={book.title}
+                  className="w-full h-64 object-cover mb-4"
+                />
+                <h3 className="text-lg font-semibold text-center">
+                  {book.title}
+                </h3>
+              </div>
+            </Link>
           </div>
         ))}
       </Slider>
