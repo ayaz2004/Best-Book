@@ -12,6 +12,7 @@ import AdminBookDashboard from "./pages/AdminBookDashboard";
 import AdminQuizDashboard from "./pages/AdminQuizDashboard";
 import CreateQuiz from "./pages/CreateQuiz";
 import BookDetails from "./pages/BookDetails";
+import AllBooks from "./pages/AllBooks";
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/sign-up" element={<SignUp />} />
         {/* <Route path="/admin-dashboard" element={<TempDashBoard />} /> */}
         <Route element={<PrivateRoute />}>
+          <Route path="/all-books" element={<AllBooks />} />
           <Route path="/book/:bookId" element={<BookDetails />} />
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>
