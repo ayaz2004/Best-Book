@@ -6,6 +6,7 @@ import {
   deleteBook,
   updateBook,
   getPopularBooks,
+  getAllBooksByExams
 } from "../controllers/book.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
 
@@ -39,7 +40,8 @@ router.put("/admin/updatebook/:bookId", updateBook);
 
 // for gettting details of book by id
 router.get("/getbookbyid/:bookId", getBookById);
-
+// for getting all books by exam
+router.get("/getbookbyexam/:exam", getAllBooksByExams);
 // new route for fetching popular books
 router.get("/popularBooks", getPopularBooks);
 

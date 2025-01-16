@@ -175,3 +175,29 @@ export const getPopularBooks = async (req, res, next) => {
     next(error);
   }
 };
+
+// fetch book by exam
+
+export const getAllBooksByExams = async (req, res, next) => {
+  let { exam } = req.params;
+  let books = null;
+  try {
+    if (!exam || exam === "") {
+      console.log(exam)
+      books = await Book.find();
+    } else {
+      books = await Book.find({ targetExam: exam });
+    }
+    if (!books.length) {
+      return next(errorHandler(404, "Books not found"));
+    }
+    res.status(200).json({
+      success: true,
+      message: "Books fetched successfully",
+      books,
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
