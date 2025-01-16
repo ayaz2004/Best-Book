@@ -12,13 +12,14 @@ import AdminBookDashboard from "./pages/AdminBookDashboard";
 import AdminQuizDashboard from "./pages/AdminQuizDashboard";
 import CreateQuiz from "./pages/CreateQuiz";
 import BookDetails from "./pages/BookDetails";
+import { Hero } from "./components/Hero";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Header />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Hero />} />
         <Route path="/about" element={<About />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
