@@ -181,8 +181,11 @@ export const getPopularBooks = async (req, res, next) => {
 export const getAllBooksByExams = async (req, res, next) => {
   let { exam } = req.params;
   let books = null;
+  if(!exam || exam === ""){
+    return next(errorHandler(400, "Exam is required"));
+  }
   try {
-    if (!exam || exam === "") {
+    if (exam === "all") {
       console.log(exam)
       books = await Book.find();
     } else {
