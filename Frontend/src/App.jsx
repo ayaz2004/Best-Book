@@ -13,6 +13,7 @@ import AdminQuizDashboard from "./pages/AdminQuizDashboard";
 import CreateQuiz from "./pages/CreateQuiz";
 import BookDetails from "./pages/BookDetails";
 import AllBooks from "./pages/AllBooks";
+import UserAnalytics from "./components/UserAnalytics";
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/manage-books" element={<AdminBookDashboard />} />
           <Route path="/manage-quiz" element={<AdminQuizDashboard />} />
           <Route path="/create-quiz" element={<CreateQuiz />} />
+          <Route path="/manage-user" element={<UserAnalytics />} />
         </Route>
       </Routes>
       <Footer />

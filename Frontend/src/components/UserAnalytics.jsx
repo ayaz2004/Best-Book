@@ -1,7 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { Users, BookOpen, GraduationCap, Target, TrendingUp, ChevronUp, Calendar, School } from 'lucide-react';
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-import { Hero } from "./Hero";
+import {
+  Users,
+  BookOpen,
+  GraduationCap,
+  Target,
+  TrendingUp,
+  ChevronUp,
+  Calendar,
+  School,
+} from "lucide-react";
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
 const UserAnalytics = () => {
   const [analytics, setAnalytics] = useState(null);
@@ -15,24 +38,24 @@ const UserAnalytics = () => {
 
   const fetchAnalytics = async () => {
     try {
-      const response = await fetch('/api/user/analytics');
+      const response = await fetch("/api/user/analytics");
       const data = await response.json();
-      console.log('Analytics data:', data);
+      console.log("Analytics data:", data);
       setAnalytics(data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching analytics:', error);
+      console.error("Error fetching analytics:", error);
       setLoading(false);
     }
   };
 
   const fetchUserList = async () => {
     try {
-      const response = await fetch('/api/users'); // Adjust the endpoint if needed
+      const response = await fetch("/api/users"); // Adjust the endpoint if needed
       const data = await response.json();
       setUserList(data.users); // Assuming the response has a 'users' array
     } catch (error) {
-      console.error('Error fetching user list:', error);
+      console.error("Error fetching user list:", error);
     }
   };
 
@@ -45,14 +68,17 @@ const UserAnalytics = () => {
   }
 
   // Colors for charts
-  const COLORS = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444'];
+  const COLORS = ["#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#ef4444"];
 
   return (
     <div className="w-full min-h-screen bg-[#A28DED] p-6 space-y-6">
-
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-white">Education Platform Analytics</h1>
-        <div className="text-sm text-slate-300">Last updated: {new Date().toLocaleString()}</div>
+        <h1 className="text-3xl font-bold text-white">
+          Education Platform Analytics
+        </h1>
+        <div className="text-sm text-slate-300">
+          Last updated: {new Date().toLocaleString()}
+        </div>
       </div>
 
       {/* Key Metrics */}
@@ -128,8 +154,16 @@ const UserAnalytics = () => {
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                 <XAxis dataKey="month" stroke="#94a3b8" />
                 <YAxis stroke="#94a3b8" />
-                <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: 'none' }} labelStyle={{ color: '#e2e8f0' }} />
-                <Area type="monotone" dataKey="newUsers" stroke="#3b82f6" fill="url(#userGrowth)" />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#1e293b", border: "none" }}
+                  labelStyle={{ color: "#e2e8f0" }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="newUsers"
+                  stroke="#3b82f6"
+                  fill="url(#userGrowth)"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -151,19 +185,22 @@ const UserAnalytics = () => {
                   label={(entry) => entry._id}
                 >
                   {analytics.distributions.classes.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
                   ))}
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#1e293b',
-                    border: 'none',
+                    backgroundColor: "#1e293b",
+                    border: "none",
                   }}
                   labelStyle={{
-                    color: '#e2e8f0',
+                    color: "#e2e8f0",
                   }}
                   itemStyle={{
-                    color: '#ffffff',
+                    color: "#ffffff",
                   }}
                 />
               </PieChart>
@@ -180,28 +217,40 @@ const UserAnalytics = () => {
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                 <XAxis dataKey="_id" stroke="#94a3b8" />
                 <YAxis stroke="#94a3b8" />
-                <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: 'none' }} labelStyle={{ color: '#e2e8f0' }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#1e293b", border: "none" }}
+                  labelStyle={{ color: "#e2e8f0" }}
+                />
                 <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-      {/* Target Year Distribution (commented) */}
-      <div className="bg-slate-800 rounded-2xl shadow-xl p-4">
-      <p className="text-sm text-white/80">Target Year Distribution</p>
-      <div className="h-[250px] mt-2">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={analytics.distributions.targetYears}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-            <XAxis dataKey="_id" stroke="#94a3b8" />
-            <YAxis stroke="#94a3b8" />
-            <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: 'none' }} labelStyle={{ color: '#e2e8f0' }} />
-            <Line type="monotone" dataKey="count" stroke="#10b981" strokeWidth={2} dot={{ fill: '#10b981' }} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+        {/* Target Year Distribution (commented) */}
+        <div className="bg-slate-800 rounded-2xl shadow-xl p-4">
+          <p className="text-sm text-white/80">Target Year Distribution</p>
+          <div className="h-[250px] mt-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={analytics.distributions.targetYears}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                <XAxis dataKey="_id" stroke="#94a3b8" />
+                <YAxis stroke="#94a3b8" />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#1e293b", border: "none" }}
+                  labelStyle={{ color: "#e2e8f0" }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="count"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  dot={{ fill: "#10b981" }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
         {/* User List Table */}
         <div className="bg-slate-800 rounded-2xl shadow-xl p-4 col-span-2 sm:col-span-4">
           <p className="text-sm text-white/80">User List</p>
@@ -220,7 +269,9 @@ const UserAnalytics = () => {
                   <tr key={user._id} className="hover:bg-gray-700">
                     <td className="px-4 py-2">{user.name}</td>
                     <td className="px-4 py-2">{user.email}</td>
-                    <td className="px-4 py-2">{user.active ? 'Active' : 'Inactive'}</td>
+                    <td className="px-4 py-2">
+                      {user.active ? "Active" : "Inactive"}
+                    </td>
                     <td className="px-4 py-2">{user.targetExam}</td>
                   </tr>
                 ))}
@@ -234,4 +285,3 @@ const UserAnalytics = () => {
 };
 
 export default UserAnalytics;
-
