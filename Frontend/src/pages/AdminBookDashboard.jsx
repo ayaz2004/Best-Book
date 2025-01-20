@@ -17,6 +17,13 @@ const AdminBookDashboard = () => {
     targetExam: "",
     coverImage: null,
     eBook: null,
+    author: "",
+    publisher: "",
+    publicationDate: "",
+    ISBN: "",
+    category: "",
+    language: "",
+    pages: "",
   });
 
   // Fetch books from the server
@@ -103,6 +110,13 @@ const AdminBookDashboard = () => {
         targetExam: "",
         coverImage: null,
         eBook: null,
+        author: "",
+        publisher: "",
+        publicationDate: "",
+        ISBN: "",
+        category: "",
+        language: "",
+        pages: "",
       }
     );
     setShowModal(true);
@@ -222,6 +236,50 @@ const AdminBookDashboard = () => {
               name="hardcopyDiscount"
               placeholder="Hardcopy Discount"
               value={bookData.hardcopyDiscount || ""}
+              onChange={handleInputChange}
+              type="number"
+            />
+            <TextInput
+              name="author"
+              placeholder="Author"
+              value={bookData.author || ""}
+              onChange={handleInputChange}
+            />
+            <TextInput
+              name="publisher"
+              placeholder="Publisher"
+              value={bookData.publisher || ""}
+              onChange={handleInputChange}
+            />
+            <TextInput
+              name="publicationDate"
+              placeholder="Publication Date"
+              value={bookData.publicationDate || ""}
+              onChange={handleInputChange}
+              type="date"
+            />
+            <TextInput
+              name="ISBN"
+              placeholder="ISBN"
+              value={bookData.ISBN || ""}
+              onChange={handleInputChange}
+            />
+            <TextInput
+              name="category"
+              placeholder="Category"
+              value={bookData.category || ""}
+              onChange={handleInputChange}
+            />
+            <TextInput
+              name="language"
+              placeholder="Language"
+              value={bookData.language || ""}
+              onChange={handleInputChange}
+            />
+            <TextInput
+              name="pages"
+              placeholder="Pages"
+              value={bookData.pages || ""}
               onChange={handleInputChange}
               type="number"
             />

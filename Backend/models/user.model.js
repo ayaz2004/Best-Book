@@ -43,6 +43,14 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    currentToken: {
+      type: String,
+      default: null,
+    },
+    sessionToken: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );

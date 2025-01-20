@@ -5,7 +5,6 @@ import {
 } from "../utils/cloudinary.js";
 import { errorHandler } from "../utils/error.js";
 
-// admin portion
 export const uploadBooks = async (req, res, next) => {
   try {
     // Destructure book details from the request body
@@ -18,6 +17,13 @@ export const uploadBooks = async (req, res, next) => {
       description,
       title,
       targetExam,
+      author,
+      publisher,
+      publicationDate,
+      ISBN,
+      category,
+      language,
+      pages,
     } = req.body;
     const coverImagePath = req.files?.coverImage[0]?.path;
     const pdfPath = req.files?.eBook[0]?.path;
@@ -50,9 +56,16 @@ export const uploadBooks = async (req, res, next) => {
       title,
       eBook: pdfUploadResponse.url && pdfUploadResponse.url,
       targetExam,
+      author,
+      publisher,
+      publicationDate,
+      ISBN,
+      category,
+      language,
+      pages,
     });
 
-    // // Save the book to the database
+    // Save the book to the database
     await newBook.save();
 
     // Send success response

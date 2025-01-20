@@ -46,7 +46,7 @@ export default function BookDetails() {
             Home
           </Link>
           <span className="mx-2">/</span>
-          <Link to="/books" className="hover:text-purple-600">
+          <Link to="/all-books" className="hover:text-purple-600">
             Books
           </Link>
           <span className="mx-2">/</span>

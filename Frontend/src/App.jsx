@@ -12,10 +12,8 @@ import AdminBookDashboard from "./pages/AdminBookDashboard";
 import AdminQuizDashboard from "./pages/AdminQuizDashboard";
 import CreateQuiz from "./pages/CreateQuiz";
 import BookDetails from "./pages/BookDetails";
-import { Hero } from "./components/Hero";
-// import UserGrowthChart from "./components/UserAnalytics";
-import UserAnalytics from "./components/UserAnalytics";
-import { User } from "lucide-react";
+import AllBooks from "./pages/AllBooks";
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -27,6 +25,7 @@ export default function App() {
         <Route path="/sign-up" element={<SignUp />} />
         {/* <Route path="/admin-dashboard" element={<TempDashBoard />} /> */}
         <Route element={<PrivateRoute />}>
+          <Route path="/all-books" element={<AllBooks />} />
           <Route path="/book/:bookId" element={<BookDetails />} />
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>
