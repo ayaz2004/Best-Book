@@ -13,13 +13,15 @@ import AdminQuizDashboard from "./pages/AdminQuizDashboard";
 import CreateQuiz from "./pages/CreateQuiz";
 import BookDetails from "./pages/BookDetails";
 import { Hero } from "./components/Hero";
-
+// import UserGrowthChart from "./components/UserAnalytics";
+import UserAnalytics from "./components/UserAnalytics";
+import { User } from "lucide-react";
 export default function App() {
   return (
     <BrowserRouter>
       <Header />
       <Routes>
-        <Route path="/" element={<Hero />} />
+        <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />

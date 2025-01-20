@@ -47,7 +47,7 @@ export const signup = async (req, res, next) => {
 
   try {
     console.log("Sign Up successful");
-
+    
     const otpResult = await sendOTP(phoneNumber); // Get OTP from sendOTP function
     if (otpResult.otp) {
       OTP_STORE[phoneNumber] = otpResult.otp;
