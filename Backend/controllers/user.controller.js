@@ -5,12 +5,14 @@ export const test = (req, res) => {
 };
 
 export const deleteUser = async (req, res, next) => {
-  if (req.user.id !== req.params.userId) {
-    return next(errorHandler(403, "You are not allowed to delete this user"));
-  }
+  // if (req.user.id !== req.params.userId) {
+  //   return next(errorHandler(403, "You are not allowed to delete this user"));
+  // }
+  console.log(req.params.userId);
   try {
     await User.findByIdAndDelete(req.params.userId);
-    res.json({ message: "User deleted successfully" });
+    console.log(req.params.userId);
+    res.status(200).json({ success:true,message: "User deleted successfully" });
   } catch (error) {
     next(error);
   }
@@ -208,10 +210,23 @@ async function getAnalytics(req, res) {
   }
 }
 
+const fetchUserList = async (req,res)=>{
+  try {
+    const users = await User.find();
+    res.status(200).json({
+      success:true,
+      message:"User list fetched successfully",
+      users
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching user data' });
+  }
+}
 
 export {
   calculateUserAnalytics,
   getMonthlyGrowthData,
   getAnalytics,
+  fetchUserList
 
 };
