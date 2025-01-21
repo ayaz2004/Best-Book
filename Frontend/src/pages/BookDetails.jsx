@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { FaHeart, FaShare, FaStar, FaShoppingCart } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addToCartStart,
+  addToCartSuccess,
+  addToCartFailure,
+} from "../redux/cart/cartSlice";
 
 export default function BookDetails() {
+  const dispatch = useDispatch();
+  const { currentUser } = useSelector((state) => state.user);
   const { bookId } = useParams();
   const [book, setBook] = useState(null);
   const [activeTab, setActiveTab] = useState("description");
@@ -36,6 +44,38 @@ export default function BookDetails() {
     : null;
   const discountedHardcopyPrice =
     book.price - (book.price * book.hardcopyDiscount) / 100;
+
+  const handleAddToCart = async (type) => {
+    if (!currentUser) {
+      navigate("/sign-in");
+      return;
+    }
+
+    dispatch(addToCartStart());
+    try {
+      const response = await fetch(`/api/cart/add/${currentUser._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${currentUser.token}`,
+        },
+        body: JSON.stringify({
+          productId: book._id,
+          quantity: 1,
+          bookType: type, // 'ebook' or 'hardcopy'
+        }),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        dispatch(addToCartSuccess(data));
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      dispatch(addToCartFailure(error.message));
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
@@ -108,7 +148,10 @@ export default function BookDetails() {
                         ({book.ebookDiscount}% off)
                       </span>
                     </div>
-                    <button className="mt-4 w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center">
+                    <button
+                      onClick={() => handleAddToCart("ebook")}
+                      className="mt-4 w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center"
+                    >
                       <FaShoppingCart className="mr-2" />
                       Add to Cart
                     </button>
@@ -130,7 +173,10 @@ export default function BookDetails() {
                       ({book.hardcopyDiscount}% off)
                     </span>
                   </div>
-                  <button className="mt-4 w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center">
+                  <button
+                    onClick={() => handleAddToCart("hardcopy")}
+                    className="mt-4 w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center"
+                  >
                     <FaShoppingCart className="mr-2" />
                     Add to Cart
                   </button>

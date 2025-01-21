@@ -7,10 +7,10 @@ import Book from "../models/book.model.js";
 import { Quiz } from "../models/quiz.model.js";
 // Get Cart Details
 export const getCart = async (req, res, next) => {
-// const userId = req.user.id;
-const {userId} = req.params;
+  // const userId = req.user.id;
+  const { userId } = req.params;
   try {
-    const cart = await Cart.findOne({ belongTo: userId })
+    const cart = await Cart.findOne({ belongTo: userId });
     if (!cart) return res.status(404).json({ message: "Cart not found." });
 
     res.status(200).json(cart);
@@ -19,16 +19,18 @@ const {userId} = req.params;
   }
 };
 
-
 export const addOrUpdateCartItem = async (req, res, next) => {
-  const { productId, quantity } = req.body;
+  const { productId, quantity, bookType } = req.body;
   const { userId } = req.params;
+
+  console.log(productId, quantity, userId);
 
   try {
     // Input validation
-    if (!productId || !quantity || quantity < 1) {
-      return res.status(400).json({ 
-        message: "Invalid input: Product ID and quantity (minimum 1) are required." 
+    if (!productId || !quantity || !bookType || quantity < 1) {
+      return res.status(400).json({
+        message:
+          "Invalid input: Product ID and quantity (minimum 1) are required.",
       });
     }
 
@@ -41,10 +43,10 @@ export const addOrUpdateCartItem = async (req, res, next) => {
     // Check if product exists and determine its type
     const book = await Book.findById(productId);
     const quiz = await Quiz.findById(productId);
-    
+
     let productType;
     if (book) {
-      productType = "Book";
+      productType = bookType;
     } else if (quiz) {
       productType = "Quiz";
     } else {
@@ -56,13 +58,13 @@ export const addOrUpdateCartItem = async (req, res, next) => {
     if (!cart) {
       cart = new Cart({
         belongTo: userId,
-        items: []
+        items: [],
       });
     }
 
     // Update existing item or add new item
     const existingItemIndex = cart.items.findIndex(
-      item => item.productId.toString() === productId
+      (item) => item.productId.toString() === productId
     );
 
     if (existingItemIndex !== -1) {
@@ -70,10 +72,10 @@ export const addOrUpdateCartItem = async (req, res, next) => {
       cart.items[existingItemIndex].quantity = quantity;
     } else {
       // Add new item with productType
-      cart.items.push({ 
-        productId, 
+      cart.items.push({
+        productId,
         quantity,
-        productType // Include the productType here
+        productType, // Include the productType here
       });
     }
 
@@ -82,16 +84,15 @@ export const addOrUpdateCartItem = async (req, res, next) => {
 
     // Return updated cart with populated data
     const updatedCart = await Cart.findById(cart._id)
-      .populate('belongTo')
+      .populate("belongTo")
       .populate({
-        path: 'items.productId',
-        model: productType === 'Book' ? Book : Quiz
+        path: "items.productId",
+        model: productType === "Book" ? Book : Quiz,
       });
 
     res.status(200).json(updatedCart);
-
   } catch (error) {
-    console.error('Cart operation failed:', error);
+    console.error("Cart operation failed:", error);
     next(errorHandler(500, "Failed to update cart"));
   }
 };
