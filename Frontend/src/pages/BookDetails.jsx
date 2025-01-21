@@ -174,7 +174,7 @@ export default function BookDetails() {
                     </span>
                   </div>
                   <button
-                    onClick={() => handleAddToCart("hardcopy")}
+                    onClick={() => handleAddToCart("Book")}
                     className="mt-4 w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center"
                   >
                     <FaShoppingCart className="mr-2" />
