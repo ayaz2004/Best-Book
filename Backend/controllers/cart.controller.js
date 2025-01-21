@@ -5,15 +5,42 @@ import { errorHandler } from "../utils/error.js";
 import User from "../models/user.model.js";
 import Book from "../models/book.model.js";
 import { Quiz } from "../models/quiz.model.js";
+import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message.js";
 // Get Cart Details
 export const getCart = async (req, res, next) => {
-  // const userId = req.user.id;
   const { userId } = req.params;
   try {
     const cart = await Cart.findOne({ belongTo: userId });
     if (!cart) return res.status(404).json({ message: "Cart not found." });
 
-    res.status(200).json(cart);
+    let cartData = { items: [] };
+
+    // Use for...of loop to await each async operation
+    for (const item of cart.items) {
+      let product = null;
+
+      if (item.productType === "Book" || item.productType === "ebook") {
+        product = await Book.findById(item.productId);
+        if (!product) return next(errorHandler(404, "Book not found"));
+      } 
+      else if (item.productType === "Quiz") {
+        product = await Quiz.findById(item.productId);
+        if (!product) return next(errorHandler(404, "Quiz not found"));
+      } 
+      else {
+        return next(errorHandler(404, "Product type not recognized"));
+      }
+
+      // Add the found product to the cartData
+      cartData.items.push({
+        product: product,
+        quantity: item.quantity, // Assuming `quantity` is available in `item`
+      });
+    }
+
+    return res
+    .status(200).
+    json({success:true, message:"cart fetch successfully",cartData});
   } catch (error) {
     next(error);
   }
