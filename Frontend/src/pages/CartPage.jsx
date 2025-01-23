@@ -1,6 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { removeFromCart, clearCart } from "../redux/cart/cartSlice";
+import {
+  fetchCart,
+  removeFromCart,
+  clearCart,
+  updateQuantity,
+} from "../redux/cart/cartSlice";
 import { FaTrash, FaShoppingCart, FaMinus, FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
@@ -8,18 +13,58 @@ export default function CartPage() {
   const { items, loading, error } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    dispatch(fetchCart());
+  }, [dispatch]);
+
+  const handleUpdateQuantity = async (productId, quantity) => {
+    try {
+      const res = await fetch("/api/cart/update-quantity", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ productId, quantity }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update quantity");
+      }
+
+      dispatch(updateQuantity({ productId, quantity }));
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+    }
+  };
+
+  const calculateItemPrice = (item) => {
+    const originalPrice = item.price || 0;
+    const discount =
+      item.type === "ebook" ? item.ebookDiscount : item.hardcopyDiscount;
+    const discountedPrice = originalPrice - (originalPrice * discount) / 100;
+    return {
+      original: originalPrice,
+      discounted: discountedPrice,
+      savings: originalPrice - discountedPrice,
+    };
+  };
+
   const calculateSubtotal = () => {
-    return items.reduce((total, item) => total + item.price * item.quantity, 0);
+    return items.reduce((total, item) => {
+      const { discounted } = calculateItemPrice(item);
+      return total + discounted * item.quantity;
+    }, 0);
   };
 
-  const calculateTax = () => {
-    return calculateSubtotal() * 0.18; // 18% GST
+  const calculateTotalSavings = () => {
+    return items.reduce((total, item) => {
+      const { savings } = calculateItemPrice(item);
+      return total + savings * item.quantity;
+    }, 0);
   };
 
-  const calculateTotal = () => {
-    return calculateSubtotal() + calculateTax();
-  };
-
+  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -28,32 +73,25 @@ export default function CartPage() {
     );
   }
 
+  // Error state
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="bg-red-100 p-4 rounded-lg">
           <p className="text-red-500 font-medium">{error}</p>
-          <Link
-            to="/"
-            className="text-purple-600 hover:underline mt-2 inline-block"
-          >
-            Return to Homepage
-          </Link>
         </div>
       </div>
     );
   }
 
-  if (items.length === 0) {
+  // Empty cart state
+  if (!items?.length) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
         <FaShoppingCart className="text-6xl text-gray-400" />
         <h2 className="text-2xl font-semibold text-gray-600">
           Your cart is empty
         </h2>
-        <p className="text-gray-500">
-          Looks like you haven't added anything to your cart yet.
-        </p>
         <Link
           to="/all-books"
           className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
@@ -83,57 +121,91 @@ export default function CartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow overflow-hidden">
-              {items.map((item) => (
-                <div
-                  key={`${item.productId}-${item.type}`}
-                  className="p-6 border-b border-gray-200 last:border-0"
-                >
-                  <div className="flex items-center space-x-4">
-                    <img
-                      src={item.coverImage}
-                      alt={item.title}
-                      className="w-24 h-32 object-cover rounded-lg shadow"
-                    />
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {item.title}
-                      </h3>
-                      <p className="text-gray-600">{item.type}</p>
-                      <div className="mt-2 flex items-center space-x-4">
-                        <div className="flex items-center border rounded-lg">
-                          <button className="p-2 hover:bg-gray-100">
-                            <FaMinus className="text-gray-600" />
-                          </button>
-                          <span className="px-4 py-2 border-x">
-                            {item.quantity}
-                          </span>
-                          <button className="p-2 hover:bg-gray-100">
-                            <FaPlus className="text-gray-600" />
+              {items.map((item) => {
+                const { original, discounted } = calculateItemPrice(item);
+                return (
+                  <div
+                    key={`${item.productId}-${item.type || "default"}`}
+                    className="p-6 border-b border-gray-200 last:border-0"
+                  >
+                    <div className="flex space-x-6">
+                      <img
+                        src={item.coverImage}
+                        alt={item.title}
+                        className="w-32 h-40 object-cover rounded-lg"
+                      />
+                      <div className="flex-1">
+                        <div className="flex justify-between">
+                          <div>
+                            <h3 className="text-lg font-semibold">
+                              {item.title}
+                            </h3>
+                            <p className="text-gray-600 capitalize">
+                              {item.type}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-lg font-semibold text-purple-600">
+                              ₹{discounted.toFixed(2)}
+                            </p>
+                            {discounted < original && (
+                              <>
+                                <p className="text-sm text-gray-500 line-through">
+                                  ₹{original.toFixed(2)}
+                                </p>
+                                <p className="text-sm text-green-600">
+                                  Save{" "}
+                                  {item.type === "ebook"
+                                    ? item.ebookDiscount
+                                    : item.hardcopyDiscount}
+                                  %
+                                </p>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="mt-4 flex items-center justify-between">
+                          <div className="flex items-center border rounded-lg">
+                            <button
+                              onClick={() =>
+                                handleUpdateQuantity(
+                                  item.productId,
+                                  Math.max(1, item.quantity - 1)
+                                )
+                              }
+                              className="p-2 hover:bg-gray-100"
+                            >
+                              <FaMinus className="text-gray-600" />
+                            </button>
+                            <span className="px-4 py-2 border-x">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() =>
+                                handleUpdateQuantity(
+                                  item.productId,
+                                  item.quantity + 1
+                                )
+                              }
+                              className="p-2 hover:bg-gray-100"
+                            >
+                              <FaPlus className="text-gray-600" />
+                            </button>
+                          </div>
+                          <button
+                            onClick={() =>
+                              dispatch(removeFromCart(item.productId))
+                            }
+                            className="text-red-500 hover:text-red-600"
+                          >
+                            Remove
                           </button>
                         </div>
-                        <button
-                          onClick={() =>
-                            dispatch(removeFromCart(item.productId))
-                          }
-                          className="text-red-500 hover:text-red-600"
-                        >
-                          <FaTrash />
-                        </button>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-lg font-semibold">
-                        ₹{item.price * item.quantity}
-                      </p>
-                      {item.discount > 0 && (
-                        <p className="text-sm text-green-600">
-                          Save {item.discount}%
-                        </p>
-                      )}
-                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -141,22 +213,24 @@ export default function CartPage() {
             <div className="bg-white rounded-lg shadow p-6 sticky top-4">
               <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
               <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Subtotal</span>
                   <span>₹{calculateSubtotal().toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>GST (18%)</span>
-                  <span>₹{calculateTax().toFixed(2)}</span>
-                </div>
+                {calculateTotalSavings() > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Total Savings</span>
+                    <span>-₹{calculateTotalSavings().toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="border-t pt-3">
                   <div className="flex justify-between font-semibold text-lg">
                     <span>Total</span>
-                    <span>₹{calculateTotal().toFixed(2)}</span>
+                    <span>₹{calculateSubtotal().toFixed(2)}</span>
                   </div>
                 </div>
               </div>
-              <button className="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium">
+              <button className="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors">
                 Proceed to Checkout
               </button>
               <Link

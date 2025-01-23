@@ -17,6 +17,7 @@ export default function Header() {
         credentials: "include",
         header: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${currentUser.token}`,
         },
       });
       const data = await res.json();

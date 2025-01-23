@@ -57,7 +57,7 @@ export default function BookDetails() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${currentUser.token}`,
+          "Authorization": `Bearer ${currentUser.token}`,
         },
         body: JSON.stringify({
           productId: book._id,
