@@ -8,7 +8,8 @@ import { Quiz } from "../models/quiz.model.js";
 import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message.js";
 // Get Cart Details
 export const getCart = async (req, res, next) => {
-  const { userId } = req.params;
+  const userId = req.user.id;
+  console.log(userId);
   try {
     const cart = await Cart.findOne({ belongTo: userId });
     if (!cart) return res.status(404).json({ message: "Cart not found." });
@@ -22,25 +23,31 @@ export const getCart = async (req, res, next) => {
       if (item.productType === "Book" || item.productType === "ebook") {
         product = await Book.findById(item.productId);
         if (!product) return next(errorHandler(404, "Book not found"));
-      } 
-      else if (item.productType === "Quiz") {
+      } else if (item.productType === "Quiz") {
         product = await Quiz.findById(item.productId);
         if (!product) return next(errorHandler(404, "Quiz not found"));
-      } 
-      else {
-        return next(errorHandler(404, "Product type not recognized"));
       }
+      // else {
+      //   return next(errorHandler(404, "Product type not recognized"));
+      // }
 
       // Add the found product to the cartData
       cartData.items.push({
-        product: product,
-        quantity: item.quantity, // Assuming `quantity` is available in `item`
+        product: {
+          _id: product._id,
+          title: product.title,
+          price: product.price,
+          coverImage: product.coverImage,
+          ebookDiscount: product.ebookDiscount,
+          hardcopyDiscount: product.hardcopyDiscount,
+        },
+        quantity: item.quantity,
+        productType: item.productType,
       });
     }
-
     return res
-    .status(200).
-    json({success:true, message:"cart fetch successfully",cartData});
+      .status(200)
+      .json({ success: true, message: "cart fetch successfully", cartData });
   } catch (error) {
     next(error);
   }
@@ -116,7 +123,7 @@ export const addOrUpdateCartItem = async (req, res, next) => {
         path: "items.productId",
         model: productType === "Book" ? Book : Quiz,
       });
-
+    console.log(updatedCart);
     res.status(200).json(updatedCart);
   } catch (error) {
     console.error("Cart operation failed:", error);
