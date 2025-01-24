@@ -1,15 +1,25 @@
 import { Avatar, Button, Dropdown, Navbar, TextInput } from "flowbite-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AiOutlineSearch } from "react-icons/ai";
-import { FaMoon } from "react-icons/fa";
+import { FaShoppingCart } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { signoutSuccess } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 
 export default function Header() {
+  const navigate = useNavigate();
   const path = useLocation().pathname;
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
+
+  const handleCartClick = () => {
+    if (currentUser) {
+      navigate("/cart");
+    } else {
+      navigate("/sign-in");
+    }
+  };
+
   const handleSignout = async () => {
     try {
       const res = await fetch("/api/user/signout", {
@@ -52,8 +62,13 @@ export default function Header() {
         <AiOutlineSearch />
       </Button>
       <div className="flex gap-2 md:order-2">
-        <Button className="w-12 h-10 hidden sm:inline" color="gray" pill>
-          <FaMoon />
+        <Button
+          className="w-12 h-10 hidden sm:inline"
+          color="gray"
+          pill
+          onClick={handleCartClick}
+        >
+          <FaShoppingCart />
         </Button>
         {currentUser ? (
           <Dropdown

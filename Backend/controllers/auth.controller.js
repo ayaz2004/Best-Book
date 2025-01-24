@@ -47,7 +47,7 @@ export const signup = async (req, res, next) => {
 
   try {
     console.log("Sign Up successful");
-    
+
     const otpResult = await sendOTP(phoneNumber); // Get OTP from sendOTP function
     if (otpResult.otp) {
       OTP_STORE[phoneNumber] = otpResult.otp;
@@ -123,12 +123,12 @@ export const signin = async (req, res, next) => {
     const token = jwt.sign(
       { id: validUser._id, isAdmin: validUser.isAdmin },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "10d" }
     );
     const sessionToken = jwt.sign(
       { id: validUser._id, isAdmin: validUser.isAdmin },
       process.env.JWT_SECRET,
-      { expiresIn: "24h" }
+      { expiresIn: "10d" }
     );
 
     // Save the tokens in the user's record

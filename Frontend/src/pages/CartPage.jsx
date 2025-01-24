@@ -103,6 +103,47 @@ export default function CartPage() {
     );
   }
 
+  const handleRemoveItem = async (productId) => {
+    try {
+      const response = await fetch("/api/cart/remove", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${currentUser.token}`,
+        },
+        body: JSON.stringify({ productId }),
+      });
+
+      if (response.ok) {
+        // Refresh cart after removal
+        const updatedItems = items.filter(
+          (item) => item.product._id !== productId
+        );
+        setItems(updatedItems);
+      }
+    } catch (error) {
+      setError("Failed to remove item");
+    }
+  };
+
+  const handleClearCart = async () => {
+    try {
+      const response = await fetch("/api/cart/clear", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${currentUser.token}`,
+        },
+      });
+
+      if (response.ok) {
+        setItems([]); // Clear items locally
+      }
+    } catch (error) {
+      setError("Failed to clear cart");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
@@ -110,7 +151,10 @@ export default function CartPage() {
           <h1 className="text-2xl font-bold">
             Shopping Cart ({items.length} items)
           </h1>
-          <button onClick={() => handleClearCart()} className="text-red-600">
+          <button
+            onClick={handleClearCart}
+            className="text-red-600 hover:text-red-700 flex items-center"
+          >
             <FaTrash className="mr-2" /> Clear Cart
           </button>
         </div>
@@ -182,7 +226,12 @@ export default function CartPage() {
                             <FaPlus />
                           </button>
                         </div>
-                        <button className="text-red-500">Remove</button>
+                        <button
+                          onClick={() => handleRemoveItem(item.product._id)}
+                          className="text-red-500 hover:text-red-600"
+                        >
+                          Remove
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -215,6 +264,12 @@ export default function CartPage() {
               <button className="w-full bg-purple-600 text-white py-3 rounded-lg">
                 Proceed to Checkout
               </button>
+              <Link
+                to="/all-books"
+                className="block text-center text-purple-600 hover:text-purple-700 mt-4"
+              >
+                Continue Shopping
+              </Link>
             </div>
           </div>
         </div>
