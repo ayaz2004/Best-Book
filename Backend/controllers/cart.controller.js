@@ -9,7 +9,7 @@ import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message.js";
 // Get Cart Details
 export const getCart = async (req, res, next) => {
   const userId = req.user.id;
-  console.log(userId);
+
   try {
     const cart = await Cart.findOne({ belongTo: userId });
     if (!cart) return res.status(404).json({ message: "Cart not found." });
@@ -56,8 +56,6 @@ export const getCart = async (req, res, next) => {
 export const addOrUpdateCartItem = async (req, res, next) => {
   const { productId, quantity, bookType } = req.body;
   const { userId } = req.params;
-
-  console.log(productId, quantity, userId);
 
   try {
     // Input validation
@@ -128,6 +126,74 @@ export const addOrUpdateCartItem = async (req, res, next) => {
   } catch (error) {
     console.error("Cart operation failed:", error);
     next(errorHandler(500, "Failed to update cart"));
+  }
+};
+
+export const updateCartQuantity = async (req, res, next) => {
+  const { productId, quantity } = req.body;
+
+  try {
+    // Validate input
+    if (!productId || quantity < 1) {
+      return res.status(400).json({
+        message:
+          "Invalid input: Product ID and quantity (minimum 1) are required.",
+      });
+    }
+
+    // Find cart and update item quantity
+    const cart = await Cart.findOne({ belongTo: req.user.id });
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found." });
+    }
+
+    const itemIndex = cart.items.findIndex(
+      (item) => item.productId.toString() === productId
+    );
+
+    if (itemIndex === -1) {
+      return res.status(404).json({ message: "Item not found in cart." });
+    }
+
+    // Update quantity
+    cart.items[itemIndex].quantity = quantity;
+    await cart.save();
+
+    // Fetch updated cart with populated data
+    let cartData = { items: [] };
+
+    for (const item of cart.items) {
+      let product = null;
+
+      if (item.productType === "Book" || item.productType === "ebook") {
+        product = await Book.findById(item.productId);
+      } else if (item.productType === "Quiz") {
+        product = await Quiz.findById(item.productId);
+      }
+
+      if (product) {
+        cartData.items.push({
+          product: {
+            _id: product._id,
+            title: product.title,
+            price: product.price,
+            coverImage: product.coverImage,
+            ebookDiscount: product.ebookDiscount,
+            hardcopyDiscount: product.hardcopyDiscount,
+          },
+          quantity: item.quantity,
+          productType: item.productType,
+        });
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Quantity updated successfully",
+      cartData,
+    });
+  } catch (error) {
+    next(error);
   }
 };
 

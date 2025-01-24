@@ -5,6 +5,7 @@ import {
   removeCartItem,
   applyCoupon,
   clearCart,
+  updateCartQuantity,
 } from "../controllers/cart.controller.js";
 import { verifyToken } from "../utils/verifyUser.js";
 const router = Router();
@@ -14,5 +15,6 @@ router.post("/add/:userId", addOrUpdateCartItem);
 router.post("/remove", verifyToken, removeCartItem);
 router.post("/apply-coupon", verifyToken, applyCoupon);
 router.post("/clear", verifyToken, clearCart);
+router.post("/update-quantity", verifyToken, updateCartQuantity);
 
 export default router;
