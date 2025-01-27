@@ -14,6 +14,7 @@ import CreateQuiz from "./pages/CreateQuiz";
 import BookDetails from "./pages/BookDetails";
 import AllBooks from "./pages/AllBooks";
 import UserAnalytics from "./components/UserAnalytics";
+import VerifyOTP from "./pages/VerifyOTP";
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/verify-otp" element={<VerifyOTP />} />
         {/* <Route path="/admin-dashboard" element={<TempDashBoard />} /> */}
         <Route element={<PrivateRoute />}>
           <Route path="/all-books" element={<AllBooks />} />

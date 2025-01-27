@@ -26,6 +26,8 @@ import {
   Cell,
 } from "recharts";
 
+import Reviews from "../components/Reviews";
+
 const UserAnalytics = () => {
   const [analytics, setAnalytics] = useState(null);
   const [userList, setUserList] = useState([]);
@@ -50,7 +52,6 @@ const UserAnalytics = () => {
 
   const fetchAnalytics = async () => {
     try {
-      
       const response = await fetch("/api/user/analytics");
       const data = await response.json();
       console.log("Analytics data:", data);
@@ -65,18 +66,21 @@ const UserAnalytics = () => {
   const handleDeleteUsers = async () => {
     try {
       // selectedUsers.forEach(async (userId) => {
-        const response = await fetch(`/api/user/delete/678c9d9164ef845e64345e60`, {
+      const response = await fetch(
+        `/api/user/delete/678c9d9164ef845e64345e60`,
+        {
           method: "DELETE",
-        });
-        const data = await response.json();
-          if(!data.success){
-            alert("Unable to delete 'User'");
-          }
+        }
+      );
+      const data = await response.json();
+      if (!data.success) {
+        alert("Unable to delete 'User'");
+      }
       // })
-    }catch(error){
+    } catch (error) {
       console.error("Error deleting users:", error);
     }
-  }
+  };
 
   const fetchUserList = async () => {
     try {
@@ -281,54 +285,53 @@ const UserAnalytics = () => {
           </div>
         </div>
         <div className="bg-slate-800 rounded-2xl shadow-xl p-4 col-span-2 sm:col-span-4">
-      <p className="text-sm text-white/80">User List</p>
-      {/* Show delete button if any user is selected */}
-      {selectedUsers.length > 0 && (
-        <div className="mt-4 ml-[80%]">
-          <button
-            onClick={handleDeleteUsers}
-            className="bg-red-500 text-white px-4 py-2 rounded-lg"
-          >
-            Delete Selected Users
-          </button>
+          <p className="text-sm text-white/80">User List</p>
+          {/* Show delete button if any user is selected */}
+          {selectedUsers.length > 0 && (
+            <div className="mt-4 ml-[80%]">
+              <button
+                onClick={handleDeleteUsers}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg">
+                Delete Selected Users
+              </button>
+            </div>
+          )}
+
+          <div className="mt-2 overflow-x-auto">
+            <table className="min-w-full table-auto text-white">
+              <thead>
+                <tr className="pl-1 ml-1">
+                  <th className="px-4 py-2 text-left">Select</th>
+                  <th className="px-4 py-2 text-left">Name</th>
+                  <th className="px-4 py-2 text-left">Status</th>
+                  <th className="px-4 py-2 text-left">Target Exam</th>
+                </tr>
+              </thead>
+              <tbody>
+                {userList.map((user) => (
+                  <tr key={user._id} className="hover:bg-gray-700">
+                    <td className="px-4 py-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(user._id)}
+                        onChange={() => handleCheckboxChange(user._id)}
+                        className="pl-1 ml-1"
+                      />
+                    </td>
+                    <td className="px-4 py-2">{user.username}</td>
+                    <td className="px-4 py-2">
+                      {user.active ? "Active" : "Inactive"}
+                    </td>
+                    <td className="px-4 py-2">{user.targetExam}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      )}
-      
-      <div className="mt-2 overflow-x-auto">
-        <table className="min-w-full table-auto text-white">
-          <thead>
-            <tr className="pl-1 ml-1">
-              <th className="px-4 py-2 text-left">Select</th>
-              <th className="px-4 py-2 text-left">Name</th>
-              <th className="px-4 py-2 text-left">Status</th>
-              <th className="px-4 py-2 text-left">Target Exam</th>
-            </tr>
-          </thead>
-          <tbody>
-            {userList.map((user) => (
-              <tr key={user._id} className="hover:bg-gray-700">
-                <td className="px-4 py-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedUsers.includes(user._id)}
-                    onChange={() => handleCheckboxChange(user._id)}
-                    className="pl-1 ml-1"
-                  />
-                </td>
-                <td className="px-4 py-2">{user.username}</td>
-                <td className="px-4 py-2">
-                  {user.active ? 'Active' : 'Inactive'}
-                </td>
-                <td className="px-4 py-2">{user.targetExam}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </div>
 
-      
-    </div>
-      </div>
+      <Reviews />
     </div>
   );
 };
