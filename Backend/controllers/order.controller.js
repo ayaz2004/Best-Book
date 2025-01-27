@@ -8,6 +8,7 @@ import User from "../models/user.model.js";
 import Book from "../models/book.model.js";
 import { Quiz } from "../models/quiz.model.js";
 import { Cart } from "../models/cart.model.js";
+
 export const placeOrder = async (req, res, next) => {
   const { userId, cartId, address } = req.body;
 
@@ -55,7 +56,7 @@ export const placeOrder = async (req, res, next) => {
       await product.save({ validateBeforeSave: false });
 
       totalPrice += product.price * item.quantity; // + delivery charged
-      validateItems.push({product, quantity: item.quantity});
+      validateItems.push({ product, quantity: item.quantity });
     }
 
     const order = new Order({
@@ -89,14 +90,14 @@ export const getAllOrdersByUser = async (req, res, next) => {
 
     orders.map((order) => {
       let product = {
-        thumbnail:null,
-        title:null,
-        price:null,
-        quantity:null
-
-      }
+        thumbnail: null,
+        title: null,
+        price: null,
+        quantity: null,
+      };
       order?.items.map((item) => {
-       product.thumbnail = item?.product.coverImage && item?.product.coverImage;
+        product.thumbnail =
+          item?.product.coverImage && item?.product.coverImage;
         product.title = item?.product.title;
         product.price = item?.product.price;
         product.quantity = item?.product.quantity;
@@ -110,7 +111,7 @@ export const getAllOrdersByUser = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data:orderDetails ,
+      data: orderDetails,
     });
   } catch (error) {
     next(errorHandler(500, error.message));
