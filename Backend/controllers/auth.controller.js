@@ -3,10 +3,10 @@ import bcryptjs from "bcryptjs";
 import { errorHandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
 import { sendOTP } from "../utils/Twilio.js";
+import { setOTP, getOTP, deleteOTP } from "../utils/OTPStore.js";
 
-const OTP_STORE = {};
 let newUser = null;
-let OTP = null;
+
 export const signup = async (req, res, next) => {
   const {
     username,
@@ -16,7 +16,7 @@ export const signup = async (req, res, next) => {
     targetExam,
     targetYear,
   } = req.body;
-  console.log(req.body);
+
   if (
     !username ||
     !phoneNumber ||
@@ -31,77 +31,82 @@ export const signup = async (req, res, next) => {
     targetExam === "" ||
     targetYear === ""
   ) {
-    next(errorHandler(400, "All fields are required."));
+    return next(errorHandler(400, "All fields are required."));
   }
 
   const hashedPassword = bcryptjs.hashSync(password, 10);
 
-  newUser = new User({
+  newUser = {
     username,
     phoneNumber,
     password: hashedPassword,
     currentClass,
     targetExam,
     targetYear,
-  });
+  };
 
   try {
-    console.log("Sign Up successful");
+    const otpResult = await sendOTP(phoneNumber);
 
-    const otpResult = await sendOTP(phoneNumber); // Get OTP from sendOTP function
     if (otpResult.otp) {
-      OTP_STORE[phoneNumber] = otpResult.otp;
-      OTP_STORE[`${phoneNumber}_user`] = {
-        username,
-        phoneNumber,
-        password: hashedPassword,
-        currentClass,
-        targetExam,
-        targetYear,
-      };
-      OTP = otpResult.otp;
-      console.log(OTP);
+      setOTP(phoneNumber, otpResult.otp);
       return res.json({
         success: true,
         message: `OTP sent successfully to ${phoneNumber}`,
       });
-
-      await newUser.save();
     } else {
-      next(errorHandler(500, "Internal Server Error"));
-      return res.json({ success: false, message: "Internal Server Error" });
+      return next(errorHandler(500, "Internal Server Error"));
     }
   } catch (error) {
-    // return next(error);
+    return next(errorHandler(500, "Internal Server Error"));
   }
 };
 
 export const verifyOTP = async (req, res, next) => {
   const { otp, phoneNumber } = req.body;
-  console.log(req.body);
+
   if (!otp || otp === "" || !phoneNumber || phoneNumber === "") {
     return next(errorHandler(400, "OTP is required."));
   }
-  if (!OTP_STORE[phoneNumber]) {
-    return next(errorHandler(400, "Invalid OTP"));
+
+  const storedOTP = getOTP(phoneNumber);
+  if (!storedOTP) {
+    return next(errorHandler(400, "OTP expired. Please try again."));
   }
-  if (OTP_STORE[phoneNumber] !== otp) {
+  if (storedOTP !== otp) {
     return next(errorHandler(400, "Invalid OTP"));
-  }
-  const userData = OTP_STORE[`${phoneNumber}_user`];
-  if (!userData) {
-    return next(
-      errorHandler(400, "User data not found. Please register again.")
-    );
   }
 
-  const user = new User(userData);
+  const user = new User(newUser);
+  await user.save();
+
+  // Generate tokens
+  const accessToken = jwt.sign(
+    { id: user._id, isAdmin: user.isAdmin },
+    process.env.JWT_SECRET,
+    { expiresIn: "1h" }
+  );
+
+  const sessionToken = jwt.sign(
+    { id: user._id, isAdmin: user.isAdmin },
+    process.env.JWT_SECRET,
+    { expiresIn: "10d" }
+  );
+
+  // Store tokens in user document
+  user.accessToken = accessToken;
+  user.sessionToken = sessionToken;
   await user.save();
 
   // Clear OTP and user data from the temporary store
-  delete OTP_STORE[phoneNumber];
-  delete OTP_STORE[`${phoneNumber}_user`];
-  res.json({ message: "OTP verified successfully" });
+  deleteOTP(phoneNumber);
+  newUser = null;
+
+  res.json({
+    message: "OTP verified successfully",
+    accessToken,
+    sessionToken,
+  });
 };
 
 export const signin = async (req, res, next) => {
@@ -120,11 +125,14 @@ export const signin = async (req, res, next) => {
     if (!validPassword) {
       return next(errorHandler(400, "Wrong Credentials"));
     }
-    const token = jwt.sign(
+
+    // Generate tokens
+    const accessToken = jwt.sign(
       { id: validUser._id, isAdmin: validUser.isAdmin },
       process.env.JWT_SECRET,
-      { expiresIn: "10d" }
+      { expiresIn: "1h" }
     );
+
     const sessionToken = jwt.sign(
       { id: validUser._id, isAdmin: validUser.isAdmin },
       process.env.JWT_SECRET,
@@ -132,14 +140,14 @@ export const signin = async (req, res, next) => {
     );
 
     // Save the tokens in the user's record
-    validUser.currentToken = token;
+    validUser.accessToken = accessToken;
     validUser.sessionToken = sessionToken;
     await validUser.save();
 
     const { password: pass, ...rest } = validUser._doc;
     res
       .status(200)
-      .cookie("access_token", token, {
+      .cookie("access_token", accessToken, {
         httpOnly: true,
       })
       .cookie("session_token", sessionToken, {
