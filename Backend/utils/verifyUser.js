@@ -5,6 +5,7 @@ import { errorHandler } from "./error.js";
 export const verifyToken = async (req, res, next) => {
   const token = req.cookies.access_token;
   const sessionToken = req.cookies.session_token;
+
   if (!token || !sessionToken) {
     return next(errorHandler(401, "Unauthorized"));
   }

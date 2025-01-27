@@ -89,6 +89,7 @@ export default function DashProfile() {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${currentUser.token}`, // Ensure the token is included
         },
       });
       const data = await res.json();

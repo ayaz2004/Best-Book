@@ -14,6 +14,7 @@ import CreateQuiz from "./pages/CreateQuiz";
 import BookDetails from "./pages/BookDetails";
 import AllBooks from "./pages/AllBooks";
 import UserAnalytics from "./components/UserAnalytics";
+import CartPage from "./pages/CartPage";
 
 export default function App() {
   return (
@@ -24,11 +25,13 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/all-books" element={<AllBooks />} />
+        <Route path="/book/:bookId" element={<BookDetails />} />
+
         {/* <Route path="/admin-dashboard" element={<TempDashBoard />} /> */}
         <Route element={<PrivateRoute />}>
-          <Route path="/all-books" element={<AllBooks />} />
-          <Route path="/book/:bookId" element={<BookDetails />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/cart" element={<CartPage />} />
         </Route>
         <Route element={<OnlyAdminPrivateRoute />}>
           <Route path="/manage-books" element={<AdminBookDashboard />} />
