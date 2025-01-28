@@ -7,6 +7,8 @@ import {
   addToCartSuccess,
   addToCartFailure,
 } from "../redux/cart/cartSlice";
+import ReviewSection from "../components/ReviewSection";
+import BookReviewSection from "../components/BookReviewSection";
 
 export default function BookDetails() {
   const dispatch = useDispatch();
@@ -242,17 +244,7 @@ export default function BookDetails() {
                 )}
 
                 {activeTab === "reviews" && (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">
-                        Customer Reviews
-                      </h3>
-                      <button className="text-purple-600 hover:text-purple-700">
-                        Write a Review
-                      </button>
-                    </div>
-                    {/* Add review components here */}
-                  </div>
+                  <BookReviewSection bookId={book._id} />
                 )}
               </div>
             </div>
