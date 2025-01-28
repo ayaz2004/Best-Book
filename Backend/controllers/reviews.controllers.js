@@ -28,23 +28,21 @@ export const addReview = async (req, res, next) => {
     userid: userid,
     description,
     rating,
-    username: user.username && user.username,
     itemId,
     itemType,
-    username: user.username,
   });
 
   try {
     await newReview.save();
-    item.reviewsId = [...item.reviewsId, newReview._id];
-    await item.save();
+    // item.reviewsId = [...item.reviewsId, newReview._id];
+    // await item.save();
     res.status(200).send({
       success: true,
       message: "reviewAdded success fully",
       newReview,
     });
   } catch (error) {
-    next(errorHandler(500, "Database error"));
+    next(errorHandler(500, error.message));
   }
 };
 
@@ -105,11 +103,12 @@ export const deleteReview = async (req, res, next) => {
     next(errorHandler(500, error.message));
   }
 };
+
 export const getReview = async (req, res, next) => {
   const { bookId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(bookId)) {
-    return next(errorhandler(400, "Invalid book ID"));
+    return next(errorHandler(400, "Invalid book ID"));
   }
 
   try {
@@ -135,7 +134,7 @@ export const getReview = async (req, res, next) => {
     ]);
 
     if (!reviews.length) {
-      return next(errorhandler(404, "No reviews found for this book"));
+      return next(errorHandler(404, "No reviews found for this book"));
     }
 
     res.status(200).json({
@@ -146,6 +145,6 @@ export const getReview = async (req, res, next) => {
     });
   } catch (error) {
     console.error(error.message);
-    next(errorhandler(500, "Internal server error"));
+    next(errorHandler(500, "Internal server error"));
   }
 };

@@ -11,3 +11,26 @@ const examSchema = new mongoose.Schema(
 );
 
 export const Exam = mongoose.model("Exam", examSchema);
+
+
+var targetExamForClass = new mongoose.Schema(
+  {
+    class: {
+      type: String,
+      required: true,
+    },
+    targetExam: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
+  },
+  { timeseries: true }
+);
+
+const TargetExamForClass = mongoose.model(
+  "TargetExamForClass",
+  targetExamForClass
+);
+export { TargetExamForClass };
