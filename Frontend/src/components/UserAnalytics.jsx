@@ -33,7 +33,6 @@ const UserAnalytics = () => {
   const [userList, setUserList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedUsers, setSelectedUsers] = useState([]);
-
   const handleCheckboxChange = (userId) => {
     setSelectedUsers((prevSelectedUsers) => {
       if (prevSelectedUsers.includes(userId)) {
@@ -48,6 +47,7 @@ const UserAnalytics = () => {
   useEffect(() => {
     fetchAnalytics();
     fetchUserList();
+   
   }, []);
 
   const fetchAnalytics = async () => {

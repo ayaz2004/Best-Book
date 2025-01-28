@@ -2,11 +2,13 @@ import mongoose from "mongoose";
 import { Schema } from "mongoose";
 var reviews = new Schema(
   {
-    userid: {
-      type: Schema.Types.ObjectId,
+    username: {
+      type: String,
+      required: true,
     },
     description: {
       type: String,
+      required: true
     },
     rating: {
       type: Number,
@@ -22,8 +24,12 @@ var reviews = new Schema(
       required: true,
       refPath: "itemType",
     },
+    approved:{
+      type: Boolean,
+      default:false
+    }
   },
-  { timeseries: true }
+  { timestamps: true }
 );
 
 const Reviews = mongoose.model("Reviews", reviews);
