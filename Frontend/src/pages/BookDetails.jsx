@@ -149,7 +149,7 @@ export default function BookDetails() {
                     </h3>
                     <div className="flex items-baseline">
                       <span className="text-3xl font-bold text-purple-600">
-                        ₹{discountedEbookPrice}
+                        ₹{discountedEbookPrice.toFixed(2)}
                       </span>
                       <span className="ml-2 text-gray-500 line-through">
                         ₹{book.price}
@@ -174,7 +174,7 @@ export default function BookDetails() {
                   </h3>
                   <div className="flex items-baseline">
                     <span className="text-3xl font-bold text-purple-600">
-                      ₹{discountedHardcopyPrice}
+                      ₹{discountedHardcopyPrice.toFixed(2)}
                     </span>
                     <span className="ml-2 text-gray-500 line-through">
                       ₹{book.price}

@@ -65,7 +65,7 @@ export default function AllBooks() {
                     {calculateDiscountedPrice(
                       book.price,
                       book.hardcopyDiscount
-                    )}
+                    ).toFixed(2)}
                   </span>
                   <span className="ml-2 text-sm text-gray-500 line-through">
                     ₹{book.price}

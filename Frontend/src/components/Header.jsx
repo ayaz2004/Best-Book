@@ -5,12 +5,40 @@ import { FaShoppingCart } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { signoutSuccess } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
 
 export default function Header() {
   const navigate = useNavigate();
   const path = useLocation().pathname;
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const res = await fetch(`/api/cart/getcart/${currentUser._id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${currentUser.token}`,
+          },
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setCartCount(data.cartData.items.length);
+        } else {
+          throw new Error(data.message);
+        }
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCart();
+  }, [currentUser]);
 
   const handleCartClick = () => {
     if (currentUser) {
@@ -63,12 +91,17 @@ export default function Header() {
       </Button>
       <div className="flex gap-2 md:order-2">
         <Button
-          className="w-12 h-10 hidden sm:inline"
+          className="w-12 h-10 hidden sm:inline relative"
           color="gray"
           pill
           onClick={handleCartClick}
         >
           <FaShoppingCart />
+          {cartCount > 0 && (
+            <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2 py-1">
+              {cartCount}
+            </div>
+          )}
         </Button>
         {currentUser ? (
           <Dropdown
