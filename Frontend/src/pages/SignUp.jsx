@@ -62,7 +62,7 @@ export default function SignUp() {
       }
       setLoading(false);
       if (res.ok) {
-        navigate("/sign-in");
+        navigate("/verify-otp");
       }
     } catch (error) {
       setErrorMessage(error.message);

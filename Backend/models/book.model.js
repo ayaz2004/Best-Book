@@ -67,12 +67,6 @@ var BookSchema = new Schema(
       type: Number,
       default: 0,
     },
-    reviews: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Reviews",
-      },
-    ],
     language: {
       type: String,
       required: true,

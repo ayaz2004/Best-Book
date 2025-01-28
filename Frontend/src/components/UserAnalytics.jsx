@@ -26,14 +26,28 @@ import {
   Cell,
 } from "recharts";
 
+import Reviews from "../components/Reviews";
+
 const UserAnalytics = () => {
   const [analytics, setAnalytics] = useState(null);
   const [userList, setUserList] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const handleCheckboxChange = (userId) => {
+    setSelectedUsers((prevSelectedUsers) => {
+      if (prevSelectedUsers.includes(userId)) {
+        // If already selected, remove from array
+        return prevSelectedUsers.filter((id) => id !== userId);
+      } else {
+        // If not selected, add to array
+        return [...prevSelectedUsers, userId];
+      }
+    });
+  };
   useEffect(() => {
     fetchAnalytics();
     fetchUserList();
+   
   }, []);
 
   const fetchAnalytics = async () => {
@@ -49,10 +63,30 @@ const UserAnalytics = () => {
     }
   };
 
+  const handleDeleteUsers = async () => {
+    try {
+      // selectedUsers.forEach(async (userId) => {
+      const response = await fetch(
+        `/api/user/delete/678c9d9164ef845e64345e60`,
+        {
+          method: "DELETE",
+        }
+      );
+      const data = await response.json();
+      if (!data.success) {
+        alert("Unable to delete 'User'");
+      }
+      // })
+    } catch (error) {
+      console.error("Error deleting users:", error);
+    }
+  };
+
   const fetchUserList = async () => {
     try {
-      const response = await fetch("/api/users"); // Adjust the endpoint if needed
+      const response = await fetch("/api/user/userlist"); // Adjust the endpoint if needed
       const data = await response.json();
+      console.log("User list:", data.users);
       setUserList(data.users); // Assuming the response has a 'users' array
     } catch (error) {
       console.error("Error fetching user list:", error);
@@ -182,8 +216,7 @@ const UserAnalytics = () => {
                   cx="50%"
                   cy="50%"
                   outerRadius={100}
-                  label={(entry) => entry._id}
-                >
+                  label={(entry) => entry._id}>
                   {analytics.distributions.classes.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
@@ -251,15 +284,25 @@ const UserAnalytics = () => {
             </ResponsiveContainer>
           </div>
         </div>
-        {/* User List Table */}
         <div className="bg-slate-800 rounded-2xl shadow-xl p-4 col-span-2 sm:col-span-4">
           <p className="text-sm text-white/80">User List</p>
+          {/* Show delete button if any user is selected */}
+          {selectedUsers.length > 0 && (
+            <div className="mt-4 ml-[80%]">
+              <button
+                onClick={handleDeleteUsers}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg">
+                Delete Selected Users
+              </button>
+            </div>
+          )}
+
           <div className="mt-2 overflow-x-auto">
             <table className="min-w-full table-auto text-white">
               <thead>
-                <tr>
+                <tr className="pl-1 ml-1">
+                  <th className="px-4 py-2 text-left">Select</th>
                   <th className="px-4 py-2 text-left">Name</th>
-                  <th className="px-4 py-2 text-left">Email</th>
                   <th className="px-4 py-2 text-left">Status</th>
                   <th className="px-4 py-2 text-left">Target Exam</th>
                 </tr>
@@ -267,8 +310,15 @@ const UserAnalytics = () => {
               <tbody>
                 {userList.map((user) => (
                   <tr key={user._id} className="hover:bg-gray-700">
-                    <td className="px-4 py-2">{user.name}</td>
-                    <td className="px-4 py-2">{user.email}</td>
+                    <td className="px-4 py-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(user._id)}
+                        onChange={() => handleCheckboxChange(user._id)}
+                        className="pl-1 ml-1"
+                      />
+                    </td>
+                    <td className="px-4 py-2">{user.username}</td>
                     <td className="px-4 py-2">
                       {user.active ? "Active" : "Inactive"}
                     </td>
@@ -280,6 +330,8 @@ const UserAnalytics = () => {
           </div>
         </div>
       </div>
+
+      <Reviews />
     </div>
   );
 };

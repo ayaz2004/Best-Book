@@ -15,6 +15,7 @@ import BookDetails from "./pages/BookDetails";
 import AllBooks from "./pages/AllBooks";
 import UserAnalytics from "./components/UserAnalytics";
 import CartPage from "./pages/CartPage";
+import VerifyOTP from "./pages/VerifyOTP";
 
 export default function App() {
   return (
