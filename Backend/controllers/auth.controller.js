@@ -110,13 +110,13 @@ export const signin = async (req, res, next) => {
     // Generate tokens
     const sessionId = uuidv4();
     const accessToken = jwt.sign(
-      { id: validUser._id, isAdmin: validUser.isAdmin },
+      { id: validUser._id, isAdmin: validUser.isAdmin, sessionId },
       process.env.JWT_SECRET,
       { expiresIn: "10d" }
     );
 
     const sessionToken = jwt.sign(
-      { id: validUser._id, isAdmin: validUser.isAdmin },
+      { id: validUser._id, isAdmin: validUser.isAdmin, sessionId },
       process.env.JWT_SECRET,
       { expiresIn: "10d" }
     );
