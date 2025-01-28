@@ -7,21 +7,20 @@ export default function CartPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
 
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const response = await fetch(`/api/cart/getcart/${currentUser._id}`, {
+        const res = await fetch(`/api/cart/getcart/${currentUser._id}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${currentUser.token}`,
           },
         });
-        const data = await response.json();
-        if (response.ok) {
+        const data = await res.json();
+        if (res.ok) {
           setItems(data.cartData.items);
         } else {
           throw new Error(data.message);

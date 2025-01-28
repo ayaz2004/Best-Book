@@ -1,8 +1,11 @@
 import { Router } from "express";
-import { placeOrder,getAllOrdersByUser, getAllOrders } from "../controllers/order.controller.js";
-import { get } from "mongoose";
+import {
+  placeOrder,
+  getAllOrdersByUser,
+  getAllOrders,
+} from "../controllers/order.controller.js";
 
-const router = Router();    
+const router = Router();
 router.post("/placeorder", placeOrder);
 // getting all orders by a user
 router.get("/getordersbyuser/:userId", getAllOrdersByUser);
