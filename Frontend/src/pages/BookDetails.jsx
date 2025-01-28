@@ -7,7 +7,6 @@ import {
   addToCartSuccess,
   addToCartFailure,
 } from "../redux/cart/cartSlice";
-import ReviewSection from "../components/ReviewSection";
 import BookReviewSection from "../components/BookReviewSection";
 
 export default function BookDetails() {
