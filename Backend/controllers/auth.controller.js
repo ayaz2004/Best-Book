@@ -4,6 +4,7 @@ import { errorHandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
 import { sendOTP } from "../utils/Twilio.js";
 import { setOTP, getOTP, deleteOTP } from "../utils/OTPStore.js";
+import { v4 as uuidv4 } from "uuid";
 
 let newUser = null;
 
@@ -80,32 +81,12 @@ export const verifyOTP = async (req, res, next) => {
   const user = new User(newUser);
   await user.save();
 
-  // Generate tokens
-  const accessToken = jwt.sign(
-    { id: user._id, isAdmin: user.isAdmin },
-    process.env.JWT_SECRET,
-    { expiresIn: "1h" }
-  );
-
-  const sessionToken = jwt.sign(
-    { id: user._id, isAdmin: user.isAdmin },
-    process.env.JWT_SECRET,
-    { expiresIn: "10d" }
-  );
-
-  // Store tokens in user document
-  user.accessToken = accessToken;
-  user.sessionToken = sessionToken;
-  await user.save();
-
   // Clear OTP and user data from the temporary store
   deleteOTP(phoneNumber);
   newUser = null;
 
   res.json({
     message: "OTP verified successfully",
-    accessToken,
-    sessionToken,
   });
 };
 
@@ -127,10 +108,11 @@ export const signin = async (req, res, next) => {
     }
 
     // Generate tokens
+    const sessionId = uuidv4();
     const accessToken = jwt.sign(
       { id: validUser._id, isAdmin: validUser.isAdmin },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "10d" }
     );
 
     const sessionToken = jwt.sign(
@@ -142,6 +124,7 @@ export const signin = async (req, res, next) => {
     // Save the tokens in the user's record
     validUser.accessToken = accessToken;
     validUser.sessionToken = sessionToken;
+    validUser.sessionId = sessionId;
     await validUser.save();
 
     const { password: pass, ...rest } = validUser._doc;

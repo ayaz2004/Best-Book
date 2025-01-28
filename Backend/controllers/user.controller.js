@@ -24,6 +24,7 @@ export const signout = async (req, res, next) => {
     }
     user.currentToken = null;
     user.sessionToken = null;
+    user.sessionId = null;
     await user.save();
     res
       .clearCookie("access_token")
@@ -39,77 +40,79 @@ export const updateUser = async (req, res, next) => {
   console.log(req.user);
 };
 
-
-
-
 // Analytics functions for the educational platform
 async function calculateUserAnalytics() {
   try {
     const now = new Date();
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const firstDayOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const firstDayOfLastMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() - 1,
+      1
+    );
 
     // Basic user metrics
     const totalUsers = await User.countDocuments();
     const newUsersThisMonth = await User.countDocuments({
-      createdAt: { $gte: firstDayOfMonth }
+      createdAt: { $gte: firstDayOfMonth },
     });
     const newUsersLastMonth = await User.countDocuments({
       createdAt: {
         $gte: firstDayOfLastMonth,
-        $lt: firstDayOfMonth
-      }
+        $lt: firstDayOfMonth,
+      },
     });
 
     console.log("newusers", newUsersThisMonth, newUsersLastMonth);
     // Calculate growth rate
-    const growthRate = newUsersLastMonth > 0 
-      ? ((newUsersThisMonth - newUsersLastMonth) / newUsersLastMonth) * 100 
-      : 100;
+    const growthRate =
+      newUsersLastMonth > 0
+        ? ((newUsersThisMonth - newUsersLastMonth) / newUsersLastMonth) * 100
+        : 100;
 
     // Get class distribution
     const classDistribution = await User.aggregate([
       {
         $group: {
           _id: "$currentClass",
-          count: { $sum: 1 }
-        }
+          count: { $sum: 1 },
+        },
       },
       {
-        $sort: { count: -1 }
-      }
+        $sort: { count: -1 },
+      },
     ]);
 
     // Get exam target distribution
     const examTargetDistribution = await User.aggregate([
       {
-        $unwind: "$targetExam"
+        $unwind: "$targetExam",
       },
       {
         $group: {
           _id: "$targetExam",
-          count: { $sum: 1 }
-        }
+          count: { $sum: 1 },
+        },
       },
       {
-        $sort: { count: -1 }
-      }
+        $sort: { count: -1 },
+      },
     ]);
 
     // Get target year distribution
     const yearDistribution = await User.aggregate([
       {
-        $unwind: "$targetYear"
+        $unwind: "$targetYear",
       },
       {
         $group: {
           _id: "$targetYear",
-          count: { $sum: 1 }
-        }
+          count: { $sum: 1 },
+        },
       },
       {
-        $sort: { _id: 1 }
-      }
+        $sort: { _id: 1 },
+      },
     ]);
 
     // Get ebook subscription metrics
@@ -117,22 +120,22 @@ async function calculateUserAnalytics() {
       {
         $project: {
           hasSubscriptions: {
-            $cond: [{ $gt: [{ $size: "$subscribedEbook" }, 0] }, 1, 0]
+            $cond: [{ $gt: [{ $size: "$subscribedEbook" }, 0] }, 1, 0],
           },
-          subscriptionCount: { $size: "$subscribedEbook" }
-        }
+          subscriptionCount: { $size: "$subscribedEbook" },
+        },
       },
       {
         $group: {
           _id: null,
           totalSubscribedUsers: {
-            $sum: "$hasSubscriptions"
+            $sum: "$hasSubscriptions",
           },
           totalSubscriptions: {
-            $sum: "$subscriptionCount"
-          }
-        }
-      }
+            $sum: "$subscriptionCount",
+          },
+        },
+      },
     ]);
 
     // Get monthly growth data
@@ -150,12 +153,12 @@ async function calculateUserAnalytics() {
       distributions: {
         classes: classDistribution,
         examTargets: examTargetDistribution,
-        targetYears: yearDistribution
+        targetYears: yearDistribution,
       },
-      monthlyGrowth
+      monthlyGrowth,
     };
   } catch (error) {
-    console.error('Error calculating user analytics:', error);
+    console.error("Error calculating user analytics:", error);
     throw error;
   }
 }
@@ -167,33 +170,38 @@ async function getMonthlyGrowthData(numberOfMonths = 7) {
         $group: {
           _id: {
             year: { $year: "$createdAt" },
-            month: { $month: "$createdAt" }
+            month: { $month: "$createdAt" },
           },
           newUsers: { $sum: 1 },
           subscriptionCount: {
-            $sum: { $size: "$subscribedEbook" }
-          }
-        }
+            $sum: { $size: "$subscribedEbook" },
+          },
+        },
       },
       {
         $sort: {
           "_id.year": -1,
-          "_id.month": -1
-        }
+          "_id.month": -1,
+        },
       },
       {
-        $limit: numberOfMonths
-      }
+        $limit: numberOfMonths,
+      },
     ]);
 
     // Format the data for the frontend
-    return monthlyData.map(data => ({
-      month: new Date(data._id.year, data._id.month - 1).toLocaleString('default', { month: 'short' }),
-      newUsers: data.newUsers,
-      subscriptions: data.subscriptionCount
-    })).reverse();
+    return monthlyData
+      .map((data) => ({
+        month: new Date(data._id.year, data._id.month - 1).toLocaleString(
+          "default",
+          { month: "short" }
+        ),
+        newUsers: data.newUsers,
+        subscriptions: data.subscriptionCount,
+      }))
+      .reverse();
   } catch (error) {
-    console.error('Error getting monthly growth data:', error);
+    console.error("Error getting monthly growth data:", error);
     throw error;
   }
 }
@@ -204,14 +212,8 @@ async function getAnalytics(req, res) {
     const analytics = await calculateUserAnalytics();
     res.json(analytics);
   } catch (error) {
-    res.status(500).json({ error: 'Error fetching analytics data' });
+    res.status(500).json({ error: "Error fetching analytics data" });
   }
 }
 
-
-export {
-  calculateUserAnalytics,
-  getMonthlyGrowthData,
-  getAnalytics,
-
-};
+export { calculateUserAnalytics, getMonthlyGrowthData, getAnalytics };

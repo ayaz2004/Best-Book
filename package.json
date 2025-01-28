@@ -24,6 +24,7 @@
     "mongoose-aggregate-paginate-v2": "^1.1.2",
     "multer": "^1.4.5-lts.1",
     "twilio": "^5.4.0",
-    "twilio-cli": "^5.22.7"
+    "twilio-cli": "^5.22.7",
+    "uuid": "^11.0.5"
   }
 }
