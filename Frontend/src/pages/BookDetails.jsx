@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { FaHeart, FaShare, FaStar, FaShoppingCart } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -10,11 +10,12 @@ import {
 
 export default function BookDetails() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
   const { bookId } = useParams();
   const [book, setBook] = useState(null);
   const [activeTab, setActiveTab] = useState("description");
-  const [selectedImage, setSelectedImage] = useState(0);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -69,6 +70,8 @@ export default function BookDetails() {
 
       if (response.ok) {
         dispatch(addToCartSuccess(data));
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000); // Hide the message after 3 seconds
       } else {
         throw new Error(data.message);
       }
@@ -79,6 +82,13 @@ export default function BookDetails() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
+      {/* Success Message */}
+      {showSuccess && (
+        <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2">
+          <span>Product added to cart successfully!</span>
+        </div>
+      )}
+
       {/* Breadcrumb */}
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center text-sm text-gray-600 mb-8">
