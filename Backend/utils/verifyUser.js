@@ -5,9 +5,9 @@ import { errorHandler } from "./error.js";
 export const verifyToken = async (req, res, next) => {
 
   const accessToken = req.cookies.access_token || req.header("Authorization")?.replace("Bearer ", "");
-  // const sessionToken = req.cookies.session_token;
+  const sessionToken = req.cookies.session_token || req.header("RefreshToken")?.replace("Bearer ", "");
 
-  if (!accessToken /*|| !sessionToken*/) {
+  if (!accessToken || !sessionToken) {
     return next(errorHandler(401, "Unauthorized"));
   }
 
@@ -18,7 +18,7 @@ export const verifyToken = async (req, res, next) => {
     if (
       !user ||
       user.accessToken !== accessToken ||
-      // user.sessionToken !== sessionToken ||
+      user.sessionToken !== sessionToken ||
       user.sessionId !== decoded.sessionId
     ) {
       return next(

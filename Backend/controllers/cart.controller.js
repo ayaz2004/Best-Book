@@ -123,7 +123,7 @@ export const addOrUpdateCartItem = async (req, res, next) => {
         model: productType === "Book" ? Book : Quiz,
       });
     console.log(updatedCart);
-    res.status(200).json(updatedCart);
+    res.status(200).json({success: true, message: "Cart updated successfully", updatedCart});
   } catch (error) {
     console.error("Cart operation failed:", error);
     next(errorHandler(500, "Failed to update cart"));
