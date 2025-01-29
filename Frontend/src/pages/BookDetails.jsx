@@ -54,7 +54,7 @@ export default function BookDetails() {
 
     dispatch(addToCartStart());
     try {
-      const response = await fetch(`/api/cart/add/${currentUser._id}`, {
+      const response = await fetch(`/api/cart/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

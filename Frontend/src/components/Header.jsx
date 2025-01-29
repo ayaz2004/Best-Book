@@ -13,11 +13,13 @@ export default function Header() {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const [cartCount, setCartCount] = useState(0);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const res = await fetch(`/api/cart/getcart/${currentUser._id}`, {
+        const res = await fetch(`/api/cart/getcart`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

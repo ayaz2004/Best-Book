@@ -11,17 +11,20 @@ export default function CartPage() {
 
   useEffect(() => {
     const fetchCart = async () => {
+      if (!currentUser) {
+        navigate("/sign-in");
+        return;
+      }
       try {
-        const res = await fetch(`/api/cart/getcart/${currentUser._id}`, {
+        const res = await fetch(`/api/cart/getcart`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${currentUser.token}`,
+            "Authorization": `Bearer ${currentUser.accessToken}`,
           },
         });
-        const data = await response.json();
-        if (response.ok) {
-         
+        const data = await res.json();
+        if (res.ok) {
           setItems(data.cartData.items);
         } else {
           throw new Error(data.message);

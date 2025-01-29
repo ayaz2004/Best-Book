@@ -9,7 +9,7 @@ import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message.js";
 // Get Cart Details
 export const getCart = async (req, res, next) => {
   const userId = req.user.id;
-  console.log(userId)
+  console.log(userId);
 
   try {
     const cart = await Cart.findOne({ belongTo: userId });
@@ -46,6 +46,7 @@ export const getCart = async (req, res, next) => {
         productType: item.productType,
       });
     }
+    console.log(cartData);
     return res
       .status(200)
       .json({ success: true, message: "cart fetch successfully", cartData });
@@ -56,7 +57,7 @@ export const getCart = async (req, res, next) => {
 
 export const addOrUpdateCartItem = async (req, res, next) => {
   const { productId, quantity, bookType } = req.body;
-  const { userId } = req.params;
+  const userId = req.user.id;
 
   try {
     // Input validation
@@ -123,7 +124,11 @@ export const addOrUpdateCartItem = async (req, res, next) => {
         model: productType === "Book" ? Book : Quiz,
       });
     console.log(updatedCart);
-    res.status(200).json({success: true, message: "Cart updated successfully", updatedCart});
+    res.status(200).json({
+      success: true,
+      message: "Cart updated successfully",
+      updatedCart,
+    });
   } catch (error) {
     console.error("Cart operation failed:", error);
     next(errorHandler(500, "Failed to update cart"));
