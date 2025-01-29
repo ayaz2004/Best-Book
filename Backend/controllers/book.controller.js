@@ -136,7 +136,6 @@ export const getBooks = async (req, res, next) => {
   try {
     // Fetch all books from the database
     const books = await Book.find();
-    console.log(req.user);
     // Send success response
     res.status(200).json({
       success: true,
@@ -194,12 +193,12 @@ export const getPopularBooks = async (req, res, next) => {
 export const getAllBooksByExams = async (req, res, next) => {
   let { exam } = req.params;
   let books = null;
-  if(!exam || exam === ""){
+  if (!exam || exam === "") {
     return next(errorHandler(400, "Exam is required"));
   }
   try {
     if (exam === "all") {
-      console.log(exam)
+      console.log(exam);
       books = await Book.find();
     } else {
       books = await Book.find({ targetExam: exam });
