@@ -22,6 +22,7 @@ export default function CartPage() {
         });
         const data = await response.json();
         if (response.ok) {
+         
           setItems(data.cartData.items);
         } else {
           throw new Error(data.message);

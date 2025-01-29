@@ -9,6 +9,7 @@ import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message.js";
 // Get Cart Details
 export const getCart = async (req, res, next) => {
   const userId = req.user.id;
+  console.log(userId)
 
   try {
     const cart = await Cart.findOne({ belongTo: userId });
