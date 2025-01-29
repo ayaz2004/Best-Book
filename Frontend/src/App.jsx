@@ -16,7 +16,7 @@ import AllBooks from "./pages/AllBooks";
 import UserAnalytics from "./components/UserAnalytics";
 import CartPage from "./pages/CartPage";
 import VerifyOTP from "./pages/VerifyOTP";
-import CheckoutPage from "./pages/CheckouPage";
+import CheckoutPage from "./pages/CheckoutPage";
 import Orders from "./pages/Orders";
 
 export default function App() {
