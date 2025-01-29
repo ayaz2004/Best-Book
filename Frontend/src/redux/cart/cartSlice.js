@@ -1,11 +1,56 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
+export const fetchCart = createAsyncThunk(
+  "cart/fetchCart",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { user } = getState();
+      const response = await fetch("/api/cart/getcart", {
+        headers: {
+          "Authorization": `Bearer ${user.currentUser.token}`,
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      return data.cartData;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const applyCoupon = createAsyncThunk(
+  "cart/applyCoupon",
+  async (couponCode, { getState, rejectWithValue }) => {
+    try {
+      const { user } = getState();
+      const response = await fetch("/api/cart/apply-coupon", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${user.currentUser.token}`,
+        },
+        body: JSON.stringify({ couponCode }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      return data.cartData;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
     items: [],
+    subtotal: 0,
+    discount: 0,
+    total: 0,
     loading: false,
     error: null,
+    couponApplied: false,
   },
   reducers: {
     addToCartStart: (state) => {
@@ -24,12 +69,51 @@ const cartSlice = createSlice({
 
     removeFromCart: (state, action) => {
       state.items = state.items.filter(
-        (item) => item.productId !== action.payload
+        (item) => item.product._id !== action.payload
       );
+      state.subtotal = state.items.reduce(
+        (total, item) => total + item.product.price * item.quantity,
+        0
+      );
+      state.total = state.subtotal - state.discount;
     },
     clearCart: (state) => {
       state.items = [];
+      state.subtotal = 0;
+      state.total = 0;
+      state.discount = 0;
+      state.couponApplied = false;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchCart.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCart.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = action.payload.items;
+        state.subtotal = action.payload.subtotal;
+        state.total = action.payload.total;
+        state.discount = action.payload.discount;
+      })
+      .addCase(fetchCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(applyCoupon.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(applyCoupon.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = action.payload.items;
+        state.subtotal = action.payload.subtotal;
+        state.total = action.payload.total;
+        state.discount = action.payload.discount;
+        state.couponApplied = action.payload.couponApplied;
+      });
   },
 });
 
