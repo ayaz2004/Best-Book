@@ -92,7 +92,7 @@ export default function Header() {
                 {currentUser.email}
               </span>
             </Dropdown.Header>
-            <Link to="/profile">
+            <Link to="/dashboard?tab=profile">
               <Dropdown.Item>Profile</Dropdown.Item>
             </Link>
             <Dropdown.Divider />
@@ -113,6 +113,9 @@ export default function Header() {
         </Navbar.Link>
         <Navbar.Link as={"div"}>
           <Link to="/about">About</Link>
+        </Navbar.Link>
+        <Navbar.Link as={"div"}>
+          <Link to="/orders">Orders</Link>
         </Navbar.Link>
       </Navbar.Collapse>
     </Navbar>
