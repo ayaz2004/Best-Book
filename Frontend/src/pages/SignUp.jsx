@@ -2,8 +2,12 @@ import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { FaGraduationCap, FaLock, FaPhone, FaUser } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setPhoneNumber } from "../redux/user/userSlice";
 
 export default function SignUp() {
+  const dispatch = useDispatch();
+  const [phoneNumber, setPhoneNumberState] = useState("");
   const [formData, setFormData] = useState({
     username: "",
     phoneNumber: "",
@@ -42,7 +46,6 @@ export default function SignUp() {
       !formData.currentClass ||
       !formData.targetExam.length ||
       !formData.targetYear.length
-      
     ) {
       return setErrorMessage("PLease fill out all the fields.");
     }
@@ -54,7 +57,7 @@ export default function SignUp() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      
+
       const data = await res.json();
       console.log(data.success);
       if (data.success === false) {
@@ -62,6 +65,7 @@ export default function SignUp() {
       }
       setLoading(false);
       if (res.ok) {
+        dispatch(setPhoneNumber(formData.phoneNumber));
         navigate("/verify-otp");
       }
     } catch (error) {
