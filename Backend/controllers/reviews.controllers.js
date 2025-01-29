@@ -120,7 +120,7 @@ export const updateReview = async (req, res, next) => {
 
 export const deleteReview = async (req, res, next) => {
   const { reviewId } = req.params;
-  console.log(reviewId);
+
   if (!reviewId) {
     return next(errorHandler(400, "Review ID is required"));
   }
@@ -149,7 +149,7 @@ export const deleteReview = async (req, res, next) => {
       deleteResponse,
     });
   } catch (error) {
-    console.log(error.message);
+  
     next(errorHandler(500, error.message));
   }
 };

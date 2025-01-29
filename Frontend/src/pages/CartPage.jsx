@@ -19,8 +19,9 @@ export default function CartPage() {
             "Authorization": `Bearer ${currentUser.token}`,
           },
         });
-        const data = await res.json();
-        if (res.ok) {
+        const data = await response.json();
+        if (response.ok) {
+         
           setItems(data.cartData.items);
         } else {
           throw new Error(data.message);

@@ -28,6 +28,7 @@ export default function App() {
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/all-books" element={<AllBooks />} />
         <Route path="/book/:bookId" element={<BookDetails />} />
+        <Route path="/verify-otp" element={<VerifyOTP />} />
 
         {/* <Route path="/admin-dashboard" element={<TempDashBoard />} /> */}
         <Route element={<PrivateRoute />}>

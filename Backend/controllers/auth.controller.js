@@ -128,6 +128,7 @@ export const signin = async (req, res, next) => {
     await validUser.save();
 
     const { password: pass, ...rest } = validUser._doc;
+    console.log("rest", rest);
     res
       .status(200)
       .cookie("access_token", accessToken, {

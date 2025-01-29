@@ -9,6 +9,7 @@ import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message.js";
 // Get Cart Details
 export const getCart = async (req, res, next) => {
   const userId = req.user.id;
+  console.log(userId)
 
   try {
     const cart = await Cart.findOne({ belongTo: userId });
@@ -121,8 +122,8 @@ export const addOrUpdateCartItem = async (req, res, next) => {
         path: "items.productId",
         model: productType === "Book" ? Book : Quiz,
       });
-
-    res.status(200).json(updatedCart);
+    console.log(updatedCart);
+    res.status(200).json({success: true, message: "Cart updated successfully", updatedCart});
   } catch (error) {
     console.error("Cart operation failed:", error);
     next(errorHandler(500, "Failed to update cart"));
