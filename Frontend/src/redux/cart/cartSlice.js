@@ -19,28 +19,6 @@ export const fetchCart = createAsyncThunk(
   }
 );
 
-export const applyCoupon = createAsyncThunk(
-  "cart/applyCoupon",
-  async (couponCode, { getState, rejectWithValue }) => {
-    try {
-      const { user } = getState();
-      const response = await fetch("/api/cart/apply-coupon", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${user.currentUser.token}`,
-        },
-        body: JSON.stringify({ couponCode }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message);
-      return data.cartData;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
@@ -101,18 +79,6 @@ const cartSlice = createSlice({
       .addCase(fetchCart.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
-      .addCase(applyCoupon.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(applyCoupon.fulfilled, (state, action) => {
-        state.loading = false;
-        state.items = action.payload.items;
-        state.subtotal = action.payload.subtotal;
-        state.total = action.payload.total;
-        state.discount = action.payload.discount;
-        state.couponApplied = action.payload.couponApplied;
       });
   },
 });

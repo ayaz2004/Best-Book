@@ -10,14 +10,21 @@ import { Quiz } from "../models/quiz.model.js";
 import { Cart } from "../models/cart.model.js";
 
 export const placeOrder = async (req, res, next) => {
-  const { userId, cartId, address } = req.body;
+  const {
+    userId,
+    items,
+    shippingAddress,
+    totalAmount,
+    paymentProvider,
+    isPaymentDone,
+  } = req.body;
 
   try {
-    if (!userId || !cartId || !address) {
+    if (!userId || !items || !shippingAddress || !totalAmount) {
       return next(errorHandler(400, "Invalid data"));
     }
 
-    const cartItems = await Cart.findById(cartId);
+    // const cartItems = await Cart.findById(cartId);
 
     // if(req.user._id !== userId){
     //     return next(errorHandler(403, "Unauthorized"));
@@ -28,10 +35,10 @@ export const placeOrder = async (req, res, next) => {
       return next(errorHandler(404, "User not found"));
     }
 
-    let totalPrice = 0;
+    // let totalPrice = 0;
     let validateItems = [];
-    console.log(cartItems);
-    for (const item of cartItems?.items) {
+    console.log(items);
+    for (const item of items) {
       if (!item.productId || !item.quantity) {
         return next(errorHandler(400, "Invalid data"));
       }
@@ -55,16 +62,17 @@ export const placeOrder = async (req, res, next) => {
       product.stock -= item.quantity;
       await product.save({ validateBeforeSave: false });
 
-      totalPrice += product.price * item.quantity; // + delivery charged
+      // totalPrice += product.price * item.quantity; // + delivery charged
       validateItems.push({ product, quantity: item.quantity });
     }
 
     const order = new Order({
       userId,
       items: validateItems,
-      totalAmount: totalPrice,
-      address,
-      paymentProvider: PaymentProviderEnum.COD,
+      totalAmount,
+      shippingAddress,
+      paymentProvider,
+      isPaymentDone,
     });
 
     await order.save();
