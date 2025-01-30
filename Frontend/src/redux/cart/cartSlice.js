@@ -12,6 +12,7 @@ export const fetchCart = createAsyncThunk(
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message);
+      console.log(data)
       return data.cartData;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -70,6 +71,7 @@ const cartSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchCart.fulfilled, (state, action) => {
+   
         state.loading = false;
         state.items = action.payload.items;
         state.subtotal = action.payload.subtotal;

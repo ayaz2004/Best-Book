@@ -8,7 +8,7 @@ import User from "../models/user.model.js";
 import Book from "../models/book.model.js";
 import { Quiz } from "../models/quiz.model.js";
 import { Cart } from "../models/cart.model.js";
-
+import Address from "../models/address.model.js";
 export const placeOrder = async (req, res, next) => {
   const {
     userId,
@@ -20,37 +20,39 @@ export const placeOrder = async (req, res, next) => {
   } = req.body;
 
   try {
-    if (!userId || !items || !shippingAddress || !totalAmount) {
-      return next(errorHandler(400, "Invalid data"));
-    }
+    // if (!userId  || !shippingAddress || !totalAmount || paymentProvider !== "" || isPaymentDone === null || isPaymentDone === undefined) {
+    //   return next(errorHandler(400, "Invalid data"));
+    // }
 
     // const cartItems = await Cart.findById(cartId);
 
     // if(req.user._id !== userId){
     //     return next(errorHandler(403, "Unauthorized"));
     // }
-
+   
     const user = await User.findById(userId);
+
     if (!user) {
       return next(errorHandler(404, "User not found"));
     }
 
+  
     // let totalPrice = 0;
     let validateItems = [];
-    console.log(items);
     for (const item of items) {
-      if (!item.productId || !item.quantity) {
+      const productId = item.product._id;
+      if (!productId || !item.quantity) {
         return next(errorHandler(400, "Invalid data"));
       }
 
       if (item.quantity <= 0) {
         return next(errorHandler(400, "Invalid quantity"));
       }
-
+console.log(productId)
       const product =
-        item.productType === "Book"
-          ? await Book.findById(item.productId)
-          : await Quiz.findById(item.productId);
+        item.productType === "Book" || "ebook"
+          ? await Book.findById({_id:productId})
+          : await Quiz.findById({_id:productId});
       if (!product) {
         return next(errorHandler(404, "Product not found"));
       }
@@ -66,16 +68,19 @@ export const placeOrder = async (req, res, next) => {
       validateItems.push({ product, quantity: item.quantity });
     }
 
+    const address = new Address(shippingAddress);
+    await address.save();
     const order = new Order({
       userId,
       items: validateItems,
       totalAmount,
-      shippingAddress,
-      paymentProvider,
+      shippingAddress:address._id,
+      paymentProvider:PaymentProviderEnum.COD,
       isPaymentDone,
     });
 
     await order.save();
+
     // console.log(req.user._id);
     res.status(201).json({
       success: true,

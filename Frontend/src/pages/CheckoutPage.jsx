@@ -114,7 +114,7 @@ const CheckoutPage = () => {
     setLoading(true);
 
     const orderData = {
-      userId: currentUser,
+      userId: currentUser._id,
       items: items,
       totalAmount: orderSummary.total,
       shippingAddress: formData,
@@ -127,7 +127,7 @@ const CheckoutPage = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${currentUser.token}`,
+          "Authorization": `Bearer ${currentUser.accessToken}`,
         },
         body: JSON.stringify(orderData),
       });
@@ -137,7 +137,7 @@ const CheckoutPage = () => {
         throw new Error(data.message);
       }
 
-      dispatch(clearCart());
+      // dispatch(clearCart());
       console.log("Order placed successfully:");
       navigate("/orders");
     } catch (error) {
