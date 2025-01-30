@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaStar } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import ReviewCard from "./ReviewCard";
 
 export default function BookReviewSection({ bookId }) {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ export default function BookReviewSection({ bookId }) {
   const [error, setError] = useState(null);
   const [newReview, setNewReview] = useState({ rating: 0, description: "" });
   const [showForm, setShowForm] = useState(false);
-
+  console.log("currentuser",currentUser)
   useEffect(() => {
     fetchReviews();
   }, [bookId]);
@@ -77,7 +78,7 @@ export default function BookReviewSection({ bookId }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 h-96 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Customer Reviews</h3>
         {!showForm && (
@@ -151,32 +152,36 @@ export default function BookReviewSection({ bookId }) {
           <p className="text-center text-gray-500">No approved reviews yet</p>
         ) : (
           reviews.map((review) => (
-            <div key={review._id} className="border-b pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <span className="font-medium">{review.username}</span>
-                </div>
-                <div className="flex text-yellow-400">
-                  {[...Array(5)].map((_, index) => (
-                    <FaStar
-                      key={index}
-                      className={`w-4 h-4 ${
-                        index < review.rating
-                          ? "text-yellow-400"
-                          : "text-gray-300"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-              <p className="mt-2 text-gray-600">{review.description}</p>
-              <span className="text-sm text-gray-500">
-                {new Date(review.createdAt).toLocaleDateString()}
-              </span>
-            </div>
+            // <div key={review._id} className="border-b pb-4">
+            //   <div className="flex items-center justify-between">
+            //     <div className="flex items-center space-x-2">
+            //       <span className="font-medium">{review.username}</span>
+            //     </div>
+            //     <div className="flex text-yellow-400">
+            //       {[...Array(5)].map((_, index) => (
+            //         <FaStar
+            //           key={index}
+            //           className={`w-4 h-4 ${
+            //             index < review.rating
+            //               ? "text-yellow-400"
+            //               : "text-gray-300"
+            //           }`}
+            //         />
+            //       ))}
+            //     </div>
+            //   </div>
+            //   <p className="mt-2 text-gray-600">{review.description}</p>
+            //   <span className="text-sm text-gray-500">
+            //     {new Date(review.createdAt).toLocaleDateString()}
+            //   </span>
+            // </div>
+            <ReviewCard onApprove onDisapprove username ={currentUser.username} review={review} isPending={false} key={review._id} theme="light"/>
+
           ))
         )}
       </div>
+
+
     </div>
   );
 }

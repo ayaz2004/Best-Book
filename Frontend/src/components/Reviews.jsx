@@ -95,7 +95,7 @@ const CustomerReviews = () => {
   const handleDisapprove = async (reviewId) => {
     try {
       const response = await fetch(`/api/reviews/deletereviews/${reviewId}`, {
-        method: "PUT",
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },

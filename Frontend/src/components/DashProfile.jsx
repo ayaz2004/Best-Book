@@ -1,4 +1,4 @@
-import { Alert, Button, Modal, TextInput } from "flowbite-react";
+import { Alert, Button, Card, Modal, TextInput } from "flowbite-react";
 import { useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -9,6 +9,8 @@ import {
 } from "../redux/user/userSlice";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { Link } from "react-router-dom";
+import { FaUser, FaPhone, FaLock } from "react-icons/fa";
+import { motion } from "framer-motion"; // Import Framer Motion
 
 export default function DashProfile() {
   const { currentUser, error } = useSelector((state) => state.user);
@@ -19,7 +21,6 @@ export default function DashProfile() {
   const filePickerRef = useRef();
   const dispatch = useDispatch();
 
-  // Cloudinary Image Upload
   const uploadImagesToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -36,33 +37,29 @@ export default function DashProfile() {
       );
       const data = await response.json();
       if (data.secure_url) {
-        console.log("Uploaded successfully:", data.secure_url);
         return data.secure_url;
       } else {
         throw new Error("Failed to upload image");
       }
     } catch (error) {
-      console.error("Error uploading to Cloudinary:", error);
       setImageFileUploadError("Failed to upload image. Please try again.");
       return null;
     }
   };
 
-  // Handle Image Change
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       setImageFile(file);
       const url = await uploadImagesToCloudinary(file);
       if (url) {
-        setImageFileUrl(url); // Set the uploaded image URL
+        setImageFileUrl(url);
       } else {
         setImageFileUploadError("Failed to upload image. Please try again.");
       }
     }
   };
 
-  // Handle Delete User
   const handleDeleteUser = async () => {
     setShowModal(false);
     try {
@@ -81,118 +78,123 @@ export default function DashProfile() {
     }
   };
 
-  // Handle Sign Out
   const handleSignout = async () => {
-    try {
-      const res = await fetch("/api/user/signout", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${currentUser.token}`, // Ensure the token is included
-        },
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        console.log(data.message);
-      } else {
-        dispatch(signoutSuccess());
+    const confirmSignout = window.confirm("Are you sure you want to sign out?");
+    if (confirmSignout) {
+      try {
+        const res = await fetch("/api/user/signout", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${currentUser.token}`,
+          },
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          console.log(data.message);
+        } else {
+          dispatch(signoutSuccess());
+        }
+      } catch (error) {
+        console.log(error.message);
       }
-    } catch (error) {
-      console.log(error.message);
     }
   };
 
-  // // Handle Form Submission (Update Profile)
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   // Implement your form submission logic here, for example:
-  //   // You might want to send the updated profile to your backend API.
-  //   console.log("Form submitted with data:", {
-  //     username: e.target.username.value,
-  //     phoneNumber: e.target.phoneNumber.value,
-  //     password: e.target.password.value,
-  //     profilePicture: imageFileUrl || currentUser.profilePicture, // Use uploaded image URL if available
-  //   });
-  // };
-
   return (
-    <div className="max-w-lg mx-auto p-3 w-full">
-      <h1 className="my-7 text-center font-semibold text-3xl">Profile</h1>
-      <form className="flex flex-col gap-4">
-        <input
-          type="file"
-          accept="image/*"
-          // onChange={handleImageChange}
-          // ref={filePickerRef}
-          hidden
-        />
-        <div
-          className="w-32 h-32 self-center cursor-pointer shadow-md overflow-hidden rounded-full"
-          onClick={() => filePickerRef.current.click()}
-        >
-          <img
-            src={
-              imageFileUrl ||
-              currentUser.profilePicture ||
-              "/default-profile.png"
-            }
-            alt="user"
-            className="rounded-full w-full h-full object-cover border-8 border-[lightgray]"
-          />
-        </div>
-        <TextInput
-          type="text"
-          id="username"
-          placeholder="username"
-          defaultValue={currentUser.username}
-        />
-        <TextInput
-          type="text"
-          id="phoneNumber"
-          placeholder="phoneNumber"
-          defaultValue={currentUser.phoneNumber}
-        />
-        <TextInput type="text" id="password" placeholder="*******" />
-        <Button type="submit" gradientDuoTone="purpleToBlue" outline>
-          Update
-        </Button>
-        {currentUser.isAdmin && (
-          <Link to={"/create-product"}>
-            <Button
-              type="button"
-              gradientDuoTone="purpleToPink"
-              className="w-full"
-            >
-              Manage Books
-            </Button>
-          </Link>
-        )}
-      </form>
-      <div className="text-red-500 flex justify-between mt-5">
-        <span onClick={() => setShowModal(true)} className="cursor-pointer">
-          Delete Account
-        </span>
-        <span onClick={handleSignout} className="cursor-pointer">
-          Sign Out
-        </span>
-      </div>
-      {error && (
-        <Alert color="failure" className="mt-5">
-          {error}
-        </Alert>
-      )}
-      {imageFileUploadError && (
-        <Alert color="failure" className="mt-5">
-          {imageFileUploadError}
-        </Alert>
-      )}
-      <Modal
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        popup
-        size="md"
+    <div className="min-h-screen bg-gradient-to-r from-purple-200 via-purple-200 to-purple-200 py-10 w-full relative overflow-hidden">
+      {/* Glass Morphism Background with Framer Motion */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="absolute inset-0 bg-white/10 backdrop-blur-lg"
+      />
+
+      {/* Profile Card with Framer Motion */}
+      <motion.div
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="max-w-lg mx-auto p-6 shadow-lg rounded-lg bg-white/30 backdrop-blur-md border border-white/10 relative z-10"
       >
+        <div className="bg-purple-600 text-white py-4 rounded-t-lg">
+          <h1 className="text-center text-3xl font-semibold">My Profile</h1>
+        </div>
+        <form className="flex flex-col gap-4 mt-6">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            ref={filePickerRef}
+            hidden
+          />
+          <div
+            className="w-32 h-32 self-center cursor-pointer shadow-md overflow-hidden rounded-full hover:shadow-lg transition-shadow duration-300"
+            onClick={() => filePickerRef.current.click()}
+          >
+            <img
+              src={
+                imageFileUrl ||
+                currentUser.profilePicture ||
+                "https://via.placeholder.com/150"
+              }
+              alt="user"
+              className="rounded-full w-full h-full object-cover border-4 border-purple-200 hover:border-purple-500 transition-all duration-300"
+            />
+          </div>
+          <TextInput
+            type="text"
+            id="username"
+            placeholder="Username"
+            defaultValue={currentUser.username}
+            icon={FaUser}
+          />
+          <TextInput
+            type="text"
+            id="phoneNumber"
+            placeholder="Phone Number"
+            defaultValue={currentUser.phoneNumber}
+            icon={FaPhone}
+          />
+          <TextInput
+            type="password"
+            id="password"
+            placeholder="*******"
+            icon={FaLock}
+          />
+          <div className="grid grid-cols-2 gap-4 mt-5">
+            <Button type="submit" gradientDuoTone="purpleToBlue" outline>
+              Update Profile
+            </Button>
+            {currentUser.isAdmin && (
+              <Link to={"/create-product"}>
+                <Button type="button" gradientDuoTone="purpleToPink" className="w-full">
+                  Manage Books
+                </Button>
+              </Link>
+            )}
+          </div>
+        </form>
+        <div className="text-red-500 flex justify-between mt-5">
+          <span onClick={() => setShowModal(true)} className="cursor-pointer hover:underline">
+            Delete Account
+          </span>
+          <span onClick={handleSignout} className="cursor-pointer hover:underline">
+            Sign Out
+          </span>
+        </div>
+        {error && <Alert color="failure" className="mt-5">{error}</Alert>}
+        {imageFileUploadError && <Alert color="failure" className="mt-5">{imageFileUploadError}</Alert>}
+        <div className="mt-6 text-center text-gray-600">
+          <p>Joined on: {new Date(currentUser.createdAt).toLocaleDateString()}</p>
+          <p>Email: {currentUser.email}</p>
+        </div>
+      </motion.div>
+
+      {/* Modal for Delete Confirmation */}
+      <Modal show={showModal} onClose={() => setShowModal(false)} popup size="md">
         <Modal.Header />
         <Modal.Body>
           <div className="text-center">

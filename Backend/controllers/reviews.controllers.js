@@ -14,7 +14,7 @@ export const addReview = async (req, res, next) => {
   ) {
     next(errorHandler(400, "All fields are required."));
   }
-  const user = await User.findOne({username:username});
+  const user = await User.findOne({ username: username });
   if (!user) {
     return next(errorHandler(404, `No user found with ID: ${username}`));
   }
@@ -50,7 +50,11 @@ export const addReview = async (req, res, next) => {
 export const approveReview = async (req, res, next) => {
   try {
     const { reviewId } = req.params;
-    const review = await Reviews.findByIdAndUpdate({_id:reviewId},{approved:true},{new:true});
+    const review = await Reviews.findByIdAndUpdate(
+      { _id: reviewId },
+      { approved: true },
+      { new: true }
+    );
     if (!review) {
       return next(errorHandler(404, "Review not found"));
     }
@@ -62,10 +66,10 @@ export const approveReview = async (req, res, next) => {
   } catch (error) {
     next(errorHandler(500, error.message));
   }
-}
-export const getApprovedReviews = async (req, res, next) => { 
+};
+export const getApprovedReviews = async (req, res, next) => {
   try {
-    const reviews = await Reviews.find({approved:true});
+    const reviews = await Reviews.find({ approved: true });
     if (!reviews) {
       return next(errorHandler(404, "No reviews found"));
     }
@@ -74,16 +78,30 @@ export const getApprovedReviews = async (req, res, next) => {
       message: "Reviews fetched successfully",
       reviews,
     });
-
   } catch (error) {
     next(errorHandler(500, error.message));
   }
-}
-
+};
+export const getApprovedReviewsForBook = async (req, res, next) => {
+  const { bookId } = req.params;
+  try {
+    const reviews = await Reviews.find({ approved: true, itemId: bookId });
+    if (!reviews) {
+      return next(errorHandler(404, "No reviews found"));
+    }
+    res.status(200).json({
+      success: true,
+      message: "Reviews fetched successfully",
+      reviews,
+    });
+  } catch (error) {
+    next(errorHandler(500, error.message));
+  }
+};
 
 export const getunApproveReviews = async (req, res, next) => {
   try {
-    const reviews = await Reviews.find({approved:false});
+    const reviews = await Reviews.find({ approved: false });
     if (!reviews) {
       return next(errorHandler(404, "No reviews found"));
     }
@@ -95,7 +113,7 @@ export const getunApproveReviews = async (req, res, next) => {
   } catch (error) {
     next(errorHandler(500, error.message));
   }
-}
+};
 export const updateReview = async (req, res, next) => {
   const { reviewId } = req.params;
   const dataToUpdate = req.body;
@@ -149,7 +167,6 @@ export const deleteReview = async (req, res, next) => {
       deleteResponse,
     });
   } catch (error) {
-  
     next(errorHandler(500, error.message));
   }
 };
@@ -161,7 +178,7 @@ export const getPopularReviews = async (req, res, next) => {
       return res.status(200).json({
         success: true,
         reviews: [], // Return empty array instead of error
-        message: "No reviews available yet"
+        message: "No reviews available yet",
       });
     }
 
@@ -169,17 +186,17 @@ export const getPopularReviews = async (req, res, next) => {
       {
         $match: {
           isApproved: true,
-          rating: { $exists: true, $ne: null } // Ensure rating exists
-        }
+          rating: { $exists: true, $ne: null }, // Ensure rating exists
+        },
       },
       {
         $sort: {
           rating: -1,
-          createdAt: -1 // Secondary sort by date
-        }
+          createdAt: -1, // Secondary sort by date
+        },
       },
       {
-        $limit: 6
+        $limit: 6,
       },
       {
         $project: {
@@ -189,18 +206,17 @@ export const getPopularReviews = async (req, res, next) => {
           rating: 1,
           itemId: 1,
           itemType: 1,
-          createdAt: 1
-        }
-      }
+          createdAt: 1,
+        },
+      },
     ]);
 
     return res.status(200).json({
       success: true,
-      reviews: popularReviews
+      reviews: popularReviews,
     });
-
   } catch (error) {
-    console.error('Error fetching popular reviews:', error);
+    console.error("Error fetching popular reviews:", error);
     return next(errorHandler(500, "Error fetching popular reviews"));
   }
 };
