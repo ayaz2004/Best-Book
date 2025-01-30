@@ -29,7 +29,18 @@ export const placeOrder = async (req, res, next) => {
     // if(req.user._id !== userId){
     //     return next(errorHandler(403, "Unauthorized"));
     // }
-   
+    const {
+      firstName,
+      lastName,
+      phone,
+      address1,
+      address2,
+      city,
+      state,
+      pincode,
+      country,
+      isDefault,
+    } = shippingAddress;
     const user = await User.findById(userId);
 
     if (!user) {
@@ -68,7 +79,20 @@ console.log(productId)
       validateItems.push({ product, quantity: item.quantity });
     }
 
-    const address = new Address(shippingAddress);
+    const address = new Address({
+      userId,
+      firstName,
+      lastName,
+      phone,
+      address1,
+      address2,
+      city,
+      state,
+      pincode,
+      country,
+      isDefault,
+    });
+    
     await address.save();
     const order = new Order({
       userId,
