@@ -26,7 +26,7 @@ export const getUserAddresses = async (req, res, next) => {
   }
 };
 
-// Add Address (with dynamic maxAddress check)
+// Add Address
 export const addAddress = async (req, res, next) => {
   try {
     const {
@@ -51,12 +51,6 @@ export const addAddress = async (req, res, next) => {
       return next(errorHandler(404, "User not found"));
     }
 
-    // Check current number of addresses
-    const existingAddresses = await Address.find({ userId });
-    if (existingAddresses.length >= 3) {
-      return next(errorHandler(400, "Maximum address limit reached"));
-    }
-
     const address = new Address({
       userId,
       firstName,
@@ -70,7 +64,7 @@ export const addAddress = async (req, res, next) => {
       country,
     });
 
-    await address.save({ validateBeforeSave: true });
+    await address.save();
 
     return res.status(201).json({
       success: true,
@@ -128,7 +122,7 @@ export const updateAddress = async (req, res, next) => {
     address.pincode = pincode;
     address.country = country;
 
-    await address.save({validateBeforeSave: false});
+    await address.save();
 
     return res.status(200).json({
       success: true,
@@ -140,38 +134,32 @@ export const updateAddress = async (req, res, next) => {
   }
 };
 
-// Delete Address (and allow adding a new address)
+// Delete Address
 export const deleteAddress = async (req, res, next) => {
-    try {
-      const { addressId } = req.params;
-      const userId = req.user?.id;
-  
-      // Check if user is authenticated
-      if (!userId) {
-        return next(errorHandler(401, "Unauthorized"));
-      }
-  
-      // Find the address by ID
-      const address = await Address.findById(addressId);
-  
-      // Check if the address exists
-      if (!address) {
-        return next(errorHandler(404, "Address not found"));
-      }
-  
-      // Check if the address belongs to the authenticated user
-      if (address.userId.toString() !== userId.toString()) {
-        return next(errorHandler(401, "Unauthorized"));
-      }
-  
-      // Delete the address
-      await Address.findByIdAndDelete(addressId);
-  
-      return res.status(200).json({
-        success: true,
-        message: "Address deleted successfully",
-      });
-    } catch (error) {
-      next(errorHandler(500, error.message));
+  try {
+    const { addressId } = req.params;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return next(errorHandler(401, "Unauthorized"));
     }
-  };
+
+    const address = await Address.findById(addressId);
+    if (!address) {
+      return next(errorHandler(404, "Address not found"));
+    }
+
+    if (address.userId.toString() !== userId.toString()) {
+      return next(errorHandler(401, "Unauthorized"));
+    }
+
+    await Address.findByIdAndDelete(addressId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Address deleted successfully",
+    });
+  } catch (error) {
+    next(errorHandler(500, error.message));
+  }
+};

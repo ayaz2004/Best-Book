@@ -24,7 +24,7 @@ export default function App() {
     <BrowserRouter>
       <Header />
       <Routes>
-        <Route path="/" element={<AddressManagement />} />
+        <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
@@ -38,6 +38,7 @@ export default function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/address" element={<AddressManagement/>}/>
         </Route>
         <Route element={<OnlyAdminPrivateRoute />}>
           <Route path="/manage-books" element={<AdminBookDashboard />} />

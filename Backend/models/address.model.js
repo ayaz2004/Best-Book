@@ -52,14 +52,13 @@ const addressSchema = new mongoose.Schema(
 );
 
 addressSchema.pre("save", async function (next) {
-  const addressCount = await Address.countDocuments({ userId: this.userId });
+  const addressCount = await Address.countDocuments({
+    userId: this.userId,
+  });
 
   if (addressCount >= 3) {
-    return next(errorHandler(400, "Max Address limit reached"));
+    return next(new Error("Maximum address limit reached (3 addresses allowed)."));
   }
-  
-this.maxAddress=addressCount+1;
-
 
   next();
 });

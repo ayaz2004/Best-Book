@@ -25,48 +25,7 @@ export default function DashProfile() {
   const filePickerRef = useRef();
   const dispatch = useDispatch();
 
-  const fetchUserAddress = async (token) => {
-    try {
-      dispatch(addressStart());
-      const form = {
-        firstName: "John",
-        lastName: "Doe",
-        phone: "9876543210",
-        address1: "123 Main Street",
-        address2: "Apt 4B",
-        city: "New York",
-        state: "NY",
-        pincode: "10001",
-        country: "USA",
-       
-      }
-     const response= await fetch("api/address/addaddress", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify(form),
-      });
-      const d = await response.json();
-      const res = await fetch("api/address/getuseraddresses", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-      const data = await res.json();
-      if (res.ok) {
-      //  console.log(data)
-        dispatch(addressSuccess(data));
-      }
-    } catch (error) {
-      dispatch(addressFailure(error.message));
-    }
-  };
-
-  fetchUserAddress(currentUser.accessToken);
+ 
   const uploadImagesToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
