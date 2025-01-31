@@ -16,6 +16,8 @@ import AllBooks from "./pages/AllBooks";
 import UserAnalytics from "./components/UserAnalytics";
 import CartPage from "./pages/CartPage";
 import VerifyOTP from "./pages/VerifyOTP";
+import CheckoutPage from "./pages/CheckoutPage";
+import Orders from "./pages/Orders";
 
 export default function App() {
   return (
@@ -34,6 +36,8 @@ export default function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/orders" element={<Orders />} />
         </Route>
         <Route element={<OnlyAdminPrivateRoute />}>
           <Route path="/manage-books" element={<AdminBookDashboard />} />

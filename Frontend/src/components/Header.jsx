@@ -1,61 +1,24 @@
-import { Avatar, Button, Dropdown, Navbar, TextInput } from "flowbite-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { Button, Navbar, TextInput, Dropdown, Avatar } from "flowbite-react";
 import { AiOutlineSearch } from "react-icons/ai";
 import { FaShoppingCart } from "react-icons/fa";
-import { useSelector } from "react-redux";
 import { signoutSuccess } from "../redux/user/userSlice";
-import { useDispatch } from "react-redux";
-import { useEffect, useState } from "react";
 
 export default function Header() {
   const navigate = useNavigate();
-  const path = useLocation().pathname;
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
-  const [cartCount, setCartCount] = useState(0);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchCart = async () => {
-      try {
-        const res = await fetch(`/api/cart/getcart`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${currentUser.token}`,
-          },
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setCartCount(data.cartData.items.length);
-        } else {
-          throw new Error(data.message);
-        }
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCart();
-  }, [currentUser]);
-
-  const handleCartClick = () => {
-    if (currentUser) {
-      navigate("/cart");
-    } else {
-      navigate("/sign-in");
-    }
-  };
+  const { items } = useSelector((state) => state.cart);
+  const cartCount = currentUser ? items?.length || 0 : 0;
 
   const handleSignout = async () => {
     try {
       const res = await fetch("/api/user/signout", {
         method: "POST",
         credentials: "include",
-        header: {
+        headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${currentUser.token}`,
         },
@@ -70,6 +33,15 @@ export default function Header() {
       console.log(error.message);
     }
   };
+
+  const handleCartClick = () => {
+    if (currentUser) {
+      navigate("/cart");
+    } else {
+      navigate("/sign-in");
+    }
+  };
+
   return (
     <Navbar className="border-b-2">
       <Link
@@ -99,7 +71,7 @@ export default function Header() {
           onClick={handleCartClick}
         >
           <FaShoppingCart />
-          {cartCount > 0 && (
+          {currentUser && cartCount > 0 && (
             <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2 py-1">
               {cartCount}
             </div>
@@ -116,29 +88,33 @@ export default function Header() {
             <Dropdown.Header>
               <span className="block text-sm">@{currentUser.username}</span>
               <span className="block text-sm font-medium truncate">
-                +91 {currentUser.phoneNumber}
+                {currentUser.email}
               </span>
             </Dropdown.Header>
-            <Link to={"/dashboard?tab=profile"}>
+            <Link to="/dashboard?tab=profile">
               <Dropdown.Item>Profile</Dropdown.Item>
             </Link>
             <Dropdown.Divider />
-            <Dropdown.Item onClick={handleSignout}>Sign Out</Dropdown.Item>
+            <Dropdown.Item onClick={handleSignout}>Sign out</Dropdown.Item>
           </Dropdown>
         ) : (
           <Link to="/sign-in">
-            <Button gradientDuoTone="purpleToBlue">Sign In</Button>
+            <Button gradientDuoTone="purpleToBlue" outline>
+              Sign In
+            </Button>
           </Link>
         )}
-
         <Navbar.Toggle />
       </div>
       <Navbar.Collapse>
-        <Navbar.Link active={path === "/"} as={"div"}>
+        <Navbar.Link as={"div"}>
           <Link to="/">Home</Link>
         </Navbar.Link>
-        <Navbar.Link active={path === "/about"} as={"div"}>
-          <Link to="/About">About</Link>
+        <Navbar.Link as={"div"}>
+          <Link to="/about">About</Link>
+        </Navbar.Link>
+        <Navbar.Link as={"div"}>
+          <Link to="/orders">Orders</Link>
         </Navbar.Link>
       </Navbar.Collapse>
     </Navbar>

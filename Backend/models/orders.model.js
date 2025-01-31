@@ -7,32 +7,6 @@ import {
 } from "../utils/constant.js";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
-const addressSchema = new mongoose.Schema({
-    addressLine1: {
-        required: true,
-        type: String,
-      },
-      addressLine2: {
-        type: String,
-      },
-      city: {
-        required: true,
-        type: String,
-      },
-      country: {
-        required: true,
-        type: String,
-      },
-      pincode: {
-        required: true,
-        type: String,
-      },
-      state: {
-        required: true,
-        type: String,
-      },
-})
-
 const orderSchema = new mongoose.Schema(
   {
     userId: {
@@ -44,21 +18,24 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
     totalAmount: {
-        type: Number,
-        required: true,
+      type: Number,
+      required: true,
     },
     status: {
       type: String,
       enum: AvailableOrderStatuses,
       default: OrderStatusEnum.PENDING,
     },
-    address: {
-    addressSchema,
+    shippingAddress: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Address",
+      required: true,
     },
+
     paymentProvider: {
       type: String,
       enum: AvailablePaymentProviders,
-      default: PaymentProviderEnum.UNKNOWN,
+      default: PaymentProviderEnum.COD,
       required: true,
     },
     isPaymentDone: {
@@ -69,6 +46,6 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-orderSchema.plugin(mongooseAggregatePaginate)
+orderSchema.plugin(mongooseAggregatePaginate);
 const Order = mongoose.model("Order", orderSchema);
 export { Order };

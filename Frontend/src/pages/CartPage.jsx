@@ -1,47 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { FaTrash, FaShoppingCart, FaMinus, FaPlus } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { fetchCart, clearCart, removeFromCart } from "../redux/cart/cartSlice";
 
 export default function CartPage() {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
+  const { items, loading, error } = useSelector((state) => state.cart);
 
   useEffect(() => {
-    const fetchCart = async () => {
-      if (!currentUser) {
-        navigate("/sign-in");
-        return;
-      }
-      try {
-        const res = await fetch(`/api/cart/getcart`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${currentUser.accessToken}`,
-          },
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setItems(data.cartData.items);
-        } else {
-          throw new Error(data.message);
-        }
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCart();
-  }, [currentUser]);
+    if (!currentUser) {
+      navigate("/sign-in");
+      return;
+    }
+    dispatch(fetchCart());
+  }, [dispatch, currentUser, navigate]);
 
   const handleUpdateQuantity = async (productId, quantity) => {
     try {
-      const response = await fetch("/api/cart/update-quantity", {
+      const res = await fetch("/api/cart/update-quantity", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,12 +29,11 @@ export default function CartPage() {
         body: JSON.stringify({ productId, quantity }),
       });
 
-      const data = await response.json();
-      if (response.ok) {
-        setItems(data.cartData.items);
+      if (res.ok) {
+        dispatch(fetchCart());
       }
     } catch (error) {
-      console.error("Error updating quantity:", error);
+      setError("Failed to update quantity");
     }
   };
 
@@ -108,7 +86,7 @@ export default function CartPage() {
 
   const handleRemoveItem = async (productId) => {
     try {
-      const response = await fetch("/api/cart/remove", {
+      const res = await fetch("/api/cart/remove", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -117,12 +95,8 @@ export default function CartPage() {
         body: JSON.stringify({ productId }),
       });
 
-      if (response.ok) {
-        // Refresh cart after removal
-        const updatedItems = items.filter(
-          (item) => item.product._id !== productId
-        );
-        setItems(updatedItems);
+      if (res.ok) {
+        dispatch(removeFromCart(productId));
       }
     } catch (error) {
       setError("Failed to remove item");
@@ -131,7 +105,7 @@ export default function CartPage() {
 
   const handleClearCart = async () => {
     try {
-      const response = await fetch("/api/cart/clear", {
+      const res = await fetch("/api/cart/clear", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -139,8 +113,8 @@ export default function CartPage() {
         },
       });
 
-      if (response.ok) {
-        setItems([]); // Clear items locally
+      if (res.ok) {
+        dispatch(clearCart());
       }
     } catch (error) {
       setError("Failed to clear cart");
@@ -264,7 +238,10 @@ export default function CartPage() {
                   </div>
                 </div>
               </div>
-              <button className="w-full bg-purple-600 text-white py-3 rounded-lg">
+              <button
+                onClick={() => navigate("/checkout")}
+                className="w-full bg-purple-600 text-white py-3 rounded-lg"
+              >
                 Proceed to Checkout
               </button>
               <Link

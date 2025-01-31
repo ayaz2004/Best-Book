@@ -32,6 +32,7 @@ export const getCart = async (req, res, next) => {
       // }
 
       // Add the found product to the cartData
+      console.log(product);
       cartData.items.push({
         product: {
           _id: product._id,
@@ -40,6 +41,7 @@ export const getCart = async (req, res, next) => {
           coverImage: product.coverImage,
           ebookDiscount: product.ebookDiscount,
           hardcopyDiscount: product.hardcopyDiscount,
+          stock: product.stock,
         },
         quantity: item.quantity,
         productType: item.productType,

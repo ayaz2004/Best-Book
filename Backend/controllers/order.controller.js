@@ -8,42 +8,62 @@ import User from "../models/user.model.js";
 import Book from "../models/book.model.js";
 import { Quiz } from "../models/quiz.model.js";
 import { Cart } from "../models/cart.model.js";
-
+import Address from "../models/address.model.js";
 export const placeOrder = async (req, res, next) => {
-  const { userId, cartId, address } = req.body;
+  const {
+    userId,
+    items,
+    shippingAddress,
+    totalAmount,
+    paymentProvider,
+    isPaymentDone,
+  } = req.body;
 
   try {
-    if (!userId || !cartId || !address) {
-      return next(errorHandler(400, "Invalid data"));
-    }
+    // if (!userId  || !shippingAddress || !totalAmount || paymentProvider !== "" || isPaymentDone === null || isPaymentDone === undefined) {
+    //   return next(errorHandler(400, "Invalid data"));
+    // }
 
-    const cartItems = await Cart.findById(cartId);
+    // const cartItems = await Cart.findById(cartId);
 
     // if(req.user._id !== userId){
     //     return next(errorHandler(403, "Unauthorized"));
     // }
-
+    const {
+      firstName,
+      lastName,
+      phone,
+      address1,
+      address2,
+      city,
+      state,
+      pincode,
+      country,
+      isDefault,
+    } = shippingAddress;
     const user = await User.findById(userId);
+
     if (!user) {
       return next(errorHandler(404, "User not found"));
     }
 
-    let totalPrice = 0;
+  
+    // let totalPrice = 0;
     let validateItems = [];
-    console.log(cartItems);
-    for (const item of cartItems?.items) {
-      if (!item.productId || !item.quantity) {
+    for (const item of items) {
+      const productId = item.product._id;
+      if (!productId || !item.quantity) {
         return next(errorHandler(400, "Invalid data"));
       }
 
       if (item.quantity <= 0) {
         return next(errorHandler(400, "Invalid quantity"));
       }
-
+console.log(productId)
       const product =
-        item.productType === "Book"
-          ? await Book.findById(item.productId)
-          : await Quiz.findById(item.productId);
+        item.productType === "Book" || "ebook"
+          ? await Book.findById({_id:productId})
+          : await Quiz.findById({_id:productId});
       if (!product) {
         return next(errorHandler(404, "Product not found"));
       }
@@ -55,19 +75,36 @@ export const placeOrder = async (req, res, next) => {
       product.stock -= item.quantity;
       await product.save({ validateBeforeSave: false });
 
-      totalPrice += product.price * item.quantity; // + delivery charged
+      // totalPrice += product.price * item.quantity; // + delivery charged
       validateItems.push({ product, quantity: item.quantity });
     }
 
+    const address = new Address({
+      userId,
+      firstName,
+      lastName,
+      phone,
+      address1,
+      address2,
+      city,
+      state,
+      pincode,
+      country,
+      isDefault,
+    });
+    
+    await address.save();
     const order = new Order({
       userId,
       items: validateItems,
-      totalAmount: totalPrice,
-      address,
-      paymentProvider: PaymentProviderEnum.COD,
+      totalAmount,
+      shippingAddress:address._id,
+      paymentProvider:PaymentProviderEnum.COD,
+      isPaymentDone,
     });
 
     await order.save();
+
     // console.log(req.user._id);
     res.status(201).json({
       success: true,
