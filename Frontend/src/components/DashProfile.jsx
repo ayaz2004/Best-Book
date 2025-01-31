@@ -11,7 +11,11 @@ import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import { FaUser, FaPhone, FaLock } from "react-icons/fa";
 import { motion } from "framer-motion"; // Import Framer Motion
-
+import {
+  addressSuccess,
+  addressFailure,
+  addressStart,
+} from "../redux/address/addressSlice";
 export default function DashProfile() {
   const { currentUser, error } = useSelector((state) => state.user);
   const [imageFile, setImageFile] = useState(null);
@@ -21,6 +25,48 @@ export default function DashProfile() {
   const filePickerRef = useRef();
   const dispatch = useDispatch();
 
+  const fetchUserAddress = async (token) => {
+    try {
+      dispatch(addressStart());
+      const form = {
+        firstName: "John",
+        lastName: "Doe",
+        phone: "9876543210",
+        address1: "123 Main Street",
+        address2: "Apt 4B",
+        city: "New York",
+        state: "NY",
+        pincode: "10001",
+        country: "USA",
+       
+      }
+     const response= await fetch("api/address/addaddress", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(form),
+      });
+      const d = await response.json();
+      const res = await fetch("api/address/getuseraddresses", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+      //  console.log(data)
+        dispatch(addressSuccess(data));
+      }
+    } catch (error) {
+      dispatch(addressFailure(error.message));
+    }
+  };
+
+  fetchUserAddress(currentUser.accessToken);
   const uploadImagesToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -170,7 +216,11 @@ export default function DashProfile() {
             </Button>
             {currentUser.isAdmin && (
               <Link to={"/create-product"}>
-                <Button type="button" gradientDuoTone="purpleToPink" className="w-full">
+                <Button
+                  type="button"
+                  gradientDuoTone="purpleToPink"
+                  className="w-full"
+                >
                   Manage Books
                 </Button>
               </Link>
@@ -178,23 +228,44 @@ export default function DashProfile() {
           </div>
         </form>
         <div className="text-red-500 flex justify-between mt-5">
-          <span onClick={() => setShowModal(true)} className="cursor-pointer hover:underline">
+          <span
+            onClick={() => setShowModal(true)}
+            className="cursor-pointer hover:underline"
+          >
             Delete Account
           </span>
-          <span onClick={handleSignout} className="cursor-pointer hover:underline">
+          <span
+            onClick={handleSignout}
+            className="cursor-pointer hover:underline"
+          >
             Sign Out
           </span>
         </div>
-        {error && <Alert color="failure" className="mt-5">{error}</Alert>}
-        {imageFileUploadError && <Alert color="failure" className="mt-5">{imageFileUploadError}</Alert>}
+        {error && (
+          <Alert color="failure" className="mt-5">
+            {error}
+          </Alert>
+        )}
+        {imageFileUploadError && (
+          <Alert color="failure" className="mt-5">
+            {imageFileUploadError}
+          </Alert>
+        )}
         <div className="mt-6 text-center text-gray-600">
-          <p>Joined on: {new Date(currentUser.createdAt).toLocaleDateString()}</p>
+          <p>
+            Joined on: {new Date(currentUser.createdAt).toLocaleDateString()}
+          </p>
           <p>Email: {currentUser.email}</p>
         </div>
       </motion.div>
 
       {/* Modal for Delete Confirmation */}
-      <Modal show={showModal} onClose={() => setShowModal(false)} popup size="md">
+      <Modal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        popup
+        size="md"
+      >
         <Modal.Header />
         <Modal.Body>
           <div className="text-center">

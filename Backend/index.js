@@ -12,6 +12,7 @@ import chapterRoutes from "./routes/chapter.route.js";
 import quizRoutes from  "./routes/quiz.routes.js"
 import cartRoutes from "./routes/cart.route.js";
 import orderRoutes from "./routes/order.route.js";
+import addressRoutes from "./routes/address.route.js";
 import bodyParser from "body-parser";
 dotenv.config();
 
@@ -49,7 +50,8 @@ app.use("/api/cart", cartRoutes);
 // order
 app.use("/api/order", orderRoutes);
 
-
+// addresses
+app.use("/api/address", addressRoutes);
 
 
 
