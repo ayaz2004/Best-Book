@@ -13,20 +13,32 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
     items: {
       type: Array,
       required: true,
     },
+
     totalAmount: {
       type: Number,
       required: true,
     },
+
     status: {
       type: String,
       enum: AvailableOrderStatuses,
       default: OrderStatusEnum.PENDING,
     },
-    shippingAddress: {type:Address.schema, required: true},
+
+    shippingAddress: {
+      type: Address.schema,
+      required: true,
+    },
+
+    coupon: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Coupon",
+    },
 
     paymentProvider: {
       type: String,
@@ -34,6 +46,7 @@ const orderSchema = new mongoose.Schema(
       default: PaymentProviderEnum.COD,
       required: true,
     },
+
     isPaymentDone: {
       type: Boolean,
       default: false,
@@ -46,7 +59,6 @@ orderSchema.plugin(mongooseAggregatePaginate);
 const Order = mongoose.model("Order", orderSchema);
 export { Order };
 
-
 // addres1
-// addres2 
-//  new 
+// addres2
+//  new

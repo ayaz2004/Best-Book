@@ -21,7 +21,7 @@ const couponSchema = new Schema(
       enum: AvailableCouponTypes,
       default: CouponTypeEnum.FLAT,
     },
-    discountValue: {
+    discountPercentage: {
       type: Number,
       required: true,
     },

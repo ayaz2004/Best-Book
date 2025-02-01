@@ -27,11 +27,7 @@ const cartSchema = new Schema(
       required: true,
     },
     items: [cartItemSchema],
-    coupon: {
-      type: Schema.Types.ObjectId,
-      ref: "Coupon",
-      default: null,
-    },
+ 
     subtotal: {
       type: Number,
       default: 0,
