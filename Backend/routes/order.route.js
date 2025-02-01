@@ -3,6 +3,8 @@ import {
   placeOrder,
   getAllOrdersByUser,
   getAllOrders,
+  applyCoupon,
+  addCoupon,
 } from "../controllers/order.controller.js";
 
 const router = Router();
@@ -13,4 +15,6 @@ router.get("/getordersbyuser/:userId", getAllOrdersByUser);
 // admin
 // getting all orders
 router.get("/getallorders", getAllOrders);
+router.post("/applycoupon",applyCoupon);
+router.post("/addcoupon",addCoupon);
 export default router;

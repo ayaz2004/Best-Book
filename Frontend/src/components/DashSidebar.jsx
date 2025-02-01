@@ -1,6 +1,6 @@
 import { Sidebar } from "flowbite-react";
 import { useEffect, useState } from "react";
-import { HiArrowSmRight, HiUser, HiBookOpen } from "react-icons/hi";
+import { HiArrowSmRight, HiUser, HiBookOpen,HiHome } from "react-icons/hi";
 import { Link, useLocation } from "react-router-dom";
 import { signoutSuccess } from "../redux/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -55,6 +55,17 @@ export default function DashSidebar() {
               Profile
             </Sidebar.Item>
           </Link>
+          <Link to="/address">
+            <Sidebar.Item
+              active={tab === "address"}
+              icon={HiHome}
+              label={"User"}
+              labelColor="dark"
+              as="div"
+            >
+              Address
+            </Sidebar.Item>
+          </Link>
           {currentUser && currentUser.isAdmin && (
             <Link to="/manage-books">
               <Sidebar.Item
@@ -88,6 +99,7 @@ export default function DashSidebar() {
               </Sidebar.Item>
             </Link>
           )}
+
           <Sidebar.Item
             icon={HiArrowSmRight}
             className="cursor-pointer"

@@ -9,6 +9,8 @@ import Book from "../models/book.model.js";
 import { Quiz } from "../models/quiz.model.js";
 import { Cart } from "../models/cart.model.js";
 import Address from "../models/address.model.js";
+import { Coupon } from "../models/coupon.model.js";
+import { validate } from "uuid";
 export const placeOrder = async (req, res, next) => {
   const {
     userId,
@@ -47,7 +49,7 @@ export const placeOrder = async (req, res, next) => {
       return next(errorHandler(404, "User not found"));
     }
 
-  
+    shippingAddress.userId = userId;
     // let totalPrice = 0;
     let validateItems = [];
     for (const item of items) {
@@ -59,11 +61,11 @@ export const placeOrder = async (req, res, next) => {
       if (item.quantity <= 0) {
         return next(errorHandler(400, "Invalid quantity"));
       }
-console.log(productId)
+      console.log(productId);
       const product =
         item.productType === "Book" || "ebook"
-          ? await Book.findById({_id:productId})
-          : await Quiz.findById({_id:productId});
+          ? await Book.findById({ _id: productId })
+          : await Quiz.findById({ _id: productId });
       if (!product) {
         return next(errorHandler(404, "Product not found"));
       }
@@ -79,27 +81,27 @@ console.log(productId)
       validateItems.push({ product, quantity: item.quantity });
     }
 
-    const address = new Address({
-      userId,
-      firstName,
-      lastName,
-      phone,
-      address1,
-      address2,
-      city,
-      state,
-      pincode,
-      country,
-      isDefault,
-    });
-    
-    await address.save();
+    // const address = new Address({
+    //   userId,
+    //   firstName,
+    //   lastName,
+    //   phone,
+    //   address1,
+    //   address2,
+    //   city,
+    //   state,
+    //   pincode,
+    //   country,
+    //   isDefault,
+    // });
+
+    // await address.save();
     const order = new Order({
       userId,
       items: validateItems,
       totalAmount,
-      shippingAddress:address._id,
-      paymentProvider:PaymentProviderEnum.COD,
+      shippingAddress: shippingAddress,
+      paymentProvider: PaymentProviderEnum.COD,
       isPaymentDone,
     });
 
@@ -116,6 +118,62 @@ console.log(productId)
   }
 };
 
+export const applyCoupon = async (req, res, next) => {
+  const { couponCode } = req.body;
+
+  if (!couponCode)
+    return res.status(400).json({ message: "Coupon code is required." });
+
+  try {
+    const coupon = await Coupon.findOne({ couponCode, isActive: true });
+    if (!coupon)
+      return res.status(404).json({ message: "Invalid or inactive coupon." });
+    if (coupon.expiryDate < Date.now()) {
+      coupon.isActive = false;
+      await coupon.save({ validateBeforeSave: false });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          data: coupon.isActive,
+          message: "Coupon expired.",
+        });
+    }
+    res.status(200).json({
+      success: true,
+      data: coupon.discountPercentage,
+      message: "Coupon applied successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const addCoupon = async (req, res, next) => {
+  const { name, couponCode, discountPercentage, expiryDate } = req.body;
+
+  if (!name || !couponCode || !discountPercentage || !expiryDate)
+    return res.status(400).json({ message: "Invalid data" });
+
+  try {
+    const coupon = new Coupon({
+      name,
+      couponCode,
+      discountPercentage,
+      expiryDate,
+    });
+
+    await coupon.save();
+
+    res.status(201).json({
+      success: true,
+      data: coupon,
+      message: "Coupon added successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 export const getAllOrdersByUser = async (req, res, next) => {
   const { userId } = req.params;
   if (!userId) {

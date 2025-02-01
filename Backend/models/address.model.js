@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import { errorHandler } from "../utils/error.js";
+import { validate } from "uuid";
 
 const addressSchema = new mongoose.Schema(
   {
@@ -39,13 +41,27 @@ const addressSchema = new mongoose.Schema(
       type: String,
       default: "India",
     },
-    isDefault: {
-      type: Boolean,
-      default: false,
-    },
+    maxAddress:{
+      type:Number,
+      required:true,
+      max:3,
+      default:1
+    }
   },
   { timestamps: true }
 );
+
+addressSchema.pre("save", async function (next) {
+  const addressCount = await Address.countDocuments({
+    userId: this.userId,
+  });
+
+  if (addressCount >= 3) {
+    return next(new Error("Maximum address limit reached (3 addresses allowed)."));
+  }
+
+  next();
+});
 
 const Address = mongoose.model("Address", addressSchema);
 export default Address

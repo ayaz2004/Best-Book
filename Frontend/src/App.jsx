@@ -18,7 +18,7 @@ import CartPage from "./pages/CartPage";
 import VerifyOTP from "./pages/VerifyOTP";
 import CheckoutPage from "./pages/CheckoutPage";
 import Orders from "./pages/Orders";
-
+import {AddressManagement} from "./components/addUpdateAddress";
 export default function App() {
   return (
     <BrowserRouter>
@@ -38,6 +38,7 @@ export default function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/address" element={<AddressManagement/>}/>
         </Route>
         <Route element={<OnlyAdminPrivateRoute />}>
           <Route path="/manage-books" element={<AdminBookDashboard />} />
