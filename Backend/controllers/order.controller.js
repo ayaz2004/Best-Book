@@ -10,6 +10,7 @@ import { Quiz } from "../models/quiz.model.js";
 import { Cart } from "../models/cart.model.js";
 import Address from "../models/address.model.js";
 import { Coupon } from "../models/coupon.model.js";
+import { validate } from "uuid";
 export const placeOrder = async (req, res, next) => {
   const {
     userId,
@@ -127,24 +128,31 @@ export const applyCoupon = async (req, res, next) => {
     const coupon = await Coupon.findOne({ couponCode, isActive: true });
     if (!coupon)
       return res.status(404).json({ message: "Invalid or inactive coupon." });
-
-    res
-      .status(200)
-      .json({
-        success: true,
-        data: coupon.discountPercentage,
-        message: "Coupon applied successfully",
-      });
+    if (coupon.expiryDate < Date.now()) {
+      coupon.isActive = false;
+      await coupon.save({ validateBeforeSave: false });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          data: coupon.isActive,
+          message: "Coupon expired.",
+        });
+    }
+    res.status(200).json({
+      success: true,
+      data: coupon.discountPercentage,
+      message: "Coupon applied successfully",
+    });
   } catch (error) {
     next(error);
   }
 };
 
 export const addCoupon = async (req, res, next) => {
-  const { name, couponCode, discountPercentage, expiryDate } =
-    req.body;
+  const { name, couponCode, discountPercentage, expiryDate } = req.body;
 
-  if (!name || !couponCode || !discountPercentage || !expiryDate )
+  if (!name || !couponCode || !discountPercentage || !expiryDate)
     return res.status(400).json({ message: "Invalid data" });
 
   try {
@@ -165,7 +173,7 @@ export const addCoupon = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}
+};
 export const getAllOrdersByUser = async (req, res, next) => {
   const { userId } = req.params;
   if (!userId) {
