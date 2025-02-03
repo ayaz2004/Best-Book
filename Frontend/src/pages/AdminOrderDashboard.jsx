@@ -202,7 +202,7 @@ export default function AdminOrderDashboard() {
                   <Table.Cell className="font-medium">
                     {order._id.slice(-6)}
                   </Table.Cell>
-                  <Table.Cell>{order.userId}</Table.Cell>
+                  <Table.Cell>{order.username}</Table.Cell>
                   <Table.Cell>{order.items.length} items</Table.Cell>
                   <Table.Cell>₹{order.totalAmount}</Table.Cell>
                   <Table.Cell>

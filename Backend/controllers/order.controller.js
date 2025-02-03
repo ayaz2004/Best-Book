@@ -47,7 +47,6 @@ export const placeOrder = async (req, res, next) => {
       return next(errorHandler(404, "User not found"));
     }
 
-  
     // let totalPrice = 0;
     let validateItems = [];
     for (const item of items) {
@@ -59,11 +58,11 @@ export const placeOrder = async (req, res, next) => {
       if (item.quantity <= 0) {
         return next(errorHandler(400, "Invalid quantity"));
       }
-console.log(productId)
+      console.log(productId);
       const product =
         item.productType === "Book" || "ebook"
-          ? await Book.findById({_id:productId})
-          : await Quiz.findById({_id:productId});
+          ? await Book.findById({ _id: productId })
+          : await Quiz.findById({ _id: productId });
       if (!product) {
         return next(errorHandler(404, "Product not found"));
       }
@@ -92,14 +91,15 @@ console.log(productId)
       country,
       isDefault,
     });
-    
+
     await address.save();
     const order = new Order({
       userId,
+      username: user.username,
       items: validateItems,
       totalAmount,
-      shippingAddress:address._id,
-      paymentProvider:PaymentProviderEnum.COD,
+      shippingAddress: address._id,
+      paymentProvider: PaymentProviderEnum.COD,
       isPaymentDone,
     });
 

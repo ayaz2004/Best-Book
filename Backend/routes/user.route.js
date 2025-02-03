@@ -5,10 +5,9 @@ import {
   test,
   updateUser,
   getAnalytics,
-  fetchUserList
+  fetchUserList,
 } from "../controllers/user.controller.js";
 import { verifyToken } from "../utils/verifyUser.js";
-
 
 const router = express.Router();
 
@@ -17,6 +16,6 @@ router.delete("/delete/:userid", verifyToken, deleteUser);
 router.post("/signout", verifyToken, signout);
 router.put("/update/:userid", verifyToken, updateUser);
 router.get("/analytics", getAnalytics);
-router.get("/userlist",fetchUserList);
+router.get("/userlist", fetchUserList);
 
 export default router;
