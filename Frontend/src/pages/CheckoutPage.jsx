@@ -138,6 +138,13 @@ const CheckoutPage = () => {
         throw new Error(data.message);
       }
 
+      await fetch("/api/cart/clear", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${currentUser.accessToken}`,
+        },
+      });
+
       dispatch(clearCart());
       console.log("Order placed successfully:");
       navigate("/orders");
