@@ -11,6 +11,7 @@ import {
   FaShoppingCart,
   FaTags,
 } from "react-icons/fa";
+import { clearCart } from "../redux/cart/cartSlice";
 
 const CheckoutPage = () => {
   const [formData, setFormData] = useState({
@@ -137,7 +138,7 @@ const CheckoutPage = () => {
         throw new Error(data.message);
       }
 
-      // dispatch(clearCart());
+      dispatch(clearCart());
       console.log("Order placed successfully:");
       navigate("/orders");
     } catch (error) {

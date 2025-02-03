@@ -18,6 +18,7 @@ import CartPage from "./pages/CartPage";
 import VerifyOTP from "./pages/VerifyOTP";
 import CheckoutPage from "./pages/CheckoutPage";
 import Orders from "./pages/Orders";
+import AdminOrderDashboard from "./pages/AdminOrderDashboard";
 
 export default function App() {
   return (
@@ -44,6 +45,7 @@ export default function App() {
           <Route path="/manage-quiz" element={<AdminQuizDashboard />} />
           <Route path="/create-quiz" element={<CreateQuiz />} />
           <Route path="/manage-user" element={<UserAnalytics />} />
+          <Route path="/manage-order" element={<AdminOrderDashboard />} />
         </Route>
       </Routes>
       <Footer />
