@@ -52,7 +52,7 @@ export const placeOrder = async (req, res, next) => {
     shippingAddress.userId = userId;
     // let totalPrice = 0;
     const validateItems = [];
-    // const subscribedEbook = [];
+    const subscribedEbook = [];
     for (const item of items) {
       const productId = item.product._id;
       if (!productId || !item.quantity) {
@@ -67,9 +67,10 @@ export const placeOrder = async (req, res, next) => {
         item.productType === "Book" || "ebook"
           ? await Book.findById({ _id: productId })
           : await Quiz.findById({ _id: productId });
-      // if (item.productType === "ebook") {
-      // subscribedEbook.push(item.product.id);
-      // }
+      if (item.productType === "ebook") {
+        subscribedEbook.push(item.product.id);
+        console.log(subscribedEbook);
+      }
 
       if (!product) {
         return next(errorHandler(404, "Product not found"));
@@ -99,7 +100,12 @@ export const placeOrder = async (req, res, next) => {
     //   country,
     //   isDefault,
     // });
+    const uniqueEbooks = subscribedEbook.filter(
+      (ebookId) => !user.subscribedEbook.includes(ebookId)
+    );
 
+    user.subscribedEbook = [...user.subscribedEbook, ...uniqueEbooks];
+    await user.save({ validateBeforeSave: false });
     // await address.save();
     const order = new Order({
       userId,
@@ -115,7 +121,7 @@ export const placeOrder = async (req, res, next) => {
     // await user.save({ validateBeforeSave: true });
 
     await order.save();
-    console.log(order);
+    
     // console.log(req.user._id);
     res.status(201).json({
       success: true,
