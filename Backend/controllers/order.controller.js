@@ -51,7 +51,8 @@ export const placeOrder = async (req, res, next) => {
 
     shippingAddress.userId = userId;
     // let totalPrice = 0;
-    let validateItems = [];
+    const validateItems = [];
+    // const subscribedEbook = [];
     for (const item of items) {
       const productId = item.product._id;
       if (!productId || !item.quantity) {
@@ -61,11 +62,15 @@ export const placeOrder = async (req, res, next) => {
       if (item.quantity <= 0) {
         return next(errorHandler(400, "Invalid quantity"));
       }
-      console.log(productId);
+
       const product =
         item.productType === "Book" || "ebook"
           ? await Book.findById({ _id: productId })
           : await Quiz.findById({ _id: productId });
+      // if (item.productType === "ebook") {
+      // subscribedEbook.push(item.product.id);
+      // }
+
       if (!product) {
         return next(errorHandler(404, "Product not found"));
       }
@@ -104,9 +109,12 @@ export const placeOrder = async (req, res, next) => {
       paymentProvider: PaymentProviderEnum.COD,
       isPaymentDone,
     });
+    
+    // user.subscribedEbook = [...user.subscribedEbook, ...subscribedEbook];
+    // await user.save({ validateBeforeSave: true });
 
     await order.save();
-
+    console.log(order);
     // console.log(req.user._id);
     res.status(201).json({
       success: true,
@@ -131,13 +139,11 @@ export const applyCoupon = async (req, res, next) => {
     if (coupon.expiryDate < Date.now()) {
       coupon.isActive = false;
       await coupon.save({ validateBeforeSave: false });
-      return res
-        .status(404)
-        .json({
-          success: false,
-          data: coupon.isActive,
-          message: "Coupon expired.",
-        });
+      return res.status(404).json({
+        success: false,
+        data: coupon.isActive,
+        message: "Coupon expired.",
+      });
     }
     res.status(200).json({
       success: true,

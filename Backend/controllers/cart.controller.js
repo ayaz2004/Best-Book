@@ -58,7 +58,7 @@ export const getCart = async (req, res, next) => {
 export const addOrUpdateCartItem = async (req, res, next) => {
   const { productId, quantity, bookType } = req.body;
   const userId = req.user.id;
-
+console.log(req.body)
   try {
     // Input validation
     if (!productId || !quantity || !bookType || quantity < 1) {
@@ -104,14 +104,14 @@ export const addOrUpdateCartItem = async (req, res, next) => {
     if (existingItemIndex !== -1) {
       // Update existing item
       cart.items[existingItemIndex].quantity = quantity;
-    } else {
+    } 
       // Add new item with productType
       cart.items.push({
         productId,
         quantity,
         productType, // Include the productType here
       });
-    }
+    
 
     // Save cart
     await cart.save();

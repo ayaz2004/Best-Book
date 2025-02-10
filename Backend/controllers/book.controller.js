@@ -46,7 +46,7 @@ export const uploadBooks = async (req, res, next) => {
     // Create new book instance
     const pdfUploadResponse = pdfPath && (await uploadPdftoCloudinary(pdfPath));
 
-    
+    const bookImagesUrls = bookImagesPath && await uploadBookImages(bookImagesPath);
 
     const newBook = new Book({
       stock,
@@ -66,6 +66,7 @@ export const uploadBooks = async (req, res, next) => {
       category,
       language,
       pages,
+      images:bookImagesUrls && bookImagesUrls
     });
 
     // Save the book to the database
@@ -107,7 +108,7 @@ export const deleteBook = async (req, res, next) => {
 
 export const updateBook = async (req, res, next) => {
   const { bookId } = req.params;
-
+  
   const updateBookData = req.body;
   if (!bookId) {
     return next(errorHandler(400, "Book ID is required"));
@@ -118,6 +119,29 @@ export const updateBook = async (req, res, next) => {
 
     if (!book) {
       return next(errorHandler(404, "Book not found"));
+    }
+
+    if (req.files) {
+      // Handle cover image update
+      if (req.files.coverImage) {
+        const coverImagePath = req.files.coverImage[0].path;
+        const uploadResponse = await uploadImagesToCloudinary(coverImagePath);
+        updateBookData.coverImage = uploadResponse.url;
+      }
+
+      // Handle eBook update
+      if (req.files.eBook) {
+        const pdfPath = req.files.eBook[0].path;
+        const pdfUploadResponse = await uploadPdftoCloudinary(pdfPath);
+        updateBookData.eBook = pdfUploadResponse.url;
+      }
+
+      // Handle book images update
+      if (req.files.bookImages) {
+        const bookImagesPath = req.files.bookImages.map((image) => image.path);
+        const bookImagesUrls = await uploadBookImages(bookImagesPath);
+        updateBookData.images = bookImagesUrls;
+      }
     }
 
     await Object.assign(book, updateBookData);
