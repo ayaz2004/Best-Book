@@ -134,7 +134,9 @@ export default function AdminOrderDashboard() {
               <HiCurrencyRupee className="w-10 h-10 text-green-600" />
               <div className="ml-4">
                 <p className="text-sm text-gray-500">Total Revenue</p>
-                <h3 className="text-xl font-bold">₹{statistics.revenue}</h3>
+                <h3 className="text-xl font-bold">
+                  ₹{statistics.revenue.toFixed(2)}
+                </h3>
               </div>
             </div>
           </Card>
