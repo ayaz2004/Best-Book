@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Card, Label, TextInput, Radio, Button, Alert } from "flowbite-react";
+import {
+  Card,
+  Label,
+  TextInput,
+  Radio,
+  Button,
+  Alert,
+  Toast,
+} from "flowbite-react";
 import {
   FaCreditCard,
   FaTruck,
@@ -12,6 +20,7 @@ import {
   FaTags,
 } from "react-icons/fa";
 import { clearCart } from "../redux/cart/cartSlice";
+import { HiCheck, HiX } from "react-icons/hi";
 
 const CheckoutPage = () => {
   const [formData, setFormData] = useState({
@@ -30,6 +39,10 @@ const CheckoutPage = () => {
   const [couponCode, setCouponCode] = useState("");
   const [couponError, setCouponError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
 
   const { items, discount } = useSelector((state) => state.cart);
 
@@ -54,6 +67,7 @@ const CheckoutPage = () => {
     subtotal: 0,
     shipping: 49,
     discount: 0,
+    couponDiscount: 0,
     total: 0,
   });
 
@@ -74,8 +88,8 @@ const CheckoutPage = () => {
   const calculateSubtotal = (items) => {
     return (
       items?.reduce((total, item) => {
-        const { discounted } = calculateItemPrice(item);
-        return total + discounted * item.quantity;
+        const { original } = calculateItemPrice(item);
+        return total + original * item.quantity;
       }, 0) || 0
     );
   };
@@ -91,21 +105,66 @@ const CheckoutPage = () => {
 
   useEffect(() => {
     const subtotal = calculateSubtotal(items);
-    const savings = calculateTotalSavings(items);
+    const productDiscount = calculateTotalSavings(items);
+    const priceAfterProductDiscount = subtotal - productDiscount;
+
     const deliveryCharge =
       deliveryOptions.find((option) => option.id === selectedDelivery)?.price ||
       49;
 
+    // Calculate coupon discount after product discounts
+    const couponDisc = appliedCoupon
+      ? (priceAfterProductDiscount * appliedCoupon.discountPercentage) / 100
+      : 0;
+
     setOrderSummary({
       subtotal,
       shipping: deliveryCharge,
-      discount: savings,
-      total: subtotal + deliveryCharge - (discount || 0),
+      discount: productDiscount,
+      couponDiscount: couponDisc,
+      total: priceAfterProductDiscount - couponDisc + deliveryCharge,
     });
-  }, [items, selectedDelivery, discount]);
+  }, [items, selectedDelivery, appliedCoupon]);
 
   const handleApplyCoupon = async () => {
-    // ... existing coupon logic ...
+    setLoading(true);
+    try {
+      const res = await fetch("/api/cart/apply-coupon", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${currentUser.accessToken}`,
+        },
+        body: JSON.stringify({ couponCode }),
+        credentials: "include",
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setShowToast(true);
+        setToastMessage(data.message);
+        setAppliedCoupon(null);
+      } else {
+        // Calculate coupon discount
+        const discountAmount =
+          (orderSummary.subtotal * data.discountPercentage) / 100;
+
+        setAppliedCoupon({
+          code: data.couponCode,
+          discountPercentage: data.discountPercentage,
+          discountAmount: discountAmount,
+        });
+
+        setShowToast(true);
+        setToastMessage(`Coupon applied! ${data.discountPercentage}% off`);
+      }
+    } catch (error) {
+      setShowToast(true);
+      setToastMessage("Error applying coupon");
+      setAppliedCoupon(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const dispatch = useDispatch();
@@ -158,6 +217,22 @@ const CheckoutPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      {showToast && (
+        <div className="fixed top-4 right-4 z-50">
+          <Toast duration={3000} onClose={() => setShowToast(false)}>
+            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+              {appliedCoupon ? (
+                <HiCheck className="h-5 w-5 text-green-500" />
+              ) : (
+                <HiX className="h-5 w-5 text-red-500" />
+              )}
+            </div>
+            <div className="ml-3 text-sm font-normal">{toastMessage}</div>
+            <Toast.Toggle onDismiss={() => setShowToast(false)} />
+          </Toast>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold mb-8">Checkout</h1>
 
@@ -433,15 +508,34 @@ const CheckoutPage = () => {
               <div className="space-y-2 border-t pt-4">
                 <div key="subtotal" className="flex justify-between text-sm">
                   <span className="text-gray-600">Subtotal</span>
-                  <span>₹{orderSummary.subtotal.toFixed(2)}</span>
+                  <span className="ml-auto">
+                    ₹{orderSummary.subtotal.toFixed(2)}
+                  </span>
                 </div>
+
                 {orderSummary.discount > 0 && (
                   <div
                     key="savings"
                     className="flex justify-between text-sm text-green-600"
                   >
-                    <span>Total Savings</span>
-                    <span>-₹{orderSummary.discount.toFixed(2)}</span>
+                    <span>Product Discount</span>
+                    <span className="ml-auto">
+                      -₹{orderSummary.discount.toFixed(2)}
+                    </span>
+                  </div>
+                )}
+
+                {orderSummary.couponDiscount > 0 && (
+                  <div className="flex justify-between text-sm text-green-600">
+                    <div className="flex items-center gap-1">
+                      <span>Coupon Coupon ({appliedCoupon.code})</span>
+                      <span className="text-xs bg-green-100 px-1.5 py-0.5 rounded">
+                        {appliedCoupon.discountPercentage}% OFF
+                      </span>
+                    </div>
+                    <span className="ml-auto">
+                      -₹{orderSummary.couponDiscount.toFixed(2)}
+                    </span>
                   </div>
                 )}
                 <div key="delivery" className="flex justify-between text-sm">
@@ -452,8 +546,22 @@ const CheckoutPage = () => {
                   key="total"
                   className="flex justify-between font-bold border-t pt-4"
                 >
-                  <span>Total</span>
-                  <span>₹{orderSummary.total.toFixed(2)}</span>
+                  <span>Total Amount</span>
+                  <div className="flex flex-col items-end">
+                    {appliedCoupon && (
+                      <span className="text-sm text-gray-500 line-through mb-1">
+                        ₹
+                        {(
+                          orderSummary.subtotal +
+                          orderSummary.shipping -
+                          orderSummary.discount
+                        ).toFixed(2)}
+                      </span>
+                    )}
+                    <span className="text-purple-600">
+                      ₹{orderSummary.total.toFixed(2)}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -465,13 +573,18 @@ const CheckoutPage = () => {
                     onChange={(e) => setCouponCode(e.target.value)}
                     placeholder="Enter coupon code"
                     icon={FaTags}
+                    disabled={appliedCoupon !== null}
                   />
                   <Button
-                    color="purple"
+                    color={appliedCoupon ? "success" : "purple"}
                     onClick={handleApplyCoupon}
-                    disabled={loading || !couponCode}
+                    disabled={loading || !couponCode || appliedCoupon !== null}
                   >
-                    Apply
+                    {loading
+                      ? "Applying..."
+                      : appliedCoupon
+                      ? "Applied"
+                      : "Apply"}
                   </Button>
                 </div>
                 {couponError && (

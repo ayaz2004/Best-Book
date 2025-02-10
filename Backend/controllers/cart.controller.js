@@ -58,7 +58,7 @@ export const getCart = async (req, res, next) => {
 export const addOrUpdateCartItem = async (req, res, next) => {
   const { productId, quantity, bookType } = req.body;
   const userId = req.user.id;
-console.log(req.body)
+  console.log(req.body);
   try {
     // Input validation
     if (!productId || !quantity || !bookType || quantity < 1) {
@@ -104,14 +104,13 @@ console.log(req.body)
     if (existingItemIndex !== -1) {
       // Update existing item
       cart.items[existingItemIndex].quantity = quantity;
-    } 
-      // Add new item with productType
-      cart.items.push({
-        productId,
-        quantity,
-        productType, // Include the productType here
-      });
-    
+    }
+    // Add new item with productType
+    cart.items.push({
+      productId,
+      quantity,
+      productType, // Include the productType here
+    });
 
     // Save cart
     await cart.save();
@@ -243,7 +242,12 @@ export const applyCoupon = async (req, res, next) => {
 
     if (!cart) return res.status(404).json({ message: "Cart not found." });
 
-    res.status(200).json(cart);
+    res.status(200).json({
+      success: true,
+      message: "Coupon applied successfully",
+      discountPercentage: coupon.discountPercentage,
+      couponCode: coupon.couponCode,
+    });
   } catch (error) {
     next(error);
   }
