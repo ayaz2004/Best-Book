@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { FaTrash, FaShoppingCart, FaMinus, FaPlus } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
@@ -7,6 +7,7 @@ import { fetchCart, clearCart, removeFromCart } from "../redux/cart/cartSlice";
 export default function CartPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  // const [error, setError] = useState(null);
   const { currentUser } = useSelector((state) => state.user);
   const { items, loading, error } = useSelector((state) => state.cart);
 
@@ -143,7 +144,8 @@ export default function CartPage() {
               return (
                 <div
                   key={item.product._id}
-                  className="bg-white p-6 mb-4 rounded-lg shadow"
+                  className="bg-white p-6 mb-4 rounded-lg shadow cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => navigate(`/book/${item.product._id}`)}
                 >
                   <div className="flex space-x-6">
                     <img

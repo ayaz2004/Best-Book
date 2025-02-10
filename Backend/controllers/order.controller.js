@@ -103,13 +103,14 @@ export const placeOrder = async (req, res, next) => {
     // await address.save();
     const order = new Order({
       userId,
+      username: user.username,
       items: validateItems,
       totalAmount,
       shippingAddress: shippingAddress,
       paymentProvider: PaymentProviderEnum.COD,
       isPaymentDone,
     });
-    
+
     // user.subscribedEbook = [...user.subscribedEbook, ...subscribedEbook];
     // await user.save({ validateBeforeSave: true });
 

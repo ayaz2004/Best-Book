@@ -14,6 +14,11 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
 
+    username: {
+      type: String,
+      required: true,
+    },
+
     items: {
       type: Array,
       required: true,

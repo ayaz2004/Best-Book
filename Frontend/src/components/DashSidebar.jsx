@@ -1,6 +1,13 @@
 import { Sidebar } from "flowbite-react";
 import { useEffect, useState } from "react";
-import { HiArrowSmRight, HiUser, HiBookOpen,HiHome } from "react-icons/hi";
+import {
+  HiArrowSmRight,
+  HiUser,
+  HiBookOpen,
+  HiShoppingBag,
+  HiUserGroup,
+  HiAcademicCap,
+} from "react-icons/hi";
 import { Link, useLocation } from "react-router-dom";
 import { signoutSuccess } from "../redux/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -48,24 +55,26 @@ export default function DashSidebar() {
             <Sidebar.Item
               active={tab === "profile"}
               icon={HiUser}
-              label={"User"}
+              label={currentUser?.isAdmin ? "Admin" : "User"}
               labelColor="dark"
               as="div"
             >
               Profile
             </Sidebar.Item>
           </Link>
-          <Link to="/address">
-            <Sidebar.Item
-              active={tab === "address"}
-              icon={HiHome}
-              label={"User"}
-              labelColor="dark"
-              as="div"
-            >
-              Address
-            </Sidebar.Item>
-          </Link>
+
+          {currentUser && currentUser.isAdmin && (
+            <Link to="/manage-user">
+              <Sidebar.Item
+                active={tab === "manage-user"}
+                icon={HiUserGroup}
+                as="div"
+              >
+                Manage User
+              </Sidebar.Item>
+            </Link>
+          )}
+
           {currentUser && currentUser.isAdmin && (
             <Link to="/manage-books">
               <Sidebar.Item
@@ -81,21 +90,22 @@ export default function DashSidebar() {
             <Link to="/manage-quiz">
               <Sidebar.Item
                 active={tab === "manage-quiz"}
-                icon={HiBookOpen}
+                icon={HiAcademicCap}
                 as="div"
               >
                 Manage Quiz
               </Sidebar.Item>
             </Link>
           )}
+
           {currentUser && currentUser.isAdmin && (
-            <Link to="/manage-user">
+            <Link to="/manage-order">
               <Sidebar.Item
-                active={tab === "manage-user"}
-                icon={HiBookOpen}
+                active={tab === "manage-order"}
+                icon={HiShoppingBag}
                 as="div"
               >
-                Manage User
+                Manage Orders
               </Sidebar.Item>
             </Link>
           )}

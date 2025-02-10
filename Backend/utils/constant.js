@@ -7,6 +7,8 @@ export const AvailableCouponTypes = Object.values(CouponTypeEnum);
 
 export const OrderStatusEnum = {
   PENDING: "PENDING",
+  PROCESSING: "PROCESSING",
+  SHIPPED: "SHIPPED",
   CANCELLED: "CANCELLED",
   DELIVERED: "DELIVERED",
 };
