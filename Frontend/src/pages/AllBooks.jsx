@@ -75,10 +75,10 @@ export default function AllBooks() {
                   </span>
                 </div>
 
-                <button className="w-full bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 transition-colors flex items-center justify-center">
+                {/* <button className="w-full bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 transition-colors flex items-center justify-center">
                   <FaShoppingCart className="mr-2" />
                   Add to Cart
-                </button>
+                </button> */}
               </div>
             </div>
           ))}

@@ -5,6 +5,8 @@ import {
   HiUser,
   HiBookOpen,
   HiShoppingBag,
+  HiUserGroup,
+  HiAcademicCap,
 } from "react-icons/hi";
 import { Link, useLocation } from "react-router-dom";
 import { signoutSuccess } from "../redux/user/userSlice";
@@ -53,13 +55,26 @@ export default function DashSidebar() {
             <Sidebar.Item
               active={tab === "profile"}
               icon={HiUser}
-              label={"User"}
+              label={currentUser?.isAdmin ? "Admin" : "User"}
               labelColor="dark"
               as="div"
             >
               Profile
             </Sidebar.Item>
           </Link>
+
+          {currentUser && currentUser.isAdmin && (
+            <Link to="/manage-user">
+              <Sidebar.Item
+                active={tab === "manage-user"}
+                icon={HiUserGroup}
+                as="div"
+              >
+                Manage User
+              </Sidebar.Item>
+            </Link>
+          )}
+
           {currentUser && currentUser.isAdmin && (
             <Link to="/manage-books">
               <Sidebar.Item
@@ -75,24 +90,14 @@ export default function DashSidebar() {
             <Link to="/manage-quiz">
               <Sidebar.Item
                 active={tab === "manage-quiz"}
-                icon={HiBookOpen}
+                icon={HiAcademicCap}
                 as="div"
               >
                 Manage Quiz
               </Sidebar.Item>
             </Link>
           )}
-          {currentUser && currentUser.isAdmin && (
-            <Link to="/manage-user">
-              <Sidebar.Item
-                active={tab === "manage-user"}
-                icon={HiBookOpen}
-                as="div"
-              >
-                Manage User
-              </Sidebar.Item>
-            </Link>
-          )}
+
           {currentUser && currentUser.isAdmin && (
             <Link to="/manage-order">
               <Sidebar.Item

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Table, Button, Modal, TextInput } from "flowbite-react";
 import { HiPlus, HiPencilAlt, HiTrash } from "react-icons/hi";
 
