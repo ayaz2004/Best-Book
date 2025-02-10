@@ -27,6 +27,10 @@ router.post(
       name: "eBook",
       maxCount: 3,
     },
+    {
+      name:"bookImages",
+      maxCount: 4
+    }
   ]),
   uploadBooks
 );

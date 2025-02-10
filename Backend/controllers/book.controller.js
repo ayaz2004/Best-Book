@@ -27,6 +27,7 @@ export const uploadBooks = async (req, res, next) => {
     } = req.body;
     const coverImagePath = req.files?.coverImage[0]?.path;
     const pdfPath = req.files?.eBook[0]?.path;
+    const bookImagesPath = req.files?.bookImages.map((image) => image.path);
     // Validate required fields
     if (
       !isEbookAvailable ||
@@ -44,6 +45,8 @@ export const uploadBooks = async (req, res, next) => {
     const uploadResponse = await uploadImagesToCloudinary(coverImagePath);
     // Create new book instance
     const pdfUploadResponse = pdfPath && (await uploadPdftoCloudinary(pdfPath));
+
+    
 
     const newBook = new Book({
       stock,
@@ -214,5 +217,19 @@ export const getAllBooksByExams = async (req, res, next) => {
   } catch (error) {
     console.error(error);
     next(error);
+  }
+};
+
+
+const uploadBookImages = async (imagePaths) => {
+  try {
+    // Map each image path to a upload promise
+    const uploadPromises = imagePaths.map(path => uploadImagesToCloudinary(path));
+    // Wait for all uploads to complete
+    const uploadResults = await Promise.all(uploadPromises);
+    // Return array of uploaded image URLs
+    return uploadResults.map(result => result.url);
+  } catch (error) {
+    throw new Error(`Error uploading book images: ${error.message}`);
   }
 };

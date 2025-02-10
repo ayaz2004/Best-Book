@@ -14,5 +14,20 @@ const storage = multer.diskStorage({
     cb(null, file.originalname);
   },
 });
-
-export const upload = multer({ storage: storage });
+const fileFilter = (req, file, cb) => {
+  if (file.fieldname === "coverImage" || file.fieldname === "bookImages") {
+    // Accept images only
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"), false);
+    }
+  } else if (file.fieldname === "eBook") {
+    // Accept PDFs only
+    if (file.mimetype !== "application/pdf") {
+      return cb(new Error("Only PDF files are allowed!"), false);
+    }
+  }
+  cb(null, true);
+};
+export const upload = multer({ storage: storage, fileFilter: fileFilter,limits:{
+  fileSize:20 * 1024 * 1024
+} });

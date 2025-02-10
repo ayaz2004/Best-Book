@@ -8,7 +8,7 @@ import { DisableRightClickAndShortcuts } from "../components/RestrictShowPdf";
 export default function Home() {
   return (
     <div className="mx-auto px-4 w-full">
-
+      {/* <DisableRightClickAndShortcuts/> */}
       <Hero />
       {/* <Reviews /> */}
       <PopularBooks />
