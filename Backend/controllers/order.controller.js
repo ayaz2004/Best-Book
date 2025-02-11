@@ -121,7 +121,7 @@ export const placeOrder = async (req, res, next) => {
     // await user.save({ validateBeforeSave: true });
 
     await order.save();
-    
+
     // console.log(req.user._id);
     res.status(201).json({
       success: true,
@@ -145,7 +145,9 @@ export const applyCoupon = async (req, res, next) => {
       return res.status(404).json({ message: "Invalid or inactive coupon." });
     if (coupon.expiryDate < Date.now()) {
       coupon.isActive = false;
+
       await coupon.save({ validateBeforeSave: false });
+
       return res.status(404).json({
         success: false,
         data: coupon.isActive,
@@ -154,8 +156,9 @@ export const applyCoupon = async (req, res, next) => {
     }
     res.status(200).json({
       success: true,
-      data: coupon.discountPercentage,
       message: "Coupon applied successfully",
+      data: coupon.discountPercentage,
+      couponCode: coupon.couponCode,
     });
   } catch (error) {
     next(error);

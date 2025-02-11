@@ -13,7 +13,7 @@ const router = Router();
 router.get("/getcart", verifyToken, getCart);
 router.post("/add", verifyToken, addOrUpdateCartItem);
 router.post("/remove", verifyToken, removeCartItem);
-router.post("/apply-coupon", verifyToken, applyCoupon);
+// router.post("/apply-coupon", verifyToken, applyCoupon);
 router.post("/clear", verifyToken, clearCart);
 router.post("/update-quantity", verifyToken, updateCartQuantity);
 

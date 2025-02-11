@@ -223,35 +223,35 @@ export const removeCartItem = async (req, res, next) => {
   }
 };
 
-// Apply Coupon to Cart
-export const applyCoupon = async (req, res, next) => {
-  const { couponCode } = req.body;
-  if (!couponCode)
-    return res.status(400).json({ message: "Coupon code is required." });
+// // Apply Coupon to Cart
+// export const applyCoupon = async (req, res, next) => {
+//   const { couponCode } = req.body;
+//   if (!couponCode)
+//     return res.status(400).json({ message: "Coupon code is required." });
 
-  try {
-    const coupon = await Coupon.findOne({ couponCode, isActive: true });
-    if (!coupon)
-      return res.status(404).json({ message: "Invalid or inactive coupon." });
+//   try {
+//     const coupon = await Coupon.findOne({ couponCode, isActive: true });
+//     if (!coupon)
+//       return res.status(404).json({ message: "Invalid or inactive coupon." });
 
-    const cart = await Cart.findOneAndUpdate(
-      { belongTo: req.user.id },
-      { coupon: coupon._id },
-      { new: true }
-    );
+//     const cart = await Cart.findOneAndUpdate(
+//       { belongTo: req.user.id },
+//       { coupon: coupon._id },
+//       { new: true }
+//     );
 
-    if (!cart) return res.status(404).json({ message: "Cart not found." });
+//     if (!cart) return res.status(404).json({ message: "Cart not found." });
 
-    res.status(200).json({
-      success: true,
-      message: "Coupon applied successfully",
-      discountPercentage: coupon.discountPercentage,
-      couponCode: coupon.couponCode,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+//     res.status(200).json({
+//       success: true,
+//       message: "Coupon applied successfully",
+//       discountPercentage: coupon.discountPercentage,
+//       couponCode: coupon.couponCode,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 // Clear Cart
 export const clearCart = async (req, res, next) => {

@@ -129,7 +129,7 @@ const CheckoutPage = () => {
   const handleApplyCoupon = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/cart/apply-coupon", {
+      const res = await fetch("/api/order/applycoupon", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -144,19 +144,23 @@ const CheckoutPage = () => {
         setShowToast(true);
         setToastMessage(data.message);
         setAppliedCoupon(null);
+        setCouponError(data.message);
+        return;
       } else {
         // Calculate coupon discount
-        const discountAmount =
-          (orderSummary.subtotal * data.discountPercentage) / 100;
+        const priceAfterProductDiscount =
+          orderSummary.subtotal - orderSummary.discount;
+        const discountAmount = (priceAfterProductDiscount * data.data) / 100;
 
         setAppliedCoupon({
           code: data.couponCode,
-          discountPercentage: data.discountPercentage,
+          discountPercentage: data.data,
           discountAmount: discountAmount,
         });
 
+        setCouponCode("");
         setShowToast(true);
-        setToastMessage(`Coupon applied! ${data.discountPercentage}% off`);
+        setToastMessage(`Coupon applied! ${data.data}% off`);
       }
     } catch (error) {
       setShowToast(true);
