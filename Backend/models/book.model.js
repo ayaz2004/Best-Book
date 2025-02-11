@@ -75,6 +75,10 @@ var BookSchema = new Schema(
       type: Number,
       required: true,
     },
+    stoke: {
+      type: Number,
+      // required: true,
+    },
   },
   { timestamps: true }
 );

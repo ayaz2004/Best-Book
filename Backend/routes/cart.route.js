@@ -3,7 +3,7 @@ import {
   getCart,
   addOrUpdateCartItem,
   removeCartItem,
-  applyCoupon,
+  // applyCoupon,
   clearCart,
   updateCartQuantity,
 } from "../controllers/cart.controller.js";

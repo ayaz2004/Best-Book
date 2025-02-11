@@ -32,7 +32,7 @@ export const getCart = async (req, res, next) => {
       // }
 
       // Add the found product to the cartData
-      console.log(product);
+      // console.log(product);
       cartData.items.push({
         product: {
           _id: product._id,

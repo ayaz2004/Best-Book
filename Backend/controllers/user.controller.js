@@ -12,7 +12,9 @@ export const deleteUser = async (req, res, next) => {
   try {
     await User.findByIdAndDelete(req.params.userId);
     console.log(req.params.userId);
-    res.status(200).json({ success:true,message: "User deleted successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "User deleted successfully" });
   } catch (error) {
     next(error);
   }
@@ -65,7 +67,7 @@ async function calculateUserAnalytics() {
       },
     });
 
-    console.log("newusers", newUsersThisMonth, newUsersLastMonth);
+    // console.log("newusers", newUsersThisMonth, newUsersLastMonth);
     // Calculate growth rate
     const growthRate =
       newUsersLastMonth > 0
@@ -218,23 +220,22 @@ async function getAnalytics(req, res) {
   }
 }
 
-const fetchUserList = async (req,res)=>{
+const fetchUserList = async (req, res) => {
   try {
     const users = await User.find();
     res.status(200).json({
-      success:true,
-      message:"User list fetched successfully",
-      users
+      success: true,
+      message: "User list fetched successfully",
+      users,
     });
   } catch (error) {
-    res.status(500).json({ error: 'Error fetching user data' });
+    res.status(500).json({ error: "Error fetching user data" });
   }
-}
+};
 
 export {
   calculateUserAnalytics,
   getMonthlyGrowthData,
   getAnalytics,
-  fetchUserList
-
+  fetchUserList,
 };
