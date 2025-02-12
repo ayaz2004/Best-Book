@@ -17,7 +17,7 @@ export const AvailableOrderStatuses = Object.values(OrderStatusEnum);
 
 export const PaymentProviderEnum = {
   COD: "COD",
-  RAZORPAY: "RAZORPAY",
+  PHONEPAY: "PHONEPAY",
   PAYPAL: "PAYPAL",
 };
 

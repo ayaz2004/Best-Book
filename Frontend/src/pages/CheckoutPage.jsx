@@ -44,7 +44,7 @@ const CheckoutPage = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
 
-  const { items, discount } = useSelector((state) => state.cart);
+  const { items } = useSelector((state) => state.cart);
 
   const deliveryOptions = [
     {
@@ -174,51 +174,85 @@ const CheckoutPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
+
   const handlePlaceOrder = async () => {
     setLoading(true);
 
-    const orderData = {
-      userId: currentUser._id,
-      items: items,
-      totalAmount: orderSummary.total,
-      shippingAddress: formData,
-      paymentProvider: paymentMethod === "cod" ? "COD" : "ONLINE",
-      isPaymentDone: paymentMethod !== "cod",
-    };
+    if (paymentMethod === "cod") {
+      const orderData = {
+        userId: currentUser._id,
+        items: items,
+        totalAmount: orderSummary.total,
+        shippingAddress: formData,
+        paymentProvider: "COD",
+        isPaymentDone: false,
+      };
 
-    try {
-      const res = await fetch("/api/order/placeorder", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${currentUser.accessToken}`,
-        },
-        body: JSON.stringify(orderData),
-      });
-      const data = await res.json();
+      try {
+        const res = await fetch("/api/order/placeorder", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${currentUser.accessToken}`,
+          },
+          body: JSON.stringify(orderData),
+        });
+        const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.message);
+        if (!res.ok) {
+          throw new Error(data.message);
+        }
+
+        await fetch("/api/cart/clear", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${currentUser.accessToken}`,
+          },
+        });
+
+        dispatch(clearCart());
+        console.log("Order placed successfully:");
+        navigate("/orders");
+      } catch (error) {
+        console.error("Error placing order:", error);
+        setCouponError(error.message);
+      } finally {
+        setLoading(false);
       }
+    } else {
+      const paymentPayload = {
+        name: currentUser.username,
+        mobileNumber: formData.phone,
+        totalAmount: orderSummary.total,
+        userId: currentUser._id,
+      };
 
-      await fetch("/api/cart/clear", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${currentUser.accessToken}`,
-        },
-      });
-
-      dispatch(clearCart());
-      console.log("Order placed successfully:");
-      navigate("/orders");
-    } catch (error) {
-      console.error("Error placing order:", error);
-      setCouponError(error.message);
-    } finally {
-      setLoading(false);
+      try {
+        const res = await fetch("/api/order/create-payment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${currentUser.accessToken}`,
+          },
+          body: JSON.stringify(paymentPayload),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message);
+        }
+        if (data.redirectUrl) {
+          // Redirect to the payment gateway
+          window.location.href = data.redirectUrl;
+        } else {
+          throw new Error("Payment initiation failed");
+        }
+      } catch (error) {
+        console.error("Error initiating payment:", error);
+        setCouponError(error.message);
+        setLoading(false);
+      }
     }
   };
-
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       {showToast && (

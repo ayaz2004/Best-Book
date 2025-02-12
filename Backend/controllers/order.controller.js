@@ -1,8 +1,10 @@
 import { errorHandler } from "../utils/error.js";
 import { Order } from "../models/orders.model.js";
-import { OrderStatusEnum } from "../utils/constant.js";
-import { AvailableOrderStatuses } from "../utils/constant.js";
-import { PaymentProviderEnum } from "../utils/constant.js";
+import {
+  OrderStatusEnum,
+  AvailableOrderStatuses,
+  PaymentProviderEnum,
+} from "../utils/constant.js";
 import mongoose from "mongoose";
 import User from "../models/user.model.js";
 import Book from "../models/book.model.js";
@@ -11,6 +13,22 @@ import { Cart } from "../models/cart.model.js";
 import Address from "../models/address.model.js";
 import { Coupon } from "../models/coupon.model.js";
 import { validate } from "uuid";
+import axios from "axios";
+import crypto from "crypto";
+import { v4 as uuidv4 } from "uuid";
+
+import dotenv from "dotenv";
+dotenv.config();
+
+// ----- PhonePe Configurations -----
+const MERCHANT_KEY = process.env.MERCHANT_KEY;
+const MERCHANT_ID = process.env.MERCHANT_ID;
+const MERCHANT_BASE_URL = process.env.MERCHANT_BASE_URL;
+const MERCHANT_STATUS_URL = process.env.MERCHANT_STATUS_URL;
+const redirectUrl = process.env.REDIRECT_URL;
+const successUrl = process.env.SUCCESS_URL;
+const failureUrl = process.env.FAILURE_URL;
+
 export const placeOrder = async (req, res, next) => {
   const {
     userId,
@@ -31,6 +49,7 @@ export const placeOrder = async (req, res, next) => {
     // if(req.user._id !== userId){
     //     return next(errorHandler(403, "Unauthorized"));
     // }
+
     const {
       firstName,
       lastName,
@@ -69,7 +88,7 @@ export const placeOrder = async (req, res, next) => {
           : await Quiz.findById({ _id: productId });
       if (item.productType === "ebook") {
         subscribedEbook.push(item.product.id);
-        console.log(subscribedEbook);
+        // console.log(subscribedEbook);
       }
 
       if (!product) {
@@ -113,7 +132,7 @@ export const placeOrder = async (req, res, next) => {
       items: validateItems,
       totalAmount,
       shippingAddress: shippingAddress,
-      paymentProvider: PaymentProviderEnum.COD,
+      paymentProvider: paymentProvider,
       isPaymentDone,
     });
 
@@ -130,6 +149,89 @@ export const placeOrder = async (req, res, next) => {
     });
   } catch (error) {
     next(errorHandler(500, error.message));
+  }
+};
+
+// ----- PhonePe Payment Gateway: Initiate Payment -----
+export const initiatePhonepePayment = async (req, res, next) => {
+  const { name, mobileNumber, totalAmount, userId } = req.body;
+  const orderId = uuidv4(); // Create a unique transaction ID
+  const paymentPayload = {
+    merchantId: MERCHANT_ID,
+    merchantUserId: name,
+    mobileNumber: mobileNumber,
+    amount: totalAmount * 100, // Amount in paise
+    merchantTransactionId: orderId,
+    redirectUrl: `${redirectUrl}?id=${orderId}`,
+    redirectMode: "POST",
+    paymentInstrument: {
+      type: "PAY_PAGE",
+    },
+  };
+
+  const payloadString = Buffer.from(JSON.stringify(paymentPayload)).toString(
+    "base64"
+  );
+  const keyIndex = 1;
+  const stringToHash = payloadString + "/pg/v1/pay" + MERCHANT_KEY;
+  const sha256 = crypto.createHash("sha256").update(stringToHash).digest("hex");
+  const checksum = sha256 + "###" + keyIndex;
+
+  const options = {
+    method: "POST",
+    url: MERCHANT_BASE_URL,
+    headers: {
+      accept: "application/json",
+      "Content-Type": "application/json",
+      "X-VERIFY": checksum,
+    },
+    data: {
+      request: payloadString,
+    },
+  };
+
+  try {
+    const response = await axios(options);
+    const redirectLink = response.data.data.instrumentResponse.redirectInfo.url;
+    // You may want to store payment details and mark order as pending here.
+    res.status(200).json({ msg: "OK", redirectUrl: redirectLink, orderId });
+  } catch (error) {
+    console.error("Error initiating payment", error);
+    next(errorHandler(500, "Failed to initiate payment"));
+  }
+};
+
+// ----- PhonePe Payment Gateway: Payment Status Callback -----
+export const phonepeStatusCallback = async (req, res, next) => {
+  const merchantTransactionId = req.query.id;
+  const keyIndex = 1;
+  const stringToHash =
+    `/pg/v1/status/${MERCHANT_ID}/${merchantTransactionId}` + MERCHANT_KEY;
+  const sha256 = crypto.createHash("sha256").update(stringToHash).digest("hex");
+  const checksum = sha256 + "###" + keyIndex;
+
+  const options = {
+    method: "GET",
+    url: `${MERCHANT_STATUS_URL}/${MERCHANT_ID}/${merchantTransactionId}`,
+    headers: {
+      accept: "application/json",
+      "Content-Type": "application/json",
+      "X-VERIFY": checksum,
+      "X-MERCHANT-ID": MERCHANT_ID,
+    },
+  };
+
+  try {
+    const response = await axios(options);
+    if (response.data.success === true) {
+      // You can update the corresponding order status to "Paid" here.
+      return res.redirect(successUrl);
+    } else {
+      return res.redirect(failureUrl);
+    }
+  } catch (error) {
+    console.error("Error fetching payment status", error);
+    next(errorHandler(500, "Failed to fetch payment status"));
   }
 };
 
