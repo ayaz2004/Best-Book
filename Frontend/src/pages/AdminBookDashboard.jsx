@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { Table, Button, Modal, TextInput, Label, Alert } from "flowbite-react";
-import { HiPlus, HiPencilAlt, HiTrash, HiEye } from "react-icons/hi";
+import {
+  HiPlus,
+  HiPencilAlt,
+  HiTrash,
+  HiEye,
+  HiUpload,
+  HiX,
+} from "react-icons/hi";
 
 const initialBookData = {
   stock: "",
@@ -33,6 +40,20 @@ const AdminBookDashboard = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [bookData, setBookData] = useState(initialBookData);
 
+  useEffect(() => {
+    if (!showModal) {
+      // Cleanup preview URLs when modal closes
+      if (bookData.coverImage?.preview) {
+        URL.revokeObjectURL(bookData.coverImage.preview);
+      }
+      bookData.bookImages?.forEach((image) => {
+        if (image.preview) {
+          URL.revokeObjectURL(image.preview);
+        }
+      });
+    }
+  }, [showModal]);
+
   // Fetch books from the server
   const fetchBooks = async () => {
     try {
@@ -62,19 +83,29 @@ const AdminBookDashboard = () => {
     const { name, files } = e.target;
     if (name === "bookImages") {
       if (files.length > 4) {
-        alert("Maximum 4 images allowed");
+        setError("Maximum 4 images allowed");
         setShowAlert(true);
         return;
       }
+      // Convert FileList to array and create preview URLs
+      const newImages = Array.from(files).map((file) => ({
+        file,
+        preview: URL.createObjectURL(file),
+      }));
       setBookData((prev) => ({
         ...prev,
-        [name]: Array.from(files),
+        [name]: [...(prev[name] || []), ...newImages].slice(0, 4),
       }));
     } else {
-      setBookData((prev) => ({
-        ...prev,
-        [name]: files[0],
-      }));
+      if (files[0]) {
+        setBookData((prev) => ({
+          ...prev,
+          [name]: {
+            file: files[0],
+            preview: URL.createObjectURL(files[0]),
+          },
+        }));
+      }
     }
   };
 
@@ -194,7 +225,7 @@ const AdminBookDashboard = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#A28DED]  p-2 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+    <div className="w-full min-h-screen bg-[#A28DED] p-2 sm:p-4 md:p-6 space-y-4">
       {showAlert && (
         <Alert
           color="failure"
@@ -218,19 +249,21 @@ const AdminBookDashboard = () => {
         </Button>
       </div>
       {/* Books Table */}
-      <div className="bg-slate-800 rounded-2xl shadow-xl p-6">
-        <Table className="bg-transparent">
+      <div className="bg-slate-800 rounded-2xl shadow-xl p-4 sm:p-6 overflow-x-auto">
+        <Table className="bg-transparent min-w-full">
           <Table.Head>
-            <Table.HeadCell className="text-purple-700">
+            <Table.HeadCell className="text-purple-700 whitespace-nowrap">
               Book Details
             </Table.HeadCell>
-            <Table.HeadCell className="text-purple-700">
+            <Table.HeadCell className="text-purple-700 whitespace-nowrap">
               Price & Stock
             </Table.HeadCell>
-            <Table.HeadCell className="text-purple-700">
+            <Table.HeadCell className="text-purple-700 whitespace-nowrap">
               Target Exam
             </Table.HeadCell>
-            <Table.HeadCell className="text-purple-700">Actions</Table.HeadCell>
+            <Table.HeadCell className="text-purple-700 whitespace-nowrap">
+              Actions
+            </Table.HeadCell>
           </Table.Head>
           <Table.Body>
             {books.map((book) => (
@@ -238,13 +271,13 @@ const AdminBookDashboard = () => {
                 key={book._id}
                 className="border-gray-700 bg-slate-700/50"
               >
-                <Table.Cell className="flex items-center space-x-4">
+                <Table.Cell className="flex flex-col sm:flex-row items-center gap-4">
                   <img
                     src={book.coverImage}
                     alt={book.title}
                     className="w-16 h-20 object-cover rounded-lg"
                   />
-                  <div>
+                  <div className="text-center sm:text-left">
                     <p className="text-white font-medium">{book.title}</p>
                     <p className="text-gray-400 text-sm">{book.author}</p>
                     <p className="text-gray-500 text-xs">
@@ -253,8 +286,8 @@ const AdminBookDashboard = () => {
                   </div>
                 </Table.Cell>
                 <Table.Cell>
-                  <div className="space-y-1">
-                    <p className="text-white">₹{book.price}</p>
+                  <div className="space-y-1 text-center sm:text-left">
+                    <p className="text-white">Original Price: ₹{book.price}</p>
                     {book.hardcopyDiscount > 0 && (
                       <p className="text-green-400 text-sm">
                         hardcopy: -{book.hardcopyDiscount}% off
@@ -282,11 +315,11 @@ const AdminBookDashboard = () => {
                     <p className="text-gray-400 text-sm">Stock: {book.stock}</p>
                   </div>
                 </Table.Cell>
-                <Table.Cell className="text-white">
+                <Table.Cell className="text-white text-center">
                   {book.targetExam}
                 </Table.Cell>
                 <Table.Cell>
-                  <div className="flex space-x-2">
+                  <div className="flex flex-col sm:flex-row gap-2 justify-center">
                     <Button
                       size="sm"
                       className="bg-gradient-to-r from-purple-500 to-purple-600"
@@ -325,18 +358,18 @@ const AdminBookDashboard = () => {
         <Modal.Header className="bg-slate-800 text-white border-b border-gray-700">
           {isEdit ? "Edit Book" : "Add New Book"}
         </Modal.Header>
-        <Modal.Body className="bg-slate-800 space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+        <Modal.Body className="bg-slate-800 space-y-6 overflow-y-auto max-h-[70vh] p-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Basic Info Section */}
-            <div className="col-span-2 bg-slate-700/50 p-4 rounded-lg">
+            <div className="lg:col-span-2 bg-slate-700/50 p-4 rounded-lg">
               <h3 className="text-white font-medium mb-4">Basic Information</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <TextInput
                   name="title"
                   placeholder="Book Title"
                   value={bookData.title || ""}
                   onChange={handleInputChange}
-                  className="bg-slate-600 text-white"
+                  className="bg-slate-600 text-white w-full"
                   required
                 />
                 <TextInput
@@ -344,7 +377,7 @@ const AdminBookDashboard = () => {
                   placeholder="Author"
                   value={bookData.author || ""}
                   onChange={handleInputChange}
-                  className="bg-slate-600 text-white"
+                  className="bg-slate-600 text-white w-full"
                   required
                 />
                 <TextInput
@@ -352,7 +385,7 @@ const AdminBookDashboard = () => {
                   placeholder="ISBN"
                   value={bookData.ISBN || ""}
                   onChange={handleInputChange}
-                  className="bg-slate-600 text-white"
+                  className="bg-slate-600 text-white w-full"
                   required
                 />
                 <TextInput
@@ -360,7 +393,7 @@ const AdminBookDashboard = () => {
                   placeholder="Publisher"
                   value={bookData.publisher || ""}
                   onChange={handleInputChange}
-                  className="bg-slate-600 text-white"
+                  className="bg-slate-600 text-white w-full"
                   required
                 />
                 <TextInput
@@ -368,7 +401,7 @@ const AdminBookDashboard = () => {
                   placeholder="Language"
                   value={bookData.language || ""}
                   onChange={handleInputChange}
-                  className="bg-slate-600 text-white"
+                  className="bg-slate-600 text-white w-full"
                   required
                 />
                 <TextInput
@@ -377,7 +410,7 @@ const AdminBookDashboard = () => {
                   type="number"
                   value={bookData.pages || ""}
                   onChange={handleInputChange}
-                  className="bg-slate-600 text-white"
+                  className="bg-slate-600 text-white w-full"
                   required
                 />
                 <TextInput
@@ -385,7 +418,7 @@ const AdminBookDashboard = () => {
                   placeholder="Category"
                   value={bookData.category || ""}
                   onChange={handleInputChange}
-                  className="bg-slate-600 text-white"
+                  className="bg-slate-600 text-white w-full"
                   required
                 />
                 <TextInput
@@ -393,10 +426,10 @@ const AdminBookDashboard = () => {
                   placeholder="Target Exam"
                   value={bookData.targetExam || ""}
                   onChange={handleInputChange}
-                  className="bg-slate-600 text-white"
+                  className="bg-slate-600 text-white w-full"
                   required
                 />
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <TextInput
                     name="publicationDate"
                     type="date"
@@ -409,11 +442,11 @@ const AdminBookDashboard = () => {
                         : ""
                     }
                     onChange={handleInputChange}
-                    className="bg-slate-600 text-white"
+                    className="bg-slate-600 text-white w-full"
                     required
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <Label className="text-gray-300 mb-2">Description</Label>
                   <textarea
                     name="description"
@@ -441,6 +474,7 @@ const AdminBookDashboard = () => {
                       type="number"
                       value={bookData.price || ""}
                       onChange={handleInputChange}
+                      className="w-full"
                     />
                     <TextInput
                       name="stock"
@@ -448,6 +482,7 @@ const AdminBookDashboard = () => {
                       type="number"
                       value={bookData.stock || ""}
                       onChange={handleInputChange}
+                      className="w-full"
                     />
                   </div>
                 </div>
@@ -460,6 +495,7 @@ const AdminBookDashboard = () => {
                       type="number"
                       value={bookData.hardcopyDiscount || ""}
                       onChange={handleInputChange}
+                      className="w-full"
                     />
                     {bookData.isEbookAvailable && (
                       <TextInput
@@ -468,6 +504,7 @@ const AdminBookDashboard = () => {
                         type="number"
                         value={bookData.ebookDiscount || ""}
                         onChange={handleInputChange}
+                        className="w-full"
                       />
                     )}
                   </div>
@@ -476,53 +513,115 @@ const AdminBookDashboard = () => {
             </div>
 
             {/* Image Upload Section */}
-            <div className="col-span-1 bg-slate-700/50 p-4 rounded-lg">
+            <div className="bg-slate-700/50 p-4 rounded-lg space-y-6">
               <h3 className="text-white font-medium mb-4">Images</h3>
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-gray-300">Cover Image</Label>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="file"
-                      name="coverImage"
-                      onChange={handleFileChange}
-                      accept="image/*"
-                      className="text-gray-300"
-                    />
-                    {bookData.coverImage && (
-                      <img
-                        src={
-                          typeof bookData.coverImage === "string"
-                            ? bookData.coverImage
-                            : URL.createObjectURL(bookData.coverImage)
-                        }
-                        alt="Cover Preview"
-                        className="w-16 h-20 object-cover rounded"
+
+              {/* Cover Image Upload */}
+              <div className="space-y-2">
+                <Label className="text-gray-300">Cover Image</Label>
+                <div className="flex items-start gap-4">
+                  <div className="flex-1">
+                    <div className="relative flex items-center justify-center h-32 w-full border-2 border-dashed border-gray-500 rounded-lg hover:border-purple-500 transition-colors">
+                      <input
+                        type="file"
+                        name="coverImage"
+                        onChange={handleFileChange}
+                        accept="image/*"
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
-                    )}
+                      {!bookData.coverImage ? (
+                        <div className="text-center">
+                          <HiUpload className="mx-auto h-8 w-8 text-gray-400" />
+                          <p className="mt-1 text-sm text-gray-400">
+                            Click to upload cover image
+                          </p>
+                        </div>
+                      ) : (
+                        <img
+                          src={
+                            typeof bookData.coverImage === "string"
+                              ? bookData.coverImage
+                              : bookData.coverImage.preview
+                          }
+                          alt="Cover Preview"
+                          className="h-full w-full object-contain rounded-lg"
+                        />
+                      )}
+                    </div>
                   </div>
+                  {bookData.coverImage && (
+                    <Button
+                      size="sm"
+                      color="failure"
+                      onClick={() =>
+                        setBookData((prev) => ({ ...prev, coverImage: null }))
+                      }
+                    >
+                      <HiX className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
-                <div>
-                  <Label className="text-gray-300">
-                    Additional Images (Max 4)
-                  </Label>
-                  <input
-                    type="file"
-                    name="bookImages"
-                    onChange={handleFileChange}
-                    accept="image/*"
-                    multiple
-                    max="4"
-                    className="text-gray-300"
-                  />
+              </div>
+
+              {/* Additional Images Upload */}
+              <div className="space-y-2">
+                <Label className="text-gray-300">
+                  Additional Images (Max 4)
+                </Label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[...Array(4)].map((_, index) => (
+                    <div key={index} className="relative">
+                      <div className="aspect-square relative flex items-center justify-center border-2 border-dashed border-gray-500 rounded-lg hover:border-purple-500 transition-colors">
+                        {bookData.bookImages?.[index] ? (
+                          <>
+                            <img
+                              src={
+                                typeof bookData.bookImages[index] === "string"
+                                  ? bookData.bookImages[index]
+                                  : bookData.bookImages[index].preview
+                              }
+                              alt={`Extra ${index + 1}`}
+                              className="h-full w-full object-cover rounded-lg"
+                            />
+                            <Button
+                              size="sm"
+                              color="failure"
+                              className="absolute -top-2 -right-2"
+                              onClick={() => {
+                                setBookData((prev) => ({
+                                  ...prev,
+                                  bookImages: prev.bookImages.filter(
+                                    (_, i) => i !== index
+                                  ),
+                                }));
+                              }}
+                            >
+                              <HiX className="h-3 w-3" />
+                            </Button>
+                          </>
+                        ) : (
+                          <label className="cursor-pointer w-full h-full flex items-center justify-center">
+                            <input
+                              type="file"
+                              name="bookImages"
+                              onChange={handleFileChange}
+                              accept="image/*"
+                              className="hidden"
+                            />
+                            <HiUpload className="h-6 w-6 text-gray-400" />
+                          </label>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
 
             {/* eBook Section */}
             <div className="col-span-2 bg-slate-700/50 p-4 rounded-lg">
-              <div className="flex items-center space-x-4">
-                <Label className="text-gray-300">
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <Label className="text-gray-300 flex items-center">
                   <input
                     type="checkbox"
                     name="isEbookAvailable"
@@ -539,7 +638,7 @@ const AdminBookDashboard = () => {
                       name="eBook"
                       onChange={handleFileChange}
                       accept="application/pdf"
-                      className="text-gray-300"
+                      className="text-gray-300 w-full sm:w-auto"
                     />
                   </div>
                 )}
@@ -548,15 +647,21 @@ const AdminBookDashboard = () => {
           </div>
         </Modal.Body>
         <Modal.Footer className="bg-slate-800 border-t border-gray-700">
-          <Button
-            onClick={handleAddEditBook}
-            className="bg-gradient-to-r from-purple-500 to-purple-600"
-          >
-            {isEdit ? "Update Book" : "Add Book"}
-          </Button>
-          <Button color="gray" onClick={() => setShowModal(false)}>
-            Cancel
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button
+              onClick={handleAddEditBook}
+              className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-purple-600"
+            >
+              {isEdit ? "Update Book" : "Add Book"}
+            </Button>
+            <Button
+              color="gray"
+              onClick={() => setShowModal(false)}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+          </div>
         </Modal.Footer>
       </Modal>
     </div>
