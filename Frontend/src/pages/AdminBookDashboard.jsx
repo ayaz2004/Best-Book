@@ -46,13 +46,19 @@ const AdminBookDashboard = () => {
       if (bookData.coverImage?.preview) {
         URL.revokeObjectURL(bookData.coverImage.preview);
       }
-      bookData.bookImages?.forEach((image) => {
-        if (image.preview) {
-          URL.revokeObjectURL(image.preview);
-        }
-      });
+      if (bookData.bookImages?.length > 0) {
+        bookData.bookImages.forEach((image) => {
+          if (image.preview) {
+            URL.revokeObjectURL(image.preview);
+          }
+        });
+      }
+      // Reset form data when modal closes
+      if (!isEdit) {
+        setBookData(initialBookData);
+      }
     }
-  }, [showModal]);
+  }, [showModal, isEdit]);
 
   // Fetch books from the server
   const fetchBooks = async () => {
@@ -81,30 +87,45 @@ const AdminBookDashboard = () => {
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
+
     if (name === "bookImages") {
+      // Handle multiple images
       if (files.length > 4) {
         setError("Maximum 4 images allowed");
         setShowAlert(true);
         return;
       }
-      // Convert FileList to array and create preview URLs
+
+      // Create array of files with previews
       const newImages = Array.from(files).map((file) => ({
         file,
         preview: URL.createObjectURL(file),
       }));
+
       setBookData((prev) => ({
         ...prev,
-        [name]: [...(prev[name] || []), ...newImages].slice(0, 4),
+        bookImages: [...(prev.bookImages || []), ...newImages].slice(0, 4),
       }));
-    } else {
+    } else if (name === "coverImage" || name === "eBook") {
+      // Handle single file (cover image or eBook)
       if (files[0]) {
-        setBookData((prev) => ({
-          ...prev,
-          [name]: {
-            file: files[0],
-            preview: URL.createObjectURL(files[0]),
-          },
-        }));
+        const file = files[0];
+        if (name === "coverImage") {
+          // For cover image, store both file and preview
+          setBookData((prev) => ({
+            ...prev,
+            coverImage: {
+              file,
+              preview: URL.createObjectURL(file),
+            },
+          }));
+        } else {
+          // For eBook, just store the file
+          setBookData((prev) => ({
+            ...prev,
+            [name]: file,
+          }));
+        }
       }
     }
   };
@@ -165,7 +186,10 @@ const AdminBookDashboard = () => {
 
     // Append files
     if (bookData.coverImage) {
-      formData.append("coverImage", bookData.coverImage);
+      formData.append(
+        "coverImage",
+        bookData.coverImage.file || bookData.coverImage
+      );
     }
 
     if (bookData.isEbookAvailable && bookData.eBook) {
@@ -174,7 +198,7 @@ const AdminBookDashboard = () => {
 
     if (bookData.bookImages?.length > 0) {
       bookData.bookImages.forEach((image) => {
-        formData.append("bookImages", image);
+        formData.append("bookImages", image.file || image);
       });
     }
 
