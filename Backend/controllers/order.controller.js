@@ -12,6 +12,7 @@ import Address from "../models/address.model.js";
 import { Coupon } from "../models/coupon.model.js";
 import { validate } from "uuid";
 export const placeOrder = async (req, res, next) => {
+
   const {
     userId,
     items,
@@ -22,27 +23,15 @@ export const placeOrder = async (req, res, next) => {
   } = req.body;
 
   try {
-    // if (!userId  || !shippingAddress || !totalAmount || paymentProvider !== "" || isPaymentDone === null || isPaymentDone === undefined) {
-    //   return next(errorHandler(400, "Invalid data"));
-    // }
+    if (!userId  || !shippingAddress || !totalAmount || paymentProvider === "" || isPaymentDone === null || isPaymentDone === undefined) {
+      return next(errorHandler(400, "Invalid data"));
+    }
 
-    // const cartItems = await Cart.findById(cartId);
+ 
+    if(req.user.id !== userId){
+        return next(errorHandler(403, "Unauthorized"));
+    }
 
-    // if(req.user._id !== userId){
-    //     return next(errorHandler(403, "Unauthorized"));
-    // }
-    const {
-      firstName,
-      lastName,
-      phone,
-      address1,
-      address2,
-      city,
-      state,
-      pincode,
-      country,
-      isDefault,
-    } = shippingAddress;
     const user = await User.findById(userId);
 
     if (!user) {
@@ -68,8 +57,8 @@ export const placeOrder = async (req, res, next) => {
           ? await Book.findById({ _id: productId })
           : await Quiz.findById({ _id: productId });
       if (item.productType === "ebook") {
-        subscribedEbook.push(item.product.id);
-        console.log(subscribedEbook);
+        subscribedEbook.push(item.product._id);
+     
       }
 
       if (!product) {
@@ -106,7 +95,7 @@ export const placeOrder = async (req, res, next) => {
 
     user.subscribedEbook = [...user.subscribedEbook, ...uniqueEbooks];
     await user.save({ validateBeforeSave: false });
-    // await address.save();
+
     const order = new Order({
       userId,
       username: user.username,
@@ -117,8 +106,6 @@ export const placeOrder = async (req, res, next) => {
       isPaymentDone,
     });
 
-    // user.subscribedEbook = [...user.subscribedEbook, ...subscribedEbook];
-    // await user.save({ validateBeforeSave: true });
 
     await order.save();
     
@@ -188,7 +175,8 @@ export const addCoupon = async (req, res, next) => {
   }
 };
 export const getAllOrdersByUser = async (req, res, next) => {
-  const { userId } = req.params;
+  const  userId  = req.user.id;
+
   if (!userId) {
     return next(errorHandler(400, "Invalid data"));
   }
@@ -198,13 +186,13 @@ export const getAllOrdersByUser = async (req, res, next) => {
 
     orders.map((order) => {
       let product = {
-        thumbnail: null,
+        coverImage: null,
         title: null,
         price: null,
         quantity: null,
       };
       order?.items.map((item) => {
-        product.thumbnail =
+        product.coverImage =
           item?.product.coverImage && item?.product.coverImage;
         product.title = item?.product.title;
         product.price = item?.product.price;

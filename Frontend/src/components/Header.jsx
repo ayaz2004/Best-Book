@@ -116,6 +116,9 @@ export default function Header() {
         <Navbar.Link as={"div"}>
           <Link to="/orders">Orders</Link>
         </Navbar.Link>
+        <Navbar.Link as={"div"}>
+          <Link to="/subscribedEbooks">Your Ebooks</Link>
+        </Navbar.Link>
       </Navbar.Collapse>
     </Navbar>
   );

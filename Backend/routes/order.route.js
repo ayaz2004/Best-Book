@@ -6,11 +6,12 @@ import {
   applyCoupon,
   addCoupon,
 } from "../controllers/order.controller.js";
+import { verifyToken } from "../utils/verifyUser.js";
 
 const router = Router();
-router.post("/placeorder", placeOrder);
+router.post("/placeorder", verifyToken,placeOrder);
 // getting all orders by a user
-router.get("/getordersbyuser/:userId", getAllOrdersByUser);
+router.get("/getordersbyuser",verifyToken, getAllOrdersByUser);
 
 // admin
 // getting all orders

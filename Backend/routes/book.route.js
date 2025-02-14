@@ -6,9 +6,11 @@ import {
   deleteBook,
   updateBook,
   getPopularBooks,
-  getAllBooksByExams
+  getAllBooksByExams,
+  getPurchasedEbooks
 } from "../controllers/book.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
+import { verifyToken } from "../utils/verifyUser.js";
 
 const router = Router();
 const options = [ {
@@ -46,5 +48,7 @@ router.get("/getbookbyid/:bookId", getBookById);
 router.get("/getbookbyexam/:exam", getAllBooksByExams);
 // new route for fetching popular books
 router.get("/popularBooks", getPopularBooks);
+// get purchased ebooks
+router.get("/purchasedebooks",verifyToken,getPurchasedEbooks);
 
 export default router;

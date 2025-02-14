@@ -1,4 +1,6 @@
+import e from "express";
 import Book from "../models/book.model.js"; // Adjust the path as necessary
+import User from "../models/user.model.js";
 import {
   uploadImagesToCloudinary,
   uploadPdftoCloudinary,
@@ -46,7 +48,8 @@ export const uploadBooks = async (req, res, next) => {
     // Create new book instance
     const pdfUploadResponse = pdfPath && (await uploadPdftoCloudinary(pdfPath));
 
-    const bookImagesUrls = bookImagesPath && await uploadBookImages(bookImagesPath);
+    const bookImagesUrls =
+      bookImagesPath && (await uploadBookImages(bookImagesPath));
 
     const newBook = new Book({
       stock,
@@ -66,7 +69,7 @@ export const uploadBooks = async (req, res, next) => {
       category,
       language,
       pages,
-      images:bookImagesUrls && bookImagesUrls
+      images: bookImagesUrls && bookImagesUrls,
     });
 
     // Save the book to the database
@@ -108,7 +111,7 @@ export const deleteBook = async (req, res, next) => {
 
 export const updateBook = async (req, res, next) => {
   const { bookId } = req.params;
-  
+
   const updateBookData = req.body;
   if (!bookId) {
     return next(errorHandler(400, "Book ID is required"));
@@ -244,15 +247,47 @@ export const getAllBooksByExams = async (req, res, next) => {
   }
 };
 
+export const getPurchasedEbooks = async (req, res, next) => {
+  const userId = req.user.id;
+
+  try {
+    const user = await User.findById(userId).populate("subscribedEbook");
+    if (!user) {
+      return next(errorHandler(404, "User not found"));
+    }
+
+    const ebooks = [];
+
+    for(const ebook of user.subscribedEbook){
+      const purchasedBook = await Book.findById(ebook);
+      if(!purchasedBook){
+        return next(errorHandler(500,"No Book Found"));
+      }
+    
+      ebooks.push(purchasedBook)
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Purchased ebooks fetched successfully",
+      ebooks,
+    });
+  } catch (error) {
+    console.error(error.message);
+    next(errorHandler(500, error.message));
+  }
+};
 
 const uploadBookImages = async (imagePaths) => {
   try {
     // Map each image path to a upload promise
-    const uploadPromises = imagePaths.map(path => uploadImagesToCloudinary(path));
+    const uploadPromises = imagePaths.map((path) =>
+      uploadImagesToCloudinary(path)
+    );
     // Wait for all uploads to complete
     const uploadResults = await Promise.all(uploadPromises);
     // Return array of uploaded image URLs
-    return uploadResults.map(result => result.url);
+    return uploadResults.map((result) => result.url);
   } catch (error) {
     throw new Error(`Error uploading book images: ${error.message}`);
   }

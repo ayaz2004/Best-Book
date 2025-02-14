@@ -5,6 +5,7 @@ const initialState = {
   error: null,
   loading: false,
   phoneNumber: null,
+  subscribedEbook: [], // Add this line
 };
 
 const userSlice = createSlice({
@@ -50,6 +51,19 @@ const userSlice = createSlice({
     clearPhoneNumber: (state) => {
       state.phoneNumber = null;
     },
+    updateSubscribedEbooks: (state, action) => {
+      if (state.currentUser) {
+       
+        state.subscribedEbook = action.payload
+      
+      }
+    },
+    signInSuccess: (state, action) => {
+      state.currentUser = action.payload;
+      state.loading = false;
+      state.error = null;
+      state.subscribedEbook = action.payload.subscribedEbook || [];
+    },
   },
 });
 
@@ -63,6 +77,7 @@ export const {
   signoutSuccess,
   setPhoneNumber,
   clearPhoneNumber,
+  updateSubscribedEbooks
 } = userSlice.actions;
 
 export default userSlice.reducer;

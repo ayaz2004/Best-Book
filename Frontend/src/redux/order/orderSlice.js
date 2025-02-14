@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { act } from "react";
 
 export const fetchUserOrders = createAsyncThunk(
   "orders/fetchUserOrders",
@@ -6,7 +7,7 @@ export const fetchUserOrders = createAsyncThunk(
     try {
       const { user } = getState();
       const res = await fetch(
-        `/api/order/getordersbyuser/${user.currentUser._id}`,
+        `/api/order/getordersbyuser`,
         {
           headers: {
             "Authorization": `Bearer ${user.currentUser.token}`,
@@ -37,7 +38,7 @@ const orderSlice = createSlice({
       })
       .addCase(fetchUserOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders = action.payload;
+        state.orders = action.payload.data;
         state.error = null;
       })
       .addCase(fetchUserOrders.rejected, (state, action) => {
