@@ -171,7 +171,6 @@ export const getBooks = async (req, res, next) => {
     // const BookResponse={};
     // for(const book of books){
     //   const reviews = await getAllReviewsForBook(book._id);
-      
 
     // }
     res.status(200).json({
@@ -265,13 +264,13 @@ export const getPurchasedEbooks = async (req, res, next) => {
 
     const ebooks = [];
 
-    for(const ebook of user.subscribedEbook){
+    for (const ebook of user.subscribedEbook) {
       const purchasedBook = await Book.findById(ebook);
-      if(!purchasedBook){
-        return next(errorHandler(500,"No Book Found"));
+      if (!purchasedBook) {
+        return next(errorHandler(500, "No Book Found"));
       }
-    
-      ebooks.push(purchasedBook)
+
+      ebooks.push(purchasedBook);
     }
 
     res.status(200).json({
@@ -300,23 +299,22 @@ const uploadBookImages = async (imagePaths) => {
   }
 };
 
-
-const getAllReviewsForBook = async (bookId)=>{
-  const reviews = await Reviews.findById({itemId:bookId,approved:true});
-  if(!reviews){
+const getAllReviewsForBook = async (bookId) => {
+  const reviews = await Reviews.findById({ itemId: bookId, approved: true });
+  if (!reviews) {
     return null;
   }
   const approvedReviews = {
-    review:[],
-    rating:-1
+    review: [],
+    rating: -1,
   };
   const rate = 0.0;
-  for(const rev of reviews ){
+  for (const rev of reviews) {
     approvedReviews.review.push(rev);
-    rate += rev.rating
+    rate += rev.rating;
   }
 
   rate = Math.floor(rate / reviews.language);
   approvedReviews.rating = rate;
   return approvedReviews;
-}
+};
