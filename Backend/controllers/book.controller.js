@@ -6,6 +6,7 @@ import {
   uploadPdftoCloudinary,
 } from "../utils/cloudinary.js";
 import { errorHandler } from "../utils/error.js";
+import Reviews from "../models/reviews.model.js";
 
 export const uploadBooks = async (req, res, next) => {
   try {
@@ -167,6 +168,12 @@ export const getBooks = async (req, res, next) => {
     // Fetch all books from the database
     const books = await Book.find();
     // Send success response
+    // const BookResponse={};
+    // for(const book of books){
+    //   const reviews = await getAllReviewsForBook(book._id);
+      
+
+    // }
     res.status(200).json({
       success: true,
       message: "Books fetched successfully",
@@ -292,3 +299,24 @@ const uploadBookImages = async (imagePaths) => {
     throw new Error(`Error uploading book images: ${error.message}`);
   }
 };
+
+
+const getAllReviewsForBook = async (bookId)=>{
+  const reviews = await Reviews.findById({itemId:bookId,approved:true});
+  if(!reviews){
+    return null;
+  }
+  const approvedReviews = {
+    review:[],
+    rating:-1
+  };
+  const rate = 0.0;
+  for(const rev of reviews ){
+    approvedReviews.review.push(rev);
+    rate += rev.rating
+  }
+
+  rate = Math.floor(rate / reviews.language);
+  approvedReviews.rating = rate;
+  return approvedReviews;
+}
