@@ -162,7 +162,7 @@ export const initiatePhonepePayment = async (req, res, next) => {
     mobileNumber: mobileNumber,
     amount: totalAmount * 100, // Amount in paise
     merchantTransactionId: orderId,
-    redirectUrl: `${redirectUrl}?id=${orderId}`,
+    redirectUrl: `${redirectUrl}`,
     redirectMode: "POST",
     paymentInstrument: {
       type: "PAY_PAGE",
