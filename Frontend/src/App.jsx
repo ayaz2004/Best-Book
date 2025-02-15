@@ -20,6 +20,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import Orders from "./pages/Orders";
 import { AddressManagement } from "./components/addUpdateAddress";
 import AdminOrderDashboard from "./pages/AdminOrderDashboard";
+import EbookLibrary from "./components/EbookLibrary";
 
 export default function App() {
   return (
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/address" element={<AddressManagement />} />
+          <Route path="/subscribedEbooks" element={<EbookLibrary />} />
         </Route>
         <Route element={<OnlyAdminPrivateRoute />}>
           <Route path="/manage-books" element={<AdminBookDashboard />} />
