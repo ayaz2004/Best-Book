@@ -37,14 +37,20 @@ export default function SignIn() {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+        }),
       });
+
       const data = await res.json();
-      if (data.success === false) {
-        dispatch(signInFailure(data.message));
+      if (!res.ok) {
+        dispatch(signInFailure(data.message || "Sign in failed"));
+        return;
       }
-      if (res.ok) {
-        dispatch(signInSuccess(data));
+
+      if (data.success && data.user) {
+        dispatch(signInSuccess(data.user));
         navigate("/");
       } else {
         dispatch(signInFailure(data.message));

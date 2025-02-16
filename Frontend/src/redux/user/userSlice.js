@@ -17,12 +17,6 @@ const userSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
-    signInSuccess: (state, action) => {
-      state.currentUser = action.payload;
-      state.loading = false;
-      state.error = null;
-      state.sessionExpiry = Date.now() + 24 * 60 * 60 * 1000;
-    },
     signInFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
@@ -63,6 +57,7 @@ const userSlice = createSlice({
       state.currentUser = action.payload;
       state.loading = false;
       state.error = null;
+      state.sessionExpiry = Date.now() + 24 * 60 * 60 * 1000;
       state.subscribedEbook = action.payload.subscribedEbook || [];
     },
     handleSessionExpired: (state) => {

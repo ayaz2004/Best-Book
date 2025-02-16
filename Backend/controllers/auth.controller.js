@@ -128,7 +128,7 @@ export const signin = async (req, res, next) => {
     await validUser.save();
 
     const { password: pass, ...rest } = validUser._doc;
- 
+
     res
       .status(200)
       .cookie("access_token", accessToken, {
@@ -137,7 +137,15 @@ export const signin = async (req, res, next) => {
       .cookie("session_token", sessionToken, {
         httpOnly: true,
       })
-      .json(rest);
+      .json({
+        success: true,
+        user: {
+          ...rest,
+          accessToken,
+          sessionToken,
+        },
+        message: "Sign in successful",
+      });
   } catch (error) {
     next(error);
   }
