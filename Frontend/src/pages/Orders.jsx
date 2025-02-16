@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchUserOrders } from "../redux/order/orderSlice";
 import { FaBox, FaTruck, FaCheck, FaClock } from "react-icons/fa";
+import { ArrowDownAZ } from "lucide-react";
 
 export default function Orders() {
   const dispatch = useDispatch();
@@ -17,8 +18,28 @@ export default function Orders() {
       navigate("/sign-in");
       return;
     }
+    getAllOrdersByUser();
     dispatch(fetchUserOrders());
   }, [currentUser, dispatch, navigate]);
+
+  const getAllOrdersByUser = async () => {
+    try {
+      const response = await fetch("/api/order/getordersbyuser", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${currentUser.accessToken}`,
+        },
+      });
+      if (!response.ok) {
+        console.error("Error getting your orders");
+      }
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
 
   const getStatusIcon = (status) => {
     switch (status) {

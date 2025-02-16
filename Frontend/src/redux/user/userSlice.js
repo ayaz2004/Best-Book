@@ -5,6 +5,7 @@ const initialState = {
   error: null,
   loading: false,
   phoneNumber: null,
+  subscribedEbook: [], // Add this line
   sessionExpiry: null,
 };
 
@@ -53,6 +54,19 @@ const userSlice = createSlice({
     clearPhoneNumber: (state) => {
       state.phoneNumber = null;
     },
+    updateSubscribedEbooks: (state, action) => {
+      if (state.currentUser) {
+       
+        state.subscribedEbook = action.payload
+      
+      }
+    },
+    signInSuccess: (state, action) => {
+      state.currentUser = action.payload;
+      state.loading = false;
+      state.error = null;
+      state.subscribedEbook = action.payload.subscribedEbook || [];
+    },
     handleSessionExpired: (state) => {
       state.currentUser = null;
       state.error = "Session expired. Please login again.";
@@ -73,6 +87,7 @@ export const {
   signoutSuccess,
   setPhoneNumber,
   clearPhoneNumber,
+  updateSubscribedEbooks
   handleSessionExpired,
 } = userSlice.actions;
 

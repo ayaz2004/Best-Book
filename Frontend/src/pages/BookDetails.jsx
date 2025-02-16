@@ -72,7 +72,7 @@ export default function BookDetails() {
       if (response.ok) {
         dispatch(addToCartSuccess(data));
         setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 3000); // Hide the message after 3 seconds
+        setTimeout(() => setShowSuccess(false), 1500); // Hide the message after 3 seconds
       } else {
         throw new Error(data.message);
       }

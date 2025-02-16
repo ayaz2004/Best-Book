@@ -7,6 +7,7 @@ import {
   HiShoppingBag,
   HiUserGroup,
   HiAcademicCap,
+  HiHome
 } from "react-icons/hi";
 import { Link, useLocation } from "react-router-dom";
 import { signoutSuccess } from "../redux/user/userSlice";
@@ -60,6 +61,17 @@ export default function DashSidebar() {
               as="div"
             >
               Profile
+            </Sidebar.Item>
+          </Link>
+          <Link to="/address">
+            <Sidebar.Item
+              active={tab === "address"}
+              icon={HiHome}
+              label={"User"}
+              labelColor="dark"
+              as="div"
+            >
+              Address
             </Sidebar.Item>
           </Link>
 
