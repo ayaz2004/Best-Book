@@ -56,9 +56,7 @@ const userSlice = createSlice({
     },
     updateSubscribedEbooks: (state, action) => {
       if (state.currentUser) {
-       
-        state.subscribedEbook = action.payload
-      
+        state.subscribedEbook = action.payload;
       }
     },
     signInSuccess: (state, action) => {
@@ -87,7 +85,7 @@ export const {
   signoutSuccess,
   setPhoneNumber,
   clearPhoneNumber,
-  updateSubscribedEbooks
+  updateSubscribedEbooks,
   handleSessionExpired,
 } = userSlice.actions;
 
