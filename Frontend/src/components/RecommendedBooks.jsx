@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { handleSessionExpired } from "../redux/user/userSlice";
 
 function NextArrow(props) {
   const { className, style, onClick } = props;
@@ -64,24 +65,60 @@ function getRandomLightColor() {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
+export const authenticatedFetch = async (url, options = {}, dispatch) => {
+  try {
+    const response = await fetch(url, {
+      ...options,
+      credentials: "include",
+      headers: {
+        ...options.headers,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.status === 401) {
+      throw new Error("UNAUTHORIZED");
+    }
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || "Something went wrong");
+    }
+
+    return data;
+  } catch (error) {
+    if (error.message === "UNAUTHORIZED") {
+      dispatch(handleSessionExpired());
+      window.location.href = "/sign-in";
+    }
+    throw error;
+  }
+};
+
 export default function RecommendedBooks() {
   const [books, setBooks] = useState([]);
-  const { currentUser } = useSelector((state) => state.user);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const { currentUser } = useSelector((state) => state.user);
 
   useEffect(() => {
     const fetchRecommendedBooks = async () => {
-      if (!currentUser?.targetExam) return;
+      if (!currentUser?.targetExam) {
+        setLoading(false);
+        return;
+      }
 
       try {
-        const response = await fetch(
-          `/api/book/getbookbyexam/${currentUser.targetExam}`
+        setLoading(true);
+        const data = await authenticatedFetch(
+          `/api/book/getbookbyexam/${currentUser.targetExam}`,
+          {},
+          dispatch
         );
-        if (!response.ok) throw new Error("Failed to fetch recommended books.");
-        const data = await response.json();
-        setBooks(data.books);
+        setBooks(data.books || []);
       } catch (error) {
+        console.error("Failed to fetch recommended books:", error);
         setError(error.message);
       } finally {
         setLoading(false);
@@ -89,7 +126,7 @@ export default function RecommendedBooks() {
     };
 
     fetchRecommendedBooks();
-  }, [currentUser?.targetExam]);
+  }, [currentUser?.targetExam, dispatch]);
 
   const settings = {
     dots: true,

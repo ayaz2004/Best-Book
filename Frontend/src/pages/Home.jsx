@@ -1,4 +1,3 @@
-import React from "react";
 import PopularBooks from "../components/PopularBooks";
 import PopularQuizzes from "../components/PopularQuizzes";
 import { Hero } from "../components/Hero";

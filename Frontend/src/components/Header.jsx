@@ -1,41 +1,67 @@
-import React from "react";
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Navbar, TextInput, Dropdown, Avatar } from "flowbite-react";
 import { AiOutlineSearch } from "react-icons/ai";
 import { FaShoppingCart } from "react-icons/fa";
-import { signoutSuccess } from "../redux/user/userSlice";
+import {
+  handleSessionExpired,
+  selectIsSessionValid,
+  signoutSuccess,
+} from "../redux/user/userSlice";
+import { authenticatedFetch } from "../utils/api";
+import { clearCart } from "../redux/cart/cartSlice";
 
 export default function Header() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const isSessionValid = useSelector(selectIsSessionValid);
   const { currentUser } = useSelector((state) => state.user);
   const { items } = useSelector((state) => state.cart);
   const cartCount = currentUser ? items?.length || 0 : 0;
 
   const handleSignout = async () => {
     try {
-      const res = await fetch("/api/user/signout", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${currentUser.token}`,
+      await authenticatedFetch(
+        "/api/user/signout",
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${currentUser?.token}`,
+          },
         },
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        console.log(data.message);
-      } else {
-        dispatch(signoutSuccess());
-      }
+        dispatch
+      );
+
+      dispatch(signoutSuccess());
+      dispatch(clearCart());
+      navigate("/sign-in");
     } catch (error) {
-      console.log(error.message);
+      if (error.message !== "Session expired") {
+        console.error("Signout failed:", error.message);
+      }
     }
   };
 
-  const handleCartClick = () => {
+  useEffect(() => {
     if (currentUser) {
+      const checkSession = () => {
+        if (!isSessionValid) {
+          dispatch(handleSessionExpired());
+          dispatch(clearCart());
+          navigate("/sign-in");
+        }
+      };
+
+      const interval = setInterval(checkSession, 60000); // Check every minute
+      checkSession(); // Initial check
+
+      return () => clearInterval(interval);
+    }
+  }, [currentUser, isSessionValid, dispatch, navigate]);
+
+  const handleCartClick = () => {
+    if (currentUser && isSessionValid) {
       navigate("/cart");
     } else {
       navigate("/sign-in");

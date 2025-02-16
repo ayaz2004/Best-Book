@@ -5,6 +5,7 @@ const initialState = {
   error: null,
   loading: false,
   phoneNumber: null,
+  sessionExpiry: null,
 };
 
 const userSlice = createSlice({
@@ -19,6 +20,7 @@ const userSlice = createSlice({
       state.currentUser = action.payload;
       state.loading = false;
       state.error = null;
+      state.sessionExpiry = Date.now() + 24 * 60 * 60 * 1000;
     },
     signInFailure: (state, action) => {
       state.loading = false;
@@ -42,12 +44,20 @@ const userSlice = createSlice({
       state.phoneNumber = null;
       state.error = null;
       state.loading = false;
+      state.sessionExpiry = null;
     },
     setPhoneNumber: (state, action) => {
       state.phoneNumber = action.payload;
       state.error = null;
     },
     clearPhoneNumber: (state) => {
+      state.phoneNumber = null;
+    },
+    handleSessionExpired: (state) => {
+      state.currentUser = null;
+      state.error = "Session expired. Please login again.";
+      state.loading = false;
+      state.sessionExpiry = null;
       state.phoneNumber = null;
     },
   },
@@ -63,6 +73,11 @@ export const {
   signoutSuccess,
   setPhoneNumber,
   clearPhoneNumber,
+  handleSessionExpired,
 } = userSlice.actions;
+
+export const selectIsSessionValid = (state) => {
+  return state.user.sessionExpiry && Date.now() < state.user.sessionExpiry;
+};
 
 export default userSlice.reducer;
