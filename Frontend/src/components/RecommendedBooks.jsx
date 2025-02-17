@@ -5,7 +5,8 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { handleSessionExpired } from "../redux/user/userSlice";
-
+import { motion } from "framer-motion";
+import { fadeIn } from "../utils/Anim/ScrollAnim";
 function NextArrow(props) {
   const { className, style, onClick } = props;
   return (
@@ -175,13 +176,26 @@ export default function RecommendedBooks() {
   if (books.length === 0) return null;
 
   return (
-    <div className="py-10 w-full">
+    <motion.div
+      className="py-10 w-full"
+      variants={fadeIn(0.4, "up")}
+      initial="hidden"
+      whileInView={"show"}
+      viewport={{ once: false, amount: 0.2 }}
+    >
       <h2 className="text-2xl font-bold mb-4">
         Recommended Books for {currentUser.targetExam}
       </h2>
       <Slider {...settings}>
-        {books.map((book) => (
-          <div key={book._id} className="p-4">
+        {books.map((book,index) => (
+          <motion.div
+            key={book._id}
+            className="p-4"
+            variants={fadeIn((index * 0.1 + 0.3) % 0.5, "up", "tween")}
+            initial="hidden"
+            whileInView={"show"}
+            viewport={{ once: false, amount: 0.2 }}
+          >
             <Link to={`/book/${book._id}`}>
               <div
                 className="bg-white p-4 rounded shadow hover:shadow-lg transition-shadow"
@@ -197,7 +211,7 @@ export default function RecommendedBooks() {
                 </h3>
               </div>
             </Link>
-          </div>
+          </motion.div>
         ))}
       </Slider>
       <div className="mt-4 text-right">
@@ -207,6 +221,6 @@ export default function RecommendedBooks() {
           </button>
         </Link>
       </div>
-    </div>
+    </motion.div>
   );
 }
