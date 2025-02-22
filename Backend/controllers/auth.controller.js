@@ -63,6 +63,31 @@ export const signup = async (req, res, next) => {
   }
 };
 
+export const resendOtp = async (req, res, next) => {
+  const { phoneNumber } = req.body;
+  if (!phoneNumber) {
+    return next(errorHandler(400, "No Phone Number found"));
+  }
+
+  const user = await User.findOne({ phoneNumber });
+  if (!user) {
+    return next(errorHandler(404, "User not found"));
+  }
+
+  try {
+    const otpResult = await sendOTP(phoneNumber);
+
+    if (otpResult.otp) {
+      setOTP(phoneNumber, otpResult.otp);
+      return res.json({
+        success: true,
+        message: `OTP sent successfully to ${phoneNumber}`,
+      });
+    } else {
+      return next(errorHandler(500, "Internal Server Error"));
+    }
+  } catch (error) {}
+};
 export const verifyOTP = async (req, res, next) => {
   const { otp, phoneNumber } = req.body;
 
@@ -78,8 +103,12 @@ export const verifyOTP = async (req, res, next) => {
     return next(errorHandler(400, "Invalid OTP"));
   }
 
-  const user = new User(newUser);
-  await user.save();
+  const existedUser = await User.findOne({ phoneNumber: phoneNumber });
+  if(!existedUser){
+    const user = new User({newUser});
+    await user.save();
+  }
+ 
 
   // Clear OTP and user data from the temporary store
   deleteOTP(phoneNumber);

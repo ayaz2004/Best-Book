@@ -177,6 +177,14 @@ export default function SignIn() {
                       className="w-full pl-12 pr-4 py-3 border-2 border-purple-200 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
                     />
                   </div>
+                  <div className="flex justify-end">
+                    <Link
+                      to="/forgetpassword"
+                      className="text-sm text-purple-600 hover:text-purple-700 hover:underline transition-colors"
+                    >
+                      Forgot Password?
+                    </Link>
+                  </div>
                 </motion.div>
 
                 <motion.div

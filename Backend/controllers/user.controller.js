@@ -1,4 +1,6 @@
+import { validate } from "uuid";
 import User from "../models/user.model.js";
+import { errorHandler } from "../utils/error.js";
 
 export const test = (req, res) => {
   res.json({ message: "API is working!" });
@@ -41,9 +43,46 @@ export const signout = async (req, res, next) => {
 };
 
 export const updateUser = async (req, res, next) => {
-  console.log(req.user);
+  
+  const userId = req.user.id
+  if (userId) {
+    return next(errorHandler(403, "You are not allowed to update this user"));
+  }
+  console.log(req.body);
+  try {
+    const user = await User.findByIdAndUpdate(userId, req.body, {
+      new: true,
+    },{validateBeforeSave: false});
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
+export const resetPassword = async (req, res, next) => {
+  const { password,phoneNumber } = req.body;
+  console.log(req.body);
+  try {
+    const user = await User.findOne({phoneNumber});
+    if (!user) {
+      return next(errorHandler(404, "User not found"));
+    }
+    user.password = password;
+    await user.save({validateBeforeSave: false});
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+      username:user.username
+    });
+  }
+  catch (error) {
+    next(errorHandler(500, "Failed to update password"));
+  }
+}
 // Analytics functions for the educational platform
 async function calculateUserAnalytics() {
   try {

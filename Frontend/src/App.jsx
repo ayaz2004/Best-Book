@@ -21,6 +21,8 @@ import Orders from "./pages/Orders";
 import { AddressManagement } from "./components/addUpdateAddress";
 import AdminOrderDashboard from "./pages/AdminOrderDashboard";
 import EbookLibrary from "./components/EbookLibrary";
+import ForgetPassword from "./components/ForgetPassword";
+import ResetPassword from "./components/ResetPassword";
 
 export default function App() {
   return (
@@ -34,7 +36,9 @@ export default function App() {
         <Route path="/all-books" element={<AllBooks />} />
         <Route path="/book/:bookId" element={<BookDetails />} />
         <Route path="/verify-otp" element={<VerifyOTP />} />
-
+        <Route path="/forgetpassword" element={<ForgetPassword />} />
+        <Route path="/resetpassword" element={<ResetPassword />} />
+       
         {/* <Route path="/admin-dashboard" element={<TempDashBoard />} /> */}
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
