@@ -118,6 +118,7 @@ export default function PopularQuizzes() {
     ],
   };
 
+    
   return (
     <motion.div
       className="py-10"
@@ -126,7 +127,7 @@ export default function PopularQuizzes() {
       whileInView={"show"}
       viewport={{ once: false, amount: 0.2 }}
     >
-      <h2 className="text-2xl font-bold mb-4">Popular Quizzes</h2>
+      <h2 className="text-2xl font-bold mb-4 p-4">Popular Quizzes</h2>
       <Slider {...settings}>
         {quizzes.map((quiz, index) => (
           <div

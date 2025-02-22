@@ -183,7 +183,7 @@ export default function RecommendedBooks() {
       whileInView={"show"}
       viewport={{ once: false, amount: 0.2 }}
     >
-      <h2 className="text-2xl font-bold mb-4">
+      <h2 className="text-2xl font-bold mb-4 p-4">
         Recommended Books for {currentUser.targetExam}
       </h2>
       <Slider {...settings}>

@@ -9,6 +9,7 @@ import {
   Chip,
   Container,
 } from "@mui/material";
+import { ShimmerButton } from "./ShimmerButton";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTypewriter } from "../utils/TypeWriter";
@@ -105,19 +106,9 @@ export function Hero() {
                   grow, and challenge yourself with our curated collection.
                 </motion.p>
                 <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    sx={{
-                      bgcolor: "rgb(30, 58, 138)",
-                      "&:hover": {
-                        bgcolor: "rgb(30, 64, 175)",
-                      },
-                    }}
-                    onClick={handleClick}
-                  >
-                    Shop Books
-                  </Button>
+              <ShimmerButton onClick={handleClick}>
+                Shop Books
+              </ShimmerButton>
                   <Button
                     variant="outlined"
                     size="large"

@@ -125,7 +125,9 @@ export default function PopularBooks() {
       whileInView={"show"}
       viewport={{ once: false, amount: 0.2 }}
     >
-      <h2 className="text-2xl font-bold mb-4">Popular Books</h2>
+      <motion.h2 className="text-2xl font-bold mb-4 p-4"
+  
+      >Popular Books</motion.h2>
       <Slider {...settings}>
         {books.map((book, index) => (
           <motion.div

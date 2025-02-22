@@ -135,7 +135,7 @@ export default function VerifyOTP() {
 
   const isOTPComplete = otpValues.every((value) => value !== "");
 
-  if (!phoneNumber) return null;
+  // if (!phoneNumber) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 via-purple-400 to-blue-500 py-12 px-4 sm:px-6 lg:px-8">
