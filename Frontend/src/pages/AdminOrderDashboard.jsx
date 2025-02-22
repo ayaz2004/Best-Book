@@ -70,21 +70,22 @@ export default function AdminOrderDashboard() {
 
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
-      const res = await fetch(`/api/order/update-status/${orderId}`, {
+      const res = await fetch(`/api/order/update-status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${
-            JSON.parse(localStorage.getItem("user")).token
-          }`,
+          // Authorization header removed
         },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ orderId, status: newStatus }),
       });
       if (res.ok) {
         fetchOrders();
+      } else {
+        const errorData = await res.json();
+        console.error("Error updating order status:", errorData.message);
       }
     } catch (error) {
-      console.error("Error updating order status:", error);
+      console.error("Error updating order status:", error.message);
     }
   };
 

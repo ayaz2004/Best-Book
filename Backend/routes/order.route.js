@@ -3,6 +3,7 @@ import {
   placeOrder,
   getAllOrdersByUser,
   getAllOrders,
+  updateOrderStatus,
   applyCoupon,
   addCoupon,
   initiatePhonepePayment,
@@ -11,9 +12,10 @@ import {
 import { verifyToken } from "../utils/verifyUser.js";
 
 const router = Router();
-router.post("/placeorder", verifyToken,placeOrder);
+router.post("/placeorder", verifyToken, placeOrder);
+
 // getting all orders by a user
-router.get("/getordersbyuser",verifyToken, getAllOrdersByUser);
+router.get("/getordersbyuser", verifyToken, getAllOrdersByUser);
 
 // Route to initiate online payment via PhonePe
 router.post("/create-payment", initiatePhonepePayment);
@@ -24,6 +26,9 @@ router.get("/payment-status", phonepeStatusCallback);
 // admin
 // getting all orders
 router.get("/getallorders", getAllOrders);
-router.post("/applycoupon", applyCoupon);
+
+router.put("/update-status", updateOrderStatus);
+
+router.post("/applycoupon", verifyToken, applyCoupon);
 router.post("/addcoupon", addCoupon);
 export default router;

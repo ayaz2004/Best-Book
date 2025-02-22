@@ -30,7 +30,6 @@ const successUrl = process.env.SUCCESS_URL;
 const failureUrl = process.env.FAILURE_URL;
 
 export const placeOrder = async (req, res, next) => {
-
   const {
     userId,
     items,
@@ -41,13 +40,19 @@ export const placeOrder = async (req, res, next) => {
   } = req.body;
 
   try {
-    if (!userId  || !shippingAddress || !totalAmount || paymentProvider === "" || isPaymentDone === null || isPaymentDone === undefined) {
+    if (
+      !userId ||
+      !shippingAddress ||
+      !totalAmount ||
+      paymentProvider === "" ||
+      isPaymentDone === null ||
+      isPaymentDone === undefined
+    ) {
       return next(errorHandler(400, "Invalid data"));
     }
 
- 
-    if(req.user.id !== userId){
-        return next(errorHandler(403, "Unauthorized"));
+    if (req.user.id !== userId) {
+      return next(errorHandler(403, "Unauthorized"));
     }
 
     const user = await User.findById(userId);
@@ -76,7 +81,6 @@ export const placeOrder = async (req, res, next) => {
           : await Quiz.findById({ _id: productId });
       if (item.productType === "ebook") {
         subscribedEbook.push(item.product._id);
-     
       }
 
       if (!product) {
@@ -123,7 +127,6 @@ export const placeOrder = async (req, res, next) => {
       paymentProvider: paymentProvider,
       isPaymentDone,
     });
-
 
     await order.save();
 
@@ -279,7 +282,7 @@ export const addCoupon = async (req, res, next) => {
   }
 };
 export const getAllOrdersByUser = async (req, res, next) => {
-  const  userId  = req.user.id;
+  const userId = req.user.id;
 
   if (!userId) {
     return next(errorHandler(400, "Invalid data"));
@@ -325,6 +328,33 @@ export const getAllOrders = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: orders,
+    });
+  } catch (error) {
+    next(errorHandler(500, error.message));
+  }
+};
+
+export const updateOrderStatus = async (req, res, next) => {
+  const { orderId, status } = req.body;
+
+  if (!orderId || !status || !AvailableOrderStatuses.includes(status)) {
+    return next(errorHandler(400, "Invalid order status or order ID"));
+  }
+
+  try {
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return next(errorHandler(404, "Order not found"));
+    }
+
+    order.status = status;
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Order status updated successfully",
+      data: order,
     });
   } catch (error) {
     next(errorHandler(500, error.message));
