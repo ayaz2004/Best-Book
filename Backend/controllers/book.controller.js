@@ -83,8 +83,8 @@ export const uploadBooks = async (req, res, next) => {
       book: newBook,
     });
   } catch (error) {
-    console.error(error);
-    next(error); // Pass error to the error-handling middleware
+    console.error(error.message);
+    next(errorHandler(500,"error in cnotroler")); // Pass error to the error-handling middleware
   }
 };
 

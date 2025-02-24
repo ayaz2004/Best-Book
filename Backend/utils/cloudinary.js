@@ -37,4 +37,23 @@ const uploadPdftoCloudinary = async (pdfPath) => {
   }
 };
 
-export { uploadImagesToCloudinary, uploadPdftoCloudinary };
+const uploadBannersTOCloudinary = async (localFilePath) => {
+try {
+    const response = await cloudinary.uploader.upload(localFilePath, {
+      folder: "banners",
+      transformation: [
+        { width: 1920, height: 600, crop: "fill" }
+      ]
+    });
+  
+    // Delete local file after upload
+    if (response) fs.unlinkSync(localFilePath);
+    return response;
+} catch (error) {
+    console.error("Banner upload error:", error);
+    fs.unlinkSync(localFilePath);
+    return null
+  
+}
+}
+export { uploadImagesToCloudinary, uploadPdftoCloudinary, uploadBannersTOCloudinary };

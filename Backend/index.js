@@ -1,19 +1,9 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import userRoutes from "./routes/user.route.js"; // We can change name as userRouter as we have exported as default.
-import authRoutes from "./routes/auth.route.js";
 import cookieParser from "cookie-parser";
-import bookRoutes from "./routes/book.route.js";
-import reviewRoutes from "./routes/reviews.routes.js";
-import examRoutes from "./routes/exam.route.js";
-import subjectRoutes from "./routes/subject.route.js";
-import chapterRoutes from "./routes/chapter.route.js";
-import quizRoutes from  "./routes/quiz.routes.js"
-import cartRoutes from "./routes/cart.route.js";
-import orderRoutes from "./routes/order.route.js";
-import addressRoutes from "./routes/address.route.js";
 import bodyParser from "body-parser";
+
 dotenv.config();
 
 mongoose
@@ -27,6 +17,19 @@ mongoose
 
 const app = express();
 
+import bookRoutes from "./routes/book.route.js";
+import reviewRoutes from "./routes/reviews.routes.js";
+import examRoutes from "./routes/exam.route.js";
+import subjectRoutes from "./routes/subject.route.js";
+import chapterRoutes from "./routes/chapter.route.js";
+import quizRoutes from  "./routes/quiz.routes.js"
+import cartRoutes from "./routes/cart.route.js";
+import orderRoutes from "./routes/order.route.js";
+import addressRoutes from "./routes/address.route.js";
+import userRoutes from "./routes/user.route.js"; // We can change name as userRouter as we have exported as default.
+import authRoutes from "./routes/auth.route.js";
+import bannerRoute from "./routes/banners.route.js"
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.json());
@@ -39,6 +42,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/book", bookRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/banners",bannerRoute)
 
 // following routes are for quiz and ther calling is nested as per there downward order
 app.use("/api/exams", examRoutes);

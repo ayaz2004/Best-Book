@@ -37,11 +37,11 @@ export default function AllBooks() {
           <span className="text-purple-600">All Books</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 b-">
           {books.map((book,index) => (
             <motion.div
               key={book._id}
-              className="bg-white rounded-3xl shadow-sm overflow-hidden hover:shadow-xl transition-shadow duration-300 m-3 border-gradient-to-r from-purple-400 via-pink-500 to-red-500"
+              className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm overflow-hidden hover:shadow-xl transition-shadow duration-300 m-3 hover:border-2 hover:border-purple-500"
               variants={fadeIn((index * 0.1 + 0.3) % 0.5, "up")}
               initial="hidden"
               whileInView={"show"}
@@ -53,7 +53,7 @@ export default function AllBooks() {
                 <img
                   src={book.coverImage}
                   alt={book.title}
-                  className="w-full h-64 object-cover"
+                  className="w-full h-64 object-scale-down"
                 />
               </Link>
               <motion.div className="pl-4 p-2"
