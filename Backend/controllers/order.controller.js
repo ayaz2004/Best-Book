@@ -281,36 +281,43 @@ export const addCoupon = async (req, res, next) => {
     next(error);
   }
 };
+
 export const getAllOrdersByUser = async (req, res, next) => {
   const userId = req.user.id;
 
   if (!userId) {
     return next(errorHandler(400, "Invalid data"));
   }
-  try {
-    const orders = await Order.find({ userId });
-    let orderDetails = [];
 
-    orders.map((order) => {
-      let product = {
-        coverImage: null,
-        title: null,
-        price: null,
-        quantity: null,
-      };
-      order?.items.map((item) => {
-        product.coverImage =
-          item?.product.coverImage && item?.product.coverImage;
-        product.title = item?.product.title;
-        product.price = item?.product.price;
-        product.quantity = item?.product.quantity;
-      });
-      orderDetails.push({
-        orderId: order._id,
-        totalAmount: order.totalAmount,
-        product: product,
-      });
-    });
+  try {
+    const orders = await Order.find({ userId })
+      .populate({
+        path: "items.product",
+        select: "title coverImage price",
+      })
+      .populate("coupon")
+      .sort({ createdAt: -1 });
+
+    const orderDetails = orders.map((order) => ({
+      _id: order._id,
+      username: order.username,
+      createdAt: order.createdAt,
+      status: order.status,
+      totalAmount: order.totalAmount,
+      paymentProvider: order.paymentProvider,
+      isPaymentDone: order.isPaymentDone,
+      shippingAddress: order.shippingAddress,
+      coupon: order.coupon,
+      items: order.items.map((item) => ({
+        product: {
+          _id: item.product._id,
+          title: item.product.title,
+          coverImage: item.product.coverImage,
+          price: item.product.price,
+        },
+        quantity: item.quantity,
+      })),
+    }));
 
     res.status(200).json({
       success: true,
