@@ -62,7 +62,6 @@ export default function Orders() {
   const tabs = [
     { id: "all", label: "All Orders" },
     { id: "pending", label: "Pending" },
-    { id: "processing", label: "Processing" },
     { id: "shipped", label: "Shipped" },
     { id: "delivered", label: "Delivered" },
   ];
