@@ -1,15 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
-  address:null,
-  error: null,
-  loading: false,
- 
-};
-
 const addressSlice = createSlice({
   name: "address",
-  initialState,
+  initialState: {
+    address: [],
+    loading: false,
+    error: null,
+  },
   reducers: {
     addressStart: (state) => {
       state.loading = true;
@@ -24,13 +21,28 @@ const addressSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    setAddresses: (state, action) => {
+      state.address = action.payload;
+      state.loading = false;
+      state.error = null;
+    },
+    setLoading: (state) => {
+      state.loading = true;
+    },
+    setError: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
   },
 });
 
 export const {
-    addressStart,
-    addressSuccess,
-    addressFailure,
+  addressStart,
+  addressSuccess,
+  addressFailure,
+  setAddresses,
+  setLoading,
+  setError,
 } = addressSlice.actions;
 
 export default addressSlice.reducer;
