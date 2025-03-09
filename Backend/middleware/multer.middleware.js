@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
   },
 });
 const fileFilter = (req, file, cb) => {
-  if (file.fieldname === "coverImage" || file.fieldname === "bookImages") {
+  if (file.fieldname === "coverImage" || file.fieldname === "bookImages" || file.fieldname === "banners") {
     // Accept images only
     if (!file.mimetype.startsWith("image/")) {
       return cb(new Error("Only image files are allowed!"), false);

@@ -1,4 +1,4 @@
-import e from "express";
+
 import Book from "../models/book.model.js"; // Adjust the path as necessary
 import User from "../models/user.model.js";
 import {
@@ -41,9 +41,8 @@ export const uploadBooks = async (req, res, next) => {
       !hardcopyDiscount ||
       !title
     ) {
-      return res.status(400).json({
-        message: "isEbookAvailable, coverPage, and targetExam are required.",
-      });
+      return next(errorHandler(400, "isEbookAvailable, coverPage, and targetExam are required." ));
+       
     }
     const uploadResponse = await uploadImagesToCloudinary(coverImagePath);
     // Create new book instance
@@ -83,8 +82,8 @@ export const uploadBooks = async (req, res, next) => {
       book: newBook,
     });
   } catch (error) {
-    console.error(error);
-    next(error); // Pass error to the error-handling middleware
+    console.error(error.message);
+    next(errorHandler(500,"error in cnotroler")); // Pass error to the error-handling middleware
   }
 };
 

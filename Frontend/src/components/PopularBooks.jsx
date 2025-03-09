@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-
+import { motion } from "framer-motion";
+import { fadeIn } from "../utils/Anim/ScrollAnim";
 function NextArrow(props) {
   const { className, style, onClick } = props;
   return (
@@ -12,17 +13,19 @@ function NextArrow(props) {
       style={{
         ...style,
         display: "block",
-        background: "rgba(0, 0, 0, 0.5)",
+        background: "linear-gradient(to right, #1e3a8a, #312e81)",
         borderRadius: "50%",
         right: "10px",
         zIndex: 1,
+        width: "40px",
+        height: "40px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
       onClick={onClick}
     >
-      <i
-        className="fas fa-chevron-right"
-        style={{ color: "white", padding: "10px" }}
-      ></i>
+      <i className="fas fa-chevron-right text-white"></i>
     </div>
   );
 }
@@ -35,30 +38,30 @@ function PrevArrow(props) {
       style={{
         ...style,
         display: "block",
-        background: "rgba(0, 0, 0, 0.5)",
+        background: "linear-gradient(to right, #1e3a8a, #312e81)",
         borderRadius: "50%",
         left: "10px",
         zIndex: 1,
+        width: "40px",
+        height: "40px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
       onClick={onClick}
     >
-      <i
-        className="fas fa-chevron-left"
-        style={{ color: "white", padding: "10px" }}
-      ></i>
+      <i className="fas fa-chevron-left text-white"></i>
     </div>
   );
 }
 
+// Update the color palette to match theme
 function getRandomLightColor() {
   const colors = [
-    "#FFB6C1",
-    "#FFDAB9",
-    "#E6E6FA",
-    "#FFFACD",
-    "#E0FFFF",
-    "#F0FFF0",
-    "#F5F5DC",
+    "bg-purple-50",
+    "bg-blue-50",
+    "bg-indigo-50",
+    "bg-violet-50",
   ];
   return colors[Math.floor(Math.random() * colors.length)];
 }
@@ -116,37 +119,67 @@ export default function PopularBooks() {
     ],
   };
 
+
   return (
-    <div className="py-10">
-      <h2 className="text-2xl font-bold mb-4">Popular Books</h2>
+    <motion.div
+      className="py-10 px-4 bg-gradient-to-br from-purple-50 to-white"
+      variants={fadeIn(0.4, "up")}
+      initial="hidden"
+      whileInView={"show"}
+      viewport={{ once: false, amount: 0.2 }}
+    >
+      <motion.h2 
+        className="text-3xl font-bold mb-8 text-blue-900 text-center"
+        variants={fadeIn(0.3, "up")}
+      >
+        Popular Books
+      </motion.h2>
       <Slider {...settings}>
-        {books.map((book) => (
-          <div key={book._id} className="p-4">
+        {books.map((book, index) => (
+          <motion.div
+            key={book._id}
+            className="p-4"
+            variants={fadeIn(((index * 0.1) + 0.3) % 0.5, "up", "tween")}
+            initial="hidden"
+            whileInView={"show"}
+            viewport={{ once: false, amount: 0.2 }}
+          >
             <Link to={`/book/${book._id}`}>
-              <div
-                className="bg-white p-4 rounded shadow"
-                style={{ backgroundColor: getRandomLightColor() }}
+              <motion.div
+                className={`rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl 
+                  h-full  transition-shadow duration-300 ${getRandomLightColor()}`}
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.2 }}
               >
                 <img
                   src={book.coverImage}
                   alt={book.title}
-                  className="w-full h-64 object-cover mb-4"
+                  className="w-full h-96 object-scale-down align-middle "
                 />
-                <h3 className="text-lg font-semibold text-center">
-                  {book.title}
-                </h3>
-              </div>
+                <div className="p-4 align-baseline">
+                  <h3 className="text-lg font-semibold text-center text-blue-900 line-clamp-2">
+                    {book.title}
+                  </h3>
+                </div>
+              </motion.div>
             </Link>
-          </div>
+          </motion.div>
         ))}
       </Slider>
-      <div className="mt-4 text-right">
+      <div className="mt-8 text-center">
         <Link to="/all-books">
-          <button className="bg-blue-500 text-white px-4 py-2 rounded">
-            See More
-          </button>
+          <motion.button
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            className="bg-gradient-to-r from-blue-900 via-blue-800 to-purple-800 
+                     text-white px-6 py-3 rounded-xl font-medium
+                     hover:opacity-95 transition-all duration-200 
+                     shadow-lg hover:shadow-xl"
+          >
+            Explore More Books
+          </motion.button>
         </Link>
       </div>
-    </div>
+    </motion.div>
   );
 }

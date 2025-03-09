@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { motion } from "framer-motion";
+import { fadeIn } from "../utils/Anim/ScrollAnim";
 
 function NextArrow(props) {
   const { className, style, onClick } = props;
@@ -116,12 +118,26 @@ export default function PopularQuizzes() {
     ],
   };
 
+    
   return (
-    <div className="py-10">
-      <h2 className="text-2xl font-bold mb-4">Popular Quizzes</h2>
+    <motion.div
+      className="py-10"
+      variants={fadeIn(0.4, "up")}
+      initial="hidden"
+      whileInView={"show"}
+      viewport={{ once: false, amount: 0.2 }}
+    >
+      <h2 className="text-2xl font-bold mb-4 p-4">Popular Quizzes</h2>
       <Slider {...settings}>
-        {quizzes.map((quiz) => (
-          <div key={quiz._id} className="p-4">
+        {quizzes.map((quiz, index) => (
+          <div
+            key={quiz._id}
+            className="p-4"
+            variants={fadeIn((index * 0.1 + 0.3) % 0.5, "up", "tween")}
+            initial="hidden"
+            whileInView={"show"}
+            viewport={{ once: false, amount: 0.2 }}
+          >
             <div
               className="bg-white p-4 rounded shadow"
               style={{
@@ -144,6 +160,6 @@ export default function PopularQuizzes() {
           </button>
         </Link>
       </div>
-    </div>
+    </motion.div>
   );
 }

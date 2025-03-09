@@ -5,7 +5,7 @@ dotenv.config();
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = twilio(accountSid, authToken);
-
+console.log("Twilio client created successfully",accountSid,authToken);
 export const sendOTP = async (phoneNumber) => {
   const otp = Math.floor(1000 + Math.random() * 9000); // Generate a random 4-digit OTP
   console.log(`Generated OTP: for ${phoneNumber} :-> ${otp}`);
@@ -13,7 +13,7 @@ export const sendOTP = async (phoneNumber) => {
   try {
     const message = await client.messages.create({
       body: `Your OTP is: ${otp}`, // Send OTP in the message
-      from: "+12315005883", // Twilio phone number (update with your own)
+      from: "+13527255836", // Twilio phone number (update with your own)
       to: `+91${phoneNumber}`, // Dynamically use the phone number passed in
     });
 

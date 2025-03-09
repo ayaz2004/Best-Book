@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { FaSpinner, FaLock, FaMobile, FaRedo } from "react-icons/fa";
 import { clearPhoneNumber } from "../redux/user/userSlice";
@@ -14,7 +14,9 @@ export default function VerifyOTP() {
   const [countdown, setCountdown] = useState(30);
   const inputRefs = useRef([]);
   const { phoneNumber } = useSelector((state) => state.user);
-
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get("mode"); // 'signup' or 'reset-password'
+  const currentPhoneNumber = searchParams.get("phoneNumber");
   // useEffect(() => {
   //   if (!phoneNumber) {
   //     navigate("/sign-up");
@@ -112,7 +114,7 @@ export default function VerifyOTP() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           otp,
-          phoneNumber,
+          ...(mode === "reset-password" ? { phoneNumber: currentPhoneNumber }:{phoneNumber}),
         }),
       });
 
@@ -120,7 +122,11 @@ export default function VerifyOTP() {
 
       if (res.ok) {
         dispatch(clearPhoneNumber());
-        navigate("/sign-in");
+        if (mode === "reset-password") {
+          navigate(`/resetpassword?phoneNumber=${currentPhoneNumber}`); // New password reset page
+        } else {
+          navigate("/sign-in");
+        }
       } else {
         setError(data.message || "Invalid OTP");
         setOtpValues(["", "", "", ""]);
@@ -135,21 +141,21 @@ export default function VerifyOTP() {
 
   const isOTPComplete = otpValues.every((value) => value !== "");
 
-  if (!phoneNumber) return null;
+  // if (!phoneNumber) return null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 via-purple-400 to-blue-500 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 space-y-8 transform transition-all duration-300 hover:scale-105">
+    <div className="min-h-screen flex items-center justify-center bg-purple-50 p-4">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 space-y-8">
         <div className="text-center space-y-4">
           <div className="flex justify-center">
-            <div className="p-3 bg-purple-100 rounded-full">
-              <FaLock className="w-8 h-8 text-purple-600" />
+            <div className="p-3 bg-gradient-to-br from-blue-900 via-blue-800 to-purple-800 rounded-full">
+              <FaLock className="w-8 h-8 text-white" />
             </div>
           </div>
-          <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+          <h2 className="text-3xl font-bold text-blue-900 tracking-tight">
             Verify Your Phone
           </h2>
-          <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+          <div className="flex items-center justify-center space-x-2 text-sm text-purple-600">
             <FaMobile className="text-purple-500" />
             <span>
               Enter the OTP sent to{" "}
@@ -168,9 +174,9 @@ export default function VerifyOTP() {
                 ref={(el) => (inputRefs.current[index] = el)}
                 type="text"
                 maxLength={1}
-                className="w-14 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg 
-                          focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200
-                          bg-white/50 backdrop-blur-sm"
+                className="w-14 h-14 text-center text-2xl font-bold border-2 border-purple-200 rounded-xl 
+                          focus:border-blue-600 focus:ring-2 focus:ring-purple-200 transition-all duration-200
+                          bg-white outline-none"
                 value={value}
                 onChange={(e) => handleChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
@@ -183,8 +189,8 @@ export default function VerifyOTP() {
           </div>
 
           {error && (
-            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
-              <p className="text-red-500 text-sm font-medium">{error}</p>
+            <div className="bg-purple-50 border-2 border-purple-200 p-4 rounded-xl">
+              <p className="text-purple-700 text-sm font-medium">{error}</p>
             </div>
           )}
 
@@ -192,10 +198,10 @@ export default function VerifyOTP() {
             onClick={handleVerifyOTP}
             disabled={!isOTPComplete || loading}
             className={`group relative w-full flex justify-center py-3 px-4 border border-transparent 
-                      text-sm font-medium rounded-lg text-white transition-all duration-200 
+                      text-sm font-medium rounded-xl text-white transition-all duration-200 
                       ${
                         isOTPComplete && !loading
-                          ? "bg-purple-600 hover:bg-purple-700 shadow-lg hover:shadow-purple-500/30"
+                          ? "bg-gradient-to-r from-blue-900 via-blue-800 to-purple-800 hover:opacity-95 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
                           : "bg-gray-400 cursor-not-allowed"
                       }`}
           >
@@ -204,7 +210,7 @@ export default function VerifyOTP() {
             ) : (
               <>
                 <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                  <FaLock className="h-5 w-5 text-purple-300 group-hover:text-purple-200" />
+                  <FaLock className="h-5 w-5 text-white/70" />
                 </span>
                 Verify OTP
               </>
@@ -216,7 +222,7 @@ export default function VerifyOTP() {
               className={`inline-flex items-center space-x-2 text-sm ${
                 resendDisabled
                   ? "text-gray-400 cursor-not-allowed"
-                  : "text-purple-600 hover:text-purple-500"
+                  : "text-blue-900 hover:text-purple-700"
               }`}
               onClick={handleResendOTP}
               disabled={resendDisabled}

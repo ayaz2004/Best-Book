@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaShoppingCart } from "react-icons/fa";
-
+import { motion } from "framer-motion";
+import { fadeIn } from "../utils/Anim/ScrollAnim";
 export default function AllBooks() {
   const [books, setBooks] = useState([]);
 
@@ -36,27 +37,36 @@ export default function AllBooks() {
           <span className="text-purple-600">All Books</span>
         </div>
 
-        {/* Books Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {books.map((book) => (
-            <div
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 b-">
+          {books.map((book,index) => (
+            <motion.div
               key={book._id}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300"
+              className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm overflow-hidden hover:shadow-xl transition-shadow duration-300 m-3 hover:border-2 hover:border-purple-500"
+              variants={fadeIn((index * 0.1 + 0.3) % 0.5, "up")}
+              initial="hidden"
+              whileInView={"show"}
+              viewport={{ once: false, amount: 0.2 }}
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.3 }}
             >
               <Link to={`/book/${book._id}`}>
                 <img
                   src={book.coverImage}
                   alt={book.title}
-                  className="w-full h-64 object-cover"
+                  className="w-full h-64 object-scale-down"
                 />
               </Link>
-              <div className="p-4">
+              <motion.div className="pl-4 p-2"
+               variants={fadeIn((index * 0.1 + 0.3) % 0.5, "down", "tween")}
+               initial="hidden"
+               whileInView={"show"}
+               viewport={{ once: false, amount: 0.2 }}>
                 <Link to={`/book/${book._id}`}>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  <h3 className="text-lg font-semibold text-gray-800 overflow-auto">
                     {book.title}
                   </h3>
                 </Link>
-                <p className="text-sm text-gray-600 mb-2">By {book.author}</p>
+                <p className="text-sm text-gray-600 mb-2 overflow-auto">By {book.author}</p>
 
                 {/* Hardcopy Price */}
                 <div className="flex items-baseline mb-2">
@@ -79,8 +89,8 @@ export default function AllBooks() {
                   <FaShoppingCart className="mr-2" />
                   Add to Cart
                 </button> */}
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           ))}
         </div>
       </div>
