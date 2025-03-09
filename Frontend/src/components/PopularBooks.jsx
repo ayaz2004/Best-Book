@@ -146,7 +146,7 @@ export default function PopularBooks() {
           >
             <Link to={`/book/${book._id}`}>
               <motion.div
-                className={`rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl 
+                className={`rounded-2xl shadow-lg overflow-hidden hover:shadow-xl 
                   h-full  transition-shadow duration-300 ${getRandomLightColor()}`}
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}

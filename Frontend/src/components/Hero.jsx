@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -15,6 +15,31 @@ import { useNavigate } from "react-router-dom";
 import { useTypewriter } from "../utils/TypeWriter";
 export function Hero() {
   const navigate = useNavigate();
+  const [recentlyAddedBooks, setRecentlyAddedBooks] = useState([]);
+  useEffect( () => {
+    const fetchRecentlyAddedBooks = async () => {
+    try {
+      const response = await fetch("/api/book/recentlyAddedBooks", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        console.error("Failed to fetch recently added books.");
+        return;
+      }
+
+      const data = await response.json();
+      console.log(data);
+      setRecentlyAddedBooks(data.books);
+    } catch (error) {
+      console.error("Error fetching recently added books:", error);
+    }
+  };
+  fetchRecentlyAddedBooks();
+  },[]);
   const handleClick = () => {
     navigate("/all-books");
   };
@@ -106,9 +131,9 @@ export function Hero() {
                   grow, and challenge yourself with our curated collection.
                 </motion.p>
                 <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-              <ShimmerButton onClick={handleClick}>
-                Shop Books
-              </ShimmerButton>
+                  <ShimmerButton onClick={handleClick}>
+                    Shop Books
+                  </ShimmerButton>
                   <Button
                     variant="outlined"
                     size="large"
@@ -157,14 +182,10 @@ export function Hero() {
                           }}
                         >
                           <img
-                            src="https://imgs.search.brave.com/fXoIHkjzUSARn__bdG1v3Cgv7tiYUt0jWWAUXgQscTc/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL0kv/NTF4bmRDSU1Iekwu/anBn"
-                            alt="Featured Book"
-                            style={{
-                              objectFit: "cover",
-                              width: "100%",
-                              height: "100%",
-                              borderRadius: "8px",
-                            }}
+                            src={recentlyAddedBooks[0]?.coverImage}
+                            alt="Recently Added Book"
+                            className="object-contain rounded-lg h-96 w-full"
+                           
                           />
                           <Box
                             sx={{
@@ -223,7 +244,7 @@ export function Hero() {
                           }}
                         >
                           <img
-                            src="/placeholder.svg?height=200&width=200"
+                            src={recentlyAddedBooks[1]?.coverImage}
                             alt="Quiz Section"
                             style={{
                               objectFit: "cover",
@@ -283,10 +304,10 @@ export function Hero() {
                           }}
                         >
                           <img
-                            src="https://imgs.search.brave.com/ALMLz0Qm75whFw8tBJyQud2EwqJVetjgnB7xAf-CUQc/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9pMC53/cC5jb20vcmVhbHNr/aW5kaWFyaWVzLmNv/bS93cC1jb250ZW50/L3VwbG9hZHMvMjAy/My8wOS90aGUtNS1h/bS1jbHViLmpwZz9y/ZXNpemU9MzMxLDQ5/NyZzc2w9MQ"
+                            src={recentlyAddedBooks[2]?.coverImage}
                             alt="New Releases"
                             style={{
-                              objectFit: "cover",
+                              objectFit:"contain",
                               width: "100%",
                               height: "100%",
                               borderRadius: "8px",

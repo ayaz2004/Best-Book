@@ -7,7 +7,8 @@ import {
   updateBook,
   getPopularBooks,
   getAllBooksByExams,
-  getPurchasedEbooks
+  getPurchasedEbooks,
+  getRecentlyAddedBooks
 } from "../controllers/book.controller.js";
 import { upload } from "../middleware/multer.middleware.js";
 import { verifyToken } from "../utils/verifyUser.js";
@@ -50,5 +51,7 @@ router.get("/getbookbyexam/:exam", getAllBooksByExams);
 router.get("/popularBooks", getPopularBooks);
 // get purchased ebooks
 router.get("/purchasedebooks",verifyToken,getPurchasedEbooks);
+// get recently added books
+router.get("/recentlyaddedbooks", getRecentlyAddedBooks);
 
 export default router;

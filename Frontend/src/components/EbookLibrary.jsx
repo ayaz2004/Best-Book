@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { BookOpen, Download, Info } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateSubscribedEbooks } from "../redux/user/userSlice";
@@ -7,12 +7,37 @@ import { motion } from "framer-motion";
 import { fadeIn } from "../utils/Anim/ScrollAnim";
 const EbookLibrary = () => {
   // Sample data - in real usage, this would come from props or an API
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { subscribedEbook, currentUser } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => {
+      setIsOnline(false);
+      setLoading(false); // Move setLoading here
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    // Set initial offline state
+    if (!navigator.onLine) {
+      setLoading(false);
+    }
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  useEffect(() => {
     const purchasedEbooks = async () => {
+      if (!isOnline) return;
       try {
+        setLoading(true);
         const response = await fetch("/api/book/purchasedebooks", {
           method: "GET",
           headers: {
@@ -28,16 +53,26 @@ const EbookLibrary = () => {
         dispatch(updateSubscribedEbooks(data.ebooks));
       } catch (error) {
         console.log("error fetching purchsed Ebooks", error.message);
+      } finally {
+        setLoading(false); // Set loading false after fetch
       }
     };
     purchasedEbooks();
-  }, []);
+  }, [isOnline, currentUser, dispatch]);
 
   const MoveToDetailsPage = (bookId) => {
     navigate(`/book/${bookId}`);
   };
 
   console.log(subscribedEbook);
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
+
   return (
     <motion.div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-screen-xl mx-auto">

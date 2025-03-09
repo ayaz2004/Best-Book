@@ -252,6 +252,20 @@ export const getAllBooksByExams = async (req, res, next) => {
   }
 };
 
+// getting recently added 3 three books
+export const getRecentlyAddedBooks = async (req, res, next) => {
+  try {
+    const books = await Book.find().sort({ createdAt: -1 }).limit(3);
+    res.status(200).json({
+      success: true,
+      message: "Recently added books fetched successfully",
+      books,
+    });
+  } catch (error) {
+    console.error(error);
+    next(errorHandler(500, error.message));
+  }
+}
 export const getPurchasedEbooks = async (req, res, next) => {
   const userId = req.user.id;
 
@@ -317,3 +331,5 @@ const getAllReviewsForBook = async (bookId) => {
   approvedReviews.rating = rate;
   return approvedReviews;
 };
+
+
