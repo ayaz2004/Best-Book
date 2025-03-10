@@ -46,6 +46,7 @@ export const addReview = async (req, res, next) => {
     next(errorHandler(500, error.message));
   }
 };
+
 // for admin
 export const approveReview = async (req, res, next) => {
   try {
@@ -67,6 +68,7 @@ export const approveReview = async (req, res, next) => {
     next(errorHandler(500, error.message));
   }
 };
+
 export const getApprovedReviews = async (req, res, next) => {
   try {
     const reviews = await Reviews.find({ approved: true });
@@ -82,6 +84,7 @@ export const getApprovedReviews = async (req, res, next) => {
     next(errorHandler(500, error.message));
   }
 };
+
 export const getApprovedReviewsForBook = async (req, res, next) => {
   const { bookId } = req.params;
   try {
@@ -114,6 +117,7 @@ export const getunApproveReviews = async (req, res, next) => {
     next(errorHandler(500, error.message));
   }
 };
+
 export const updateReview = async (req, res, next) => {
   const { reviewId } = req.params;
   const dataToUpdate = req.body;
@@ -170,6 +174,7 @@ export const deleteReview = async (req, res, next) => {
     next(errorHandler(500, error.message));
   }
 };
+
 export const getPopularReviews = async (req, res, next) => {
   try {
     // First check if any reviews exist
@@ -220,6 +225,7 @@ export const getPopularReviews = async (req, res, next) => {
     return next(errorHandler(500, "Error fetching popular reviews"));
   }
 };
+
 export const getReview = async (req, res, next) => {
   const { bookId } = req.params;
 

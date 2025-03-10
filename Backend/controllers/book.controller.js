@@ -1,4 +1,3 @@
-
 import Book from "../models/book.model.js"; // Adjust the path as necessary
 import User from "../models/user.model.js";
 import {
@@ -41,8 +40,12 @@ export const uploadBooks = async (req, res, next) => {
       !hardcopyDiscount ||
       !title
     ) {
-      return next(errorHandler(400, "isEbookAvailable, coverPage, and targetExam are required." ));
-       
+      return next(
+        errorHandler(
+          400,
+          "isEbookAvailable, coverPage, and targetExam are required."
+        )
+      );
     }
     const uploadResponse = await uploadImagesToCloudinary(coverImagePath);
     // Create new book instance
@@ -83,7 +86,7 @@ export const uploadBooks = async (req, res, next) => {
     });
   } catch (error) {
     console.error(error.message);
-    next(errorHandler(500,"error in cnotroler")); // Pass error to the error-handling middleware
+    next(errorHandler(500, "error in cnotroler")); // Pass error to the error-handling middleware
   }
 };
 
@@ -172,10 +175,53 @@ export const getBooks = async (req, res, next) => {
     //   const reviews = await getAllReviewsForBook(book._id);
 
     // }
+
+    // Get all approved reviews for these books
+    const bookIds = books.map((book) => book._id);
+    const allReviews = await Reviews.find({
+      itemId: { $in: bookIds },
+      itemType: "Book",
+      approved: true,
+    });
+
+    // Group reviews by bookId
+    const reviewsByBookId = {};
+    allReviews.forEach((review) => {
+      const bookId = review.itemId.toString();
+      if (!reviewsByBookId[bookId]) {
+        reviewsByBookId[bookId] = [];
+      }
+      reviewsByBookId[bookId].push(review);
+    });
+
+    // Add review stats to each book
+    const booksWithReviews = books.map((book) => {
+      const bookId = book._id.toString();
+      const bookReviews = reviewsByBookId[bookId] || [];
+      const reviewCount = bookReviews.length;
+
+      let averageRating = 0;
+      if (reviewCount > 0) {
+        const totalRating = bookReviews.reduce(
+          (sum, review) => sum + (review.rating || 0),
+          0
+        );
+        averageRating = parseFloat((totalRating / reviewCount).toFixed(1));
+      }
+
+      return {
+        ...book._doc,
+        reviewStats: {
+          reviewCount,
+          averageRating,
+        },
+      };
+    });
+
     res.status(200).json({
       success: true,
       message: "Books fetched successfully",
-      books,
+      books: booksWithReviews,
     });
   } catch (error) {
     console.error(error);
@@ -195,10 +241,33 @@ export const getBookById = async (req, res, next) => {
       return next(errorHandler(404, "Book not found"));
     }
 
+    // Get all approved reviews for this book
+    const reviews = await Reviews.find({
+      itemId: bookId,
+      itemType: "Book",
+      approved: true,
+    });
+
+    // Calculate average rating and count
+    const reviewCount = reviews.length;
+    let averageRating = 0;
+
+    if (reviewCount > 0) {
+      const totalRating = reviews.reduce(
+        (sum, review) => sum + (review.rating || 0),
+        0
+      );
+      averageRating = parseFloat((totalRating / reviewCount).toFixed(1));
+    }
+
     res.status(200).json({
       success: true,
       message: "Book fetched successfully",
       book,
+      reviewStats: {
+        reviewCount,
+        averageRating,
+      },
     });
   } catch (error) {
     console.log(error.message);
@@ -265,7 +334,7 @@ export const getRecentlyAddedBooks = async (req, res, next) => {
     console.error(error);
     next(errorHandler(500, error.message));
   }
-}
+};
 export const getPurchasedEbooks = async (req, res, next) => {
   const userId = req.user.id;
 
@@ -331,5 +400,3 @@ const getAllReviewsForBook = async (bookId) => {
   approvedReviews.rating = rate;
   return approvedReviews;
 };
-
-
