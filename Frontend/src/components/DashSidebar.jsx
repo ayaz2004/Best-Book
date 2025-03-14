@@ -8,6 +8,7 @@ import {
   HiUserGroup,
   HiAcademicCap,
   HiHome,
+  HiPhotograph,
 } from "react-icons/hi";
 import { Link, useLocation } from "react-router-dom";
 import { signoutSuccess } from "../redux/user/userSlice";
@@ -126,7 +127,7 @@ export default function DashSidebar() {
             <Link to="/manage-banner">
               <Sidebar.Item
                 active={tab === "manage-banner"}
-                icon={HiShoppingBag}
+                icon={HiPhotograph}
                 as="div"
               >
                 Manage Banners
