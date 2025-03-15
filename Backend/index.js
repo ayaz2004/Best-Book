@@ -29,11 +29,13 @@ import addressRoutes from "./routes/address.route.js";
 import userRoutes from "./routes/user.route.js"; // We can change name as userRouter as we have exported as default.
 import authRoutes from "./routes/auth.route.js";
 import bannerRoute from "./routes/banners.route.js"
+import arcjetMiddleware from "./middleware/arcjet.middleware.js";
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(express.static("public"));
+app.use(arcjetMiddleware);
 app.listen(3000, () => {
   console.log("Server is running on port 3000!");
 });
