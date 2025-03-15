@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { Card, Table, Button, Badge, Modal } from "flowbite-react";
+import { Card, Button, Badge, Modal } from "flowbite-react";
 import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
 import {
   HiOutlinePhotograph,
   HiPlus,
-  HiEye,
   HiTrash,
   HiCheck,
   HiX,
@@ -27,6 +26,9 @@ export default function AdminBannerDashboard() {
 
   const fileInputRef = useRef(null);
   const { currentUser } = useSelector((state) => state.user);
+  const [redirectUrl, setRedirectUrl] = useState("");
+  const [targetExams, setTargetExams] = useState([]);
+  const [examInput, setExamInput] = useState("");
 
   useEffect(() => {
     if (currentUser?.accessToken) fetchBanners();
@@ -37,7 +39,15 @@ export default function AdminBannerDashboard() {
       setError(null);
       setLoading(true);
 
-      const res = await fetch("/api/banners/topBanners");
+      const res = await fetch("/api/banners/allBanners", {
+        headers: {
+          Authorization: `Bearer ${currentUser.accessToken}`,
+        },
+      });
+
+      // Log response status for debugging
+      console.log("Response status:", res.status);
+
       const data = await res.json();
 
       if (!res.ok) {
@@ -70,6 +80,92 @@ export default function AdminBannerDashboard() {
     }
   };
 
+  const handleToggleActive = async (bannerId, isCurrentlyActive) => {
+    try {
+      setError(null);
+
+      const res = await fetch(`/api/banners/toggleBanner/${bannerId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${currentUser.accessToken}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to update banner status");
+      }
+
+      // Update the banner in state
+      setBanners((prevBanners) =>
+        prevBanners.map((banner) =>
+          banner._id === bannerId
+            ? { ...banner, isActive: data.isActive }
+            : banner
+        )
+      );
+
+      // Update statistics
+      calculateStatistics(
+        banners.map((banner) =>
+          banner._id === bannerId
+            ? { ...banner, isActive: data.isActive }
+            : banner
+        )
+      );
+    } catch (error) {
+      console.error("Error updating banner status:", error);
+      setError(error.message);
+    }
+  };
+
+  const handleDeleteBanner = async (bannerId) => {
+    if (!window.confirm("Are you sure you want to delete this banner?")) {
+      return;
+    }
+
+    try {
+      setError(null);
+
+      const res = await fetch(`/api/banners/deleteBanner/${bannerId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${currentUser.accessToken}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to delete banner");
+      }
+
+      // Remove the banner from state
+      setBanners((prevBanners) =>
+        prevBanners.filter((banner) => banner._id !== bannerId)
+      );
+
+      // Update statistics
+      calculateStatistics(banners.filter((banner) => banner._id !== bannerId));
+    } catch (error) {
+      console.error("Error deleting banner:", error);
+      setError(error.message);
+    }
+  };
+
+  const handleAddExam = () => {
+    if (examInput.trim() !== "" && !targetExams.includes(examInput.trim())) {
+      setTargetExams([...targetExams, examInput.trim()]);
+      setExamInput("");
+    }
+  };
+
+  const handleRemoveExam = (exam) => {
+    setTargetExams(targetExams.filter((e) => e !== exam));
+  };
+
   const handleUpload = async (e) => {
     e.preventDefault();
     const file = fileInputRef.current.files[0];
@@ -85,6 +181,8 @@ export default function AdminBannerDashboard() {
 
       const formData = new FormData();
       formData.append("banners", file);
+      formData.append("redirectUrl", redirectUrl);
+      formData.append("targetExams", JSON.stringify(targetExams));
 
       const res = await fetch("/api/banners/uploadbanners", {
         method: "POST",
@@ -102,6 +200,8 @@ export default function AdminBannerDashboard() {
 
       setShowAddModal(false);
       setPreview(null);
+      setRedirectUrl("");
+      setTargetExams([]);
       if (fileInputRef.current) fileInputRef.current.value = "";
 
       // Refresh banners
@@ -112,18 +212,6 @@ export default function AdminBannerDashboard() {
     } finally {
       setUploading(false);
     }
-  };
-
-  const handleToggleActive = async (bannerId, isCurrentlyActive) => {
-    // Placeholder for toggle active/inactive functionality
-    // This would require a backend endpoint to update banner status
-    console.log(`Toggle banner ${bannerId} to ${!isCurrentlyActive}`);
-  };
-
-  const handleDeleteBanner = async (bannerId) => {
-    // Placeholder for delete banner functionality
-    // This would require a backend endpoint to delete a banner
-    console.log(`Delete banner ${bannerId}`);
   };
 
   return (
@@ -205,30 +293,64 @@ export default function AdminBannerDashboard() {
                     {banner.isActive ? "Active" : "Inactive"}
                   </Badge>
                 </div>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      Created: {new Date(banner.createdAt).toLocaleDateString()}
+                <div className="flex flex-col gap-1">
+                  {/* Redirect URL */}
+                  {banner.redirectUrl && (
+                    <p className="text-sm truncate text-blue-600">
+                      <span className="text-gray-500 font-medium">URL:</span>{" "}
+                      <a
+                        href={banner.redirectUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:underline"
+                      >
+                        {banner.redirectUrl.length > 25
+                          ? banner.redirectUrl.substring(0, 25) + "..."
+                          : banner.redirectUrl}
+                      </a>
                     </p>
-                    <p className="text-xs text-gray-400">ID: {banner._id}</p>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button
-                      size="xs"
-                      color={banner.isActive ? "warning" : "success"}
-                      onClick={() =>
-                        handleToggleActive(banner._id, banner.isActive)
-                      }
-                    >
-                      {banner.isActive ? "Disable" : "Enable"}
-                    </Button>
-                    <Button
-                      size="xs"
-                      color="failure"
-                      onClick={() => handleDeleteBanner(banner._id)}
-                    >
-                      <HiTrash />
-                    </Button>
+                  )}
+
+                  {/* Target Exams */}
+                  {banner.targetExams && banner.targetExams.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      <span className="text-xs text-gray-500 font-medium">
+                        Exams:
+                      </span>
+                      {banner.targetExams.map((exam) => (
+                        <Badge key={exam} color="purple" className="text-xs">
+                          {exam}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-center mt-2">
+                    <div>
+                      <p className="text-sm text-gray-500">
+                        Created:{" "}
+                        {new Date(banner.createdAt).toLocaleDateString()}
+                      </p>
+                      <p className="text-xs text-gray-400">ID: {banner._id}</p>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button
+                        size="xs"
+                        color={banner.isActive ? "warning" : "success"}
+                        onClick={() =>
+                          handleToggleActive(banner._id, banner.isActive)
+                        }
+                      >
+                        {banner.isActive ? "Disable" : "Enable"}
+                      </Button>
+                      <Button
+                        size="xs"
+                        color="failure"
+                        onClick={() => handleDeleteBanner(banner._id)}
+                      >
+                        <HiTrash />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -249,6 +371,8 @@ export default function AdminBannerDashboard() {
         onClose={() => {
           setShowAddModal(false);
           setPreview(null);
+          setRedirectUrl("");
+          setTargetExams([]);
           setError(null);
         }}
       >
@@ -278,6 +402,68 @@ export default function AdminBannerDashboard() {
                 </div>
               )}
 
+              {/* Redirect URL Field */}
+              <div className="mt-4">
+                <label className="text-sm font-medium">Redirect URL</label>
+                <input
+                  type="url"
+                  value={redirectUrl}
+                  onChange={(e) => setRedirectUrl(e.target.value)}
+                  placeholder="https://example.com/page"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Where users will go when they click on this banner
+                </p>
+              </div>
+
+              {/* Target Exams Field */}
+              <div className="mt-4">
+                <label className="text-sm font-medium">Target Exams</label>
+                <div className="flex mt-1">
+                  <input
+                    type="text"
+                    value={examInput}
+                    onChange={(e) => setExamInput(e.target.value)}
+                    placeholder="Add exam (e.g. JEE, NEET)"
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-l-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddExam();
+                      }
+                    }}
+                  />
+                  <Button
+                    color="purple"
+                    onClick={handleAddExam}
+                    className="rounded-l-none"
+                  >
+                    Add
+                  </Button>
+                </div>
+
+                {/* Display selected exams */}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {targetExams.map((exam) => (
+                    <Badge
+                      key={exam}
+                      color="purple"
+                      className="flex items-center gap-1 px-2 py-1"
+                    >
+                      {exam}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveExam(exam)}
+                        className="ml-1 text-xs font-medium text-purple-800 hover:text-purple-900"
+                      >
+                        ✕
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
               {error && (
                 <div className="p-2 bg-red-100 text-red-700 text-sm rounded mt-2">
                   {error}
@@ -291,6 +477,8 @@ export default function AdminBannerDashboard() {
                 onClick={() => {
                   setShowAddModal(false);
                   setPreview(null);
+                  setRedirectUrl("");
+                  setTargetExams([]);
                   setError(null);
                 }}
               >

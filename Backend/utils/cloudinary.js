@@ -5,7 +5,7 @@ dotenv.config();
 cloudinary.config({
   cloud_name: "dniu1zxdq",
   api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET, // Click 'View API Keys' above to copy your API secret
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 import fs from "fs";
@@ -40,22 +40,35 @@ const uploadPdftoCloudinary = async (pdfPath) => {
 };
 
 const uploadBannersTOCloudinary = async (localFilePath) => {
-try {
+  try {
     const response = await cloudinary.uploader.upload(localFilePath, {
       folder: "banners",
-      transformation: [
-        { width: 1920, height: 600, crop: "fill" }
-      ]
+      transformation: [{ width: 1920, height: 600, crop: "fill" }],
     });
-  
+
     // Delete local file after upload
     if (response) fs.unlinkSync(localFilePath);
     return response;
-} catch (error) {
+  } catch (error) {
     console.error("Banner upload error:", error);
     fs.unlinkSync(localFilePath);
-    return null
-  
-}
-}
-export { uploadImagesToCloudinary, uploadPdftoCloudinary, uploadBannersTOCloudinary };
+    return null;
+  }
+};
+
+const deleteBannerFromCloudinary = async (publicId) => {
+  try {
+    const result = await cloudinary.uploader.destroy(publicId);
+    return result;
+  } catch (error) {
+    console.error("Error deleting from Cloudinary:", error);
+    throw error;
+  }
+};
+
+export {
+  uploadImagesToCloudinary,
+  uploadPdftoCloudinary,
+  uploadBannersTOCloudinary,
+  deleteBannerFromCloudinary,
+};

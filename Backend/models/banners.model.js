@@ -10,6 +10,14 @@ const bannerSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    redirectUrl: {
+      type: String,
+      default: "",
+    },
+    targetExam: {
+      type: [String],
+      default: [],
+    },
     isActive: {
       type: Boolean,
       default: true,
