@@ -23,6 +23,7 @@ import AdminOrderDashboard from "./pages/AdminOrderDashboard";
 import EbookLibrary from "./components/EbookLibrary";
 import ForgetPassword from "./components/ForgetPassword";
 import ResetPassword from "./components/ResetPassword";
+import AdminBannerDashboard from "./pages/AdminBannerDashboard";
 
 export default function App() {
   return (
@@ -38,7 +39,7 @@ export default function App() {
         <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/forgetpassword" element={<ForgetPassword />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
-       
+
         {/* <Route path="/admin-dashboard" element={<TempDashBoard />} /> */}
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
@@ -54,6 +55,7 @@ export default function App() {
           <Route path="/create-quiz" element={<CreateQuiz />} />
           <Route path="/manage-user" element={<UserAnalytics />} />
           <Route path="/manage-order" element={<AdminOrderDashboard />} />
+          <Route path="/manage-banner" element={<AdminBannerDashboard />} />
         </Route>
       </Routes>
       <Footer />

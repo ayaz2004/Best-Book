@@ -63,10 +63,16 @@ var BookSchema = new Schema(
       type: String,
       required: true,
     },
+    /**
+     * @deprecated Since version 2.0.0
+     * This field is deprecated and will be removed in a future version.
+     * Use the reviewStats.averageRating from book.controller.js instead.
+     */
     rating: {
       type: Number,
       default: 0,
     },
+
     language: {
       type: String,
       required: true,
