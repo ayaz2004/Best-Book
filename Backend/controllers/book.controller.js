@@ -206,7 +206,7 @@ export const getBooks = async (req, res, next) => {
           (sum, review) => sum + (review.rating || 0),
           0
         );
-        averageRating = parseFloat((totalRating / reviewCount).toFixed(1));
+        averageRating = Number((totalRating / reviewCount).toFixed(1));
       }
 
       return {
