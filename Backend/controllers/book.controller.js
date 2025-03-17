@@ -200,13 +200,13 @@ export const getBooks = async (req, res, next) => {
       const bookReviews = reviewsByBookId[bookId] || [];
       const reviewCount = bookReviews.length;
 
-      let averageRating = 0;
+      let averageRating = "0.0";
       if (reviewCount > 0) {
         const totalRating = bookReviews.reduce(
           (sum, review) => sum + (review.rating || 0),
           0
         );
-        averageRating = Number((totalRating / reviewCount).toFixed(1));
+        averageRating = (totalRating / reviewCount).toFixed(1);
       }
 
       return {
