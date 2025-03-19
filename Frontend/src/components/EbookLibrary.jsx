@@ -5,6 +5,7 @@ import { updateSubscribedEbooks } from "../redux/user/userSlice";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { fadeIn } from "../utils/Anim/ScrollAnim";
+import { Spinner } from "../utils/Loader/Spinner";
 const EbookLibrary = () => {
   // Sample data - in real usage, this would come from props or an API
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -66,11 +67,7 @@ const EbookLibrary = () => {
 
   console.log(subscribedEbook);
   if (loading) {
-    return (
-      <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
-      </div>
-    );
+    <Spinner/>
   }
 
   return (
@@ -153,10 +150,6 @@ const EbookLibrary = () => {
                     Read
                   </button>
 
-                  <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-700 dark:focus:ring-gray-700">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download
-                  </button>
 
                   <button
                     className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-700 dark:focus:ring-gray-700"

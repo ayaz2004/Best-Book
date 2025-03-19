@@ -178,7 +178,7 @@ export default function DashProfile() {
                 <Button
                   type="button"
                   gradientDuoTone="purpleToPink"
-                  className="w-full"
+                  className="w-full bg-gradient-to-r from-blue-900 via-blue-800 to-purple-800"
                 >
                   Manage Books
                 </Button>

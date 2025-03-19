@@ -105,7 +105,7 @@ const UserAnalytics = () => {
   const COLORS = ["#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#ef4444"];
 
   return (
-    <div className="w-full min-h-screen bg-[#A28DED] p-6 space-y-6">
+    <div className="w-full min-h-screen bg-[#223876] p-6 space-y-6">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-white">
           Education Platform Analytics
