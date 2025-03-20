@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { FaTruck, FaBox } from "react-icons/fa";
+import { useNavigate, Link } from "react-router-dom";
+import { FaTruck, FaBox, FaArrowLeft, FaShoppingCart } from "react-icons/fa";
+import { motion } from "framer-motion";
 import { clearCart } from "../redux/cart/cartSlice";
 
 import ShippingAddressForm from "../components/checkout/ShippingAddressForm";
@@ -243,7 +244,12 @@ const CheckoutPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen bg-purple-50 py-8 px-4"
+    >
       <ToastNotification
         showToast={showToast}
         setShowToast={setShowToast}
@@ -251,11 +257,61 @@ const CheckoutPage = () => {
         appliedCoupon={appliedCoupon}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <Link
+            to="/cart"
+            className="flex items-center text-blue-900 hover:text-purple-700 mb-4 transition-colors"
+          >
+            <FaArrowLeft className="mr-2" /> Back to cart
+          </Link>
+
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold text-blue-900">Checkout</h1>
+            <div className="flex items-center text-purple-700">
+              <FaShoppingCart className="mr-2" />
+              <span>{items?.length || 0} items</span>
+            </div>
+          </div>
+        </div>
+        {/* Checkout flow progress */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between relative">
+            <div
+              className="w-full absolute h-1 bg-gray-200"
+              style={{ top: "50%" }}
+            ></div>
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-900 to-purple-800 text-white rounded-full flex items-center justify-center mb-1">
+                1
+              </div>
+              <span className="text-sm font-medium text-blue-900">Cart</span>
+            </div>
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-900 to-purple-800 text-white rounded-full flex items-center justify-center mb-1">
+                2
+              </div>
+              <span className="text-sm font-medium text-blue-900">
+                Checkout
+              </span>
+            </div>
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mb-1">
+                3
+              </div>
+              <span className="text-sm text-gray-500">Confirmation</span>
+            </div>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
+          <motion.div
+            className="lg:col-span-2 space-y-6"
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
             <ShippingAddressForm
               formData={formData}
               setFormData={setFormData}
@@ -269,9 +325,14 @@ const CheckoutPage = () => {
               paymentMethod={paymentMethod}
               setPaymentMethod={setPaymentMethod}
             />
-          </div>
+          </motion.div>
 
-          <div className="lg:col-span-1">
+          <motion.dev
+            className="lg:col-span-1"
+            initial={{ x: 20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
             <OrderSummary
               items={items}
               orderSummary={orderSummary}
@@ -283,11 +344,12 @@ const CheckoutPage = () => {
               loading={loading}
               handlePlaceOrder={handlePlaceOrder}
               calculateItemPrice={calculateItemPrice}
+              setAppliedCoupon={setAppliedCoupon}
             />
-          </div>
+          </motion.dev>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
