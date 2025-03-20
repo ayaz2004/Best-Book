@@ -71,21 +71,96 @@ export default function CartPage() {
     }, 0);
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (cartError) return <div>Error: {cartError}</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-purple-50 flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500 mb-4"></div>
+          <p className="text-purple-800 font-medium">Loading your cart...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (cartError) {
+    return (
+      <div className="min-h-screen bg-purple-50 flex items-center justify-center p-4">
+        <div className="bg-white p-6 rounded-xl shadow-md max-w-md w-full">
+          <div className="text-red-500 text-center mb-4">
+            <svg
+              className="w-12 h-12 mx-auto"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-800 text-center mb-2">
+            Error Loading Cart
+          </h2>
+          <p className="text-gray-600 text-center mb-6">{cartError}</p>
+          <button
+            onClick={() => dispatch(fetchCart())}
+            className="w-full bg-gradient-to-r from-blue-900 via-blue-800 to-purple-800 text-white py-2 rounded-lg hover:shadow-lg transition-all"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!items?.length) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
-        <FaShoppingCart className="text-6xl text-gray-400" />
-        <h2 className="text-2xl font-semibold text-gray-600">
-          Your cart is empty
-        </h2>
-        <Link
-          to="/all-books"
-          className="bg-gradient-to-r from-blue-900 via-blue-800 to-purple-800 text-white px-6 py-2 rounded-lg hover:shadow-lg transition-all"
-        >
-          Continue Shopping
-        </Link>
+      <div className="min-h-screen bg-purple-50 py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Add checkout flow here for consistency */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between relative">
+              <div
+                className="w-full absolute h-1 bg-gray-200"
+                style={{ top: "50%" }}
+              ></div>
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-900 to-purple-800 text-white rounded-full flex items-center justify-center mb-1">
+                  1
+                </div>
+                <span className="text-sm font-medium text-blue-900">Cart</span>
+              </div>
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mb-1">
+                  2
+                </div>
+                <span className="text-sm text-gray-500">Checkout</span>
+              </div>
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mb-1">
+                  3
+                </div>
+                <span className="text-sm text-gray-500">Confirmation</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
+            <FaShoppingCart className="text-6xl text-gray-400" />
+            <h2 className="text-2xl font-semibold text-gray-600">
+              Your cart is empty
+            </h2>
+            <Link
+              to="/all-books"
+              className="bg-gradient-to-r from-blue-900 via-blue-800 to-purple-800 text-white px-6 py-2 rounded-lg hover:shadow-lg transition-all"
+            >
+              Continue Shopping
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
@@ -145,6 +220,34 @@ export default function CartPage() {
           >
             <FaTrash className="mr-2" /> Clear Cart
           </button>
+        </div>
+
+        {/* Add checkout flow indicator */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between relative">
+            <div
+              className="w-full absolute h-1 bg-gray-200"
+              style={{ top: "50%" }}
+            ></div>
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-900 to-purple-800 text-white rounded-full flex items-center justify-center mb-1">
+                1
+              </div>
+              <span className="text-sm font-medium text-blue-900">Cart</span>
+            </div>
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mb-1">
+                2
+              </div>
+              <span className="text-sm text-gray-500">Checkout</span>
+            </div>
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mb-1">
+                3
+              </div>
+              <span className="text-sm text-gray-500">Confirmation</span>
+            </div>
+          </div>
         </div>
 
         {error && (
