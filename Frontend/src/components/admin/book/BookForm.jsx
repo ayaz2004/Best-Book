@@ -1,78 +1,114 @@
-import React from "react";
-import { TextInput, Label } from "flowbite-react";
+import { Label } from "flowbite-react";
 
 const BookForm = ({ bookData, handleInputChange }) => {
   return (
-    <div className="lg:col-span-2 bg-slate-700/50 p-4 rounded-lg">
-      <h3 className="text-white font-medium mb-4">Basic Information</h3>
+    <div className="p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl shadow-md">
+      <h3 className="text-blue-900 font-semibold mb-4">Basic Information</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <TextInput
-          name="title"
-          placeholder="Book Title"
-          value={bookData.title || ""}
-          onChange={handleInputChange}
-          className="bg-slate-600 text-white w-full"
-          required
-        />
-        <TextInput
-          name="author"
-          placeholder="Author"
-          value={bookData.author || ""}
-          onChange={handleInputChange}
-          className="bg-slate-600 text-white w-full"
-          required
-        />
-        <TextInput
-          name="ISBN"
-          placeholder="ISBN"
-          value={bookData.ISBN || ""}
-          onChange={handleInputChange}
-          className="bg-slate-600 text-white w-full"
-          required
-        />
-        <TextInput
-          name="publisher"
-          placeholder="Publisher"
-          value={bookData.publisher || ""}
-          onChange={handleInputChange}
-          className="bg-slate-600 text-white w-full"
-          required
-        />
-        <TextInput
-          name="language"
-          placeholder="Language"
-          value={bookData.language || ""}
-          onChange={handleInputChange}
-          className="bg-slate-600 text-white w-full"
-          required
-        />
-        <TextInput
-          name="pages"
-          placeholder="Number of Pages"
-          type="number"
-          value={bookData.pages || ""}
-          onChange={handleInputChange}
-          className="bg-slate-600 text-white w-full"
-          required
-        />
-        <TextInput
-          name="category"
-          placeholder="Category"
-          value={bookData.category || ""}
-          onChange={handleInputChange}
-          className="bg-slate-600 text-white w-full"
-          required
-        />
-        <TextInput
-          name="targetExam"
-          placeholder="Target Exam"
-          value={bookData.targetExam || ""}
-          onChange={handleInputChange}
-          className="bg-slate-600 text-white w-full"
-          required
-        />
+        <div>
+          <Label className="text-blue-800 font-medium mb-1.5">Title</Label>
+          <input
+            name="title"
+            placeholder="Book Title"
+            value={bookData.title || ""}
+            onChange={handleInputChange}
+            className="w-full pl-4 pr-4 py-2.5 border-2 border-purple-200 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
+            required
+          />
+        </div>
+
+        <div>
+          <Label className="text-blue-800 font-medium mb-1.5">Author</Label>
+          <input
+            name="author"
+            placeholder="Author"
+            value={bookData.author || ""}
+            onChange={handleInputChange}
+            className="w-full pl-4 pr-4 py-2.5 border-2 border-purple-200 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
+            required
+          />
+        </div>
+
+        <div>
+          <Label className="text-blue-800 font-medium mb-1.5">ISBN</Label>
+          <input
+            name="ISBN"
+            placeholder="ISBN"
+            value={bookData.ISBN || ""}
+            onChange={handleInputChange}
+            className="w-full pl-4 pr-4 py-2.5 border-2 border-purple-200 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
+            required
+          />
+        </div>
+
+        <div>
+          <Label className="text-blue-800 font-medium mb-1.5">Publisher</Label>
+          <input
+            name="publisher"
+            placeholder="Publisher"
+            value={bookData.publisher || ""}
+            onChange={handleInputChange}
+            className="w-full pl-4 pr-4 py-2.5 border-2 border-purple-200 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
+            required
+          />
+        </div>
+
+        <div>
+          <Label className="text-blue-800 font-medium mb-1.5">Language</Label>
+          <input
+            name="language"
+            placeholder="Language"
+            value={bookData.language || ""}
+            onChange={handleInputChange}
+            className="w-full pl-4 pr-4 py-2.5 border-2 border-purple-200 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
+            required
+          />
+        </div>
+
+        <div>
+          <Label className="text-blue-800 font-medium mb-1.5">Pages</Label>
+          <input
+            name="pages"
+            placeholder="Number of Pages"
+            type="number"
+            value={bookData.pages || ""}
+            onChange={handleInputChange}
+            className="w-full pl-4 pr-4 py-2.5 border-2 border-purple-200 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
+            required
+          />
+        </div>
+
+        <div>
+          <Label className="text-blue-800 font-medium mb-1.5">Category</Label>
+          <input
+            name="category"
+            placeholder="Category"
+            value={bookData.category || ""}
+            onChange={handleInputChange}
+            className="w-full pl-4 pr-4 py-2.5 border-2 border-purple-200 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
+            required
+          />
+        </div>
+
+        <div>
+          <Label className="text-blue-800 font-medium mb-1.5">
+            Target Exam
+          </Label>
+          <input
+            name="targetExam"
+            placeholder="Target Exam"
+            value={bookData.targetExam || ""}
+            onChange={handleInputChange}
+            className="w-full pl-4 pr-4 py-2.5 border-2 border-purple-200 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
+            required
+          />
+        </div>
+
         <div className="sm:col-span-2">
-          <TextInput
+          <Label className="text-blue-800 font-medium mb-1.5">
+            Publication Date
+          </Label>
+          <input
             name="publicationDate"
             type="date"
             placeholder="Publication Date"
@@ -82,18 +118,21 @@ const BookForm = ({ bookData, handleInputChange }) => {
                 : ""
             }
             onChange={handleInputChange}
-            className="bg-slate-600 text-white w-full"
+            className="w-full pl-4 pr-4 py-2.5 border-2 border-purple-200 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
             required
           />
         </div>
+
         <div className="sm:col-span-2">
-          <Label className="text-gray-300 mb-2">Description</Label>
+          <Label className="text-blue-800 font-medium mb-1.5">
+            Description
+          </Label>
           <textarea
             name="description"
             placeholder="Book Description"
             value={bookData.description || ""}
             onChange={handleInputChange}
-            className="w-full bg-slate-600 text-white rounded-lg p-2.5"
+            className="w-full pl-4 pr-4 py-2.5 border-2 border-purple-200 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
             rows="4"
             required
           />
