@@ -7,9 +7,13 @@ import { fetchCart, clearCart, removeFromCart } from "../redux/cart/cartSlice";
 export default function CartPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // const [error, setError] = useState(null);
+  const [error, setError] = useState(null);
   const { currentUser } = useSelector((state) => state.user);
-  const { items, loading, error } = useSelector((state) => state.cart);
+  const {
+    items,
+    loading,
+    error: cartError,
+  } = useSelector((state) => state.cart);
 
   useEffect(() => {
     if (!currentUser) {
@@ -19,7 +23,8 @@ export default function CartPage() {
     dispatch(fetchCart());
   }, [dispatch, currentUser, navigate]);
 
-  const handleUpdateQuantity = async (productId, quantity) => {
+  const handleUpdateQuantity = async (e, productId, quantity) => {
+    e.stopPropagation(); // Prevent event bubbling
     try {
       const res = await fetch("/api/cart/update-quantity", {
         method: "POST",
@@ -67,7 +72,7 @@ export default function CartPage() {
   };
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (cartError) return <div>Error: {cartError}</div>;
   if (!items?.length) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
@@ -77,7 +82,7 @@ export default function CartPage() {
         </h2>
         <Link
           to="/all-books"
-          className="bg-purple-600 text-white px-6 py-2 rounded-lg"
+          className="bg-gradient-to-r from-blue-900 via-blue-800 to-purple-800 text-white px-6 py-2 rounded-lg hover:shadow-lg transition-all"
         >
           Continue Shopping
         </Link>
@@ -85,7 +90,8 @@ export default function CartPage() {
     );
   }
 
-  const handleRemoveItem = async (productId) => {
+  const handleRemoveItem = async (e, productId) => {
+    e.stopPropagation(); // Prevent event bubbling
     try {
       const res = await fetch("/api/cart/remove", {
         method: "POST",
@@ -122,20 +128,30 @@ export default function CartPage() {
     }
   };
 
+  const navigateToBookDetails = (bookId) => {
+    navigate(`/book/${bookId}`);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-purple-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between mb-8">
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-2xl font-bold text-blue-900">
             Shopping Cart ({items.length} items)
           </h1>
           <button
             onClick={handleClearCart}
-            className="text-red-600 hover:text-red-700 flex items-center"
+            className="text-red-600 hover:text-red-700 flex items-center hover:bg-red-50 px-3 py-1 rounded-lg transition-colors"
           >
             <FaTrash className="mr-2" /> Clear Cart
           </button>
         </div>
+
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4 text-red-700 rounded">
+            {error}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
@@ -144,22 +160,31 @@ export default function CartPage() {
               return (
                 <div
                   key={item.product._id}
-                  className="bg-white p-6 mb-4 rounded-lg shadow cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => navigate(`/book/${item.product._id}`)}
+                  className="bg-white p-6 mb-4 rounded-xl shadow-md hover:shadow-lg transition-shadow"
                 >
                   <div className="flex space-x-6">
                     <img
                       src={item.product.coverImage}
                       alt={item.product.title}
-                      className="w-32 h-40 object-cover rounded-lg"
+                      className="w-32 h-40 object-cover rounded-lg cursor-pointer"
+                      onClick={() => navigateToBookDetails(item.product._id)}
                     />
                     <div className="flex-1">
                       <div className="flex justify-between">
                         <div>
-                          <h3 className="text-lg font-semibold">
+                          <h3
+                            className="text-lg font-semibold text-blue-900 hover:text-purple-800 cursor-pointer"
+                            onClick={() =>
+                              navigateToBookDetails(item.product._id)
+                            }
+                          >
                             {item.product.title}
                           </h3>
-                          <p className="text-gray-600">{item.productType}</p>
+                          <p className="text-gray-600 capitalize">
+                            {item.productType === "ebook"
+                              ? "eBook"
+                              : "Hardcopy"}
+                          </p>
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-semibold text-purple-600">
@@ -171,43 +196,56 @@ export default function CartPage() {
                                 ₹{original.toFixed(2)}
                               </p>
                               <p className="text-sm text-green-600">
-                                Save {item.product.ebookDiscount}%
+                                Save{" "}
+                                {item.productType === "ebook"
+                                  ? item.product.ebookDiscount
+                                  : item.product.hardcopyDiscount}
+                                %
                               </p>
                             </>
                           )}
                         </div>
                       </div>
                       <div className="mt-4 flex items-center justify-between">
-                        <div className="flex items-center border rounded-lg">
+                        <div className="flex items-center border rounded-lg overflow-hidden">
                           <button
-                            onClick={() =>
+                            onClick={(e) =>
                               handleUpdateQuantity(
+                                e,
                                 item.product._id,
                                 item.quantity - 1
                               )
                             }
-                            className="p-2"
+                            className="p-2 bg-gray-100 hover:bg-gray-200 transition-colors"
+                            disabled={item.quantity <= 1}
                           >
-                            <FaMinus />
+                            <FaMinus
+                              className={
+                                item.quantity <= 1
+                                  ? "text-gray-400"
+                                  : "text-gray-700"
+                              }
+                            />
                           </button>
-                          <span className="px-4 py-2 border-x">
+                          <span className="px-4 py-2 border-x bg-white">
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() =>
+                            onClick={(e) =>
                               handleUpdateQuantity(
+                                e,
                                 item.product._id,
                                 item.quantity + 1
                               )
                             }
-                            className="p-2"
+                            className="p-2 bg-gray-100 hover:bg-gray-200 transition-colors"
                           >
-                            <FaPlus />
+                            <FaPlus className="text-gray-700" />
                           </button>
                         </div>
                         <button
-                          onClick={() => handleRemoveItem(item.product._id)}
-                          className="text-red-500 hover:text-red-600"
+                          onClick={(e) => handleRemoveItem(e, item.product._id)}
+                          className="text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-1 rounded-lg transition-colors"
                         >
                           Remove
                         </button>
@@ -220,8 +258,10 @@ export default function CartPage() {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="bg-white p-6 rounded-lg shadow sticky top-4">
-              <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+            <div className="bg-white p-6 rounded-xl shadow-md sticky top-4">
+              <h2 className="text-lg font-semibold mb-4 text-blue-900">
+                Order Summary
+              </h2>
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
@@ -242,7 +282,7 @@ export default function CartPage() {
               </div>
               <button
                 onClick={() => navigate("/checkout")}
-                className="w-full bg-purple-600 text-white py-3 rounded-lg"
+                className="w-full bg-gradient-to-r from-blue-900 via-blue-800 to-purple-800 text-white py-3 rounded-lg hover:shadow-lg transition-all"
               >
                 Proceed to Checkout
               </button>
