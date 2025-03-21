@@ -1,21 +1,32 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FaStar } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import ReviewCard from "./ReviewCard";
 
-export default function BookReviewSection({ bookId }) {
+export default function BookReviewSection({
+  bookId,
+  reviews: initialReviews = [],
+  canAddReview = false,
+}) {
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
-  const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState(initialReviews);
+  const [loading, setLoading] = useState(!initialReviews.length);
   const [error, setError] = useState(null);
   const [newReview, setNewReview] = useState({ rating: 0, description: "" });
   const [showForm, setShowForm] = useState(false);
-  console.log("currentuser",currentUser)
+
   useEffect(() => {
+    // If reviews were provided as props, use those
+    if (initialReviews.length > 0) {
+      setReviews(initialReviews);
+      setLoading(false);
+      return;
+    }
+
     fetchReviews();
-  }, [bookId]);
+  }, [bookId, initialReviews]);
 
   const fetchReviews = async () => {
     try {
@@ -81,7 +92,7 @@ export default function BookReviewSection({ bookId }) {
     <div className="space-y-6 h-96 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Customer Reviews</h3>
-        {!showForm && (
+        {!showForm && canAddReview && (
           <button
             onClick={() =>
               currentUser ? setShowForm(true) : navigate("/sign-in")
@@ -95,7 +106,7 @@ export default function BookReviewSection({ bookId }) {
 
       {error && <div className="text-red-500 text-center py-2">{error}</div>}
 
-      {showForm && (
+      {showForm && currentUser && (
         <form
           onSubmit={handleSubmitReview}
           className="bg-gray-50 p-4 rounded-lg"
@@ -152,36 +163,30 @@ export default function BookReviewSection({ bookId }) {
           <p className="text-center text-gray-500">No approved reviews yet</p>
         ) : (
           reviews.map((review) => (
-            // <div key={review._id} className="border-b pb-4">
-            //   <div className="flex items-center justify-between">
-            //     <div className="flex items-center space-x-2">
-            //       <span className="font-medium">{review.username}</span>
-            //     </div>
-            //     <div className="flex text-yellow-400">
-            //       {[...Array(5)].map((_, index) => (
-            //         <FaStar
-            //           key={index}
-            //           className={`w-4 h-4 ${
-            //             index < review.rating
-            //               ? "text-yellow-400"
-            //               : "text-gray-300"
-            //           }`}
-            //         />
-            //       ))}
-            //     </div>
-            //   </div>
-            //   <p className="mt-2 text-gray-600">{review.description}</p>
-            //   <span className="text-sm text-gray-500">
-            //     {new Date(review.createdAt).toLocaleDateString()}
-            //   </span>
-            // </div>
-            <ReviewCard onApprove onDisapprove username ={currentUser.username} review={review} isPending={false} key={review._id} theme="light"/>
-
+            <ReviewCard
+              onApprove={() => {}}
+              onDisapprove={() => {}}
+              username={currentUser?.username || "Guest"}
+              review={review}
+              isPending={false}
+              key={review._id}
+              theme="light"
+            />
           ))
         )}
       </div>
 
-
+      {!currentUser && reviews.length > 0 && (
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg text-center">
+          <p className="text-blue-800 mb-2">Want to add your review?</p>
+          <button
+            onClick={() => navigate("/sign-in")}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Sign in to review
+          </button>
+        </div>
+      )}
     </div>
   );
 }

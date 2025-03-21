@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Button, Modal, Alert } from "flowbite-react";
-import { HiPlus } from "react-icons/hi";
+import { Modal, Alert } from "flowbite-react";
+import { HiPlus, HiLibrary } from "react-icons/hi";
+import { motion } from "framer-motion";
 
 import BookTable from "../components/admin/book/BookTable";
 import BookForm from "../components/admin/book/BookForm";
@@ -27,7 +28,6 @@ const initialBookData = {
   category: "",
   language: "",
   pages: "",
-  // rating: 0,
 };
 
 const AdminBookDashboard = () => {
@@ -248,82 +248,158 @@ const AdminBookDashboard = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#A28DED] p-2 sm:p-4 md:p-6 space-y-4">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen bg-purple-50 p-4 sm:p-6 md:p-8 flex flex-col"
+    >
       {/* Alert Component */}
       {showAlert && (
-        <Alert
-          color="failure"
-          onDismiss={() => setShowAlert(false)}
-          className="fixed top-4 right-4 z-50"
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
         >
-          <span className="font-medium">Error!</span> {error}
-        </Alert>
+          <Alert
+            color="failure"
+            onDismiss={() => setShowAlert(false)}
+            className="fixed top-4 right-4 z-50 border-2 border-purple-200 bg-purple-50 text-purple-700 rounded-xl shadow-lg"
+          >
+            <span className="font-medium">Error!</span> {error}
+          </Alert>
+        </motion.div>
       )}
 
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
-          Admin Dashboard - Manage Books
-        </h1>
-        <Button
-          onClick={() => openModal()}
-          className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-purple-600"
-          disabled={loading}
-        >
-          <HiPlus className="mr-2" />
-          Add New Book
-        </Button>
-      </div>
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="bg-gradient-to-br from-blue-900 via-blue-800 to-purple-800 text-white p-6 rounded-2xl shadow-xl mb-6"
+      >
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-3">
+            <HiLibrary className="text-3xl" />
+            <h1 className="text-2xl md:text-3xl font-bold">
+              Admin Dashboard - Manage Books
+            </h1>
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => openModal()}
+            className="px-6 py-3 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-xl flex items-center gap-2 font-medium transition-all duration-200 shadow"
+            disabled={loading}
+          >
+            <HiPlus className="text-xl" />
+            Add New Book
+          </motion.button>
+        </div>
+      </motion.div>
 
       {/* Book Table */}
-      <BookTable books={books} onEdit={openModal} onDelete={handleDeleteBook} />
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 overflow-hidden mb-6 flex-1"
+      >
+        <BookTable
+          books={books}
+          onEdit={openModal}
+          onDelete={handleDeleteBook}
+        />
+      </motion.div>
 
       {/* Add/Edit Modal */}
-      <Modal show={showModal} onClose={() => setShowModal(false)} size="xl">
-        <Modal.Header className="bg-slate-800 text-white border-b border-gray-700">
-          {isEdit ? "Edit Book" : "Add New Book"}
+      <Modal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        size="xl"
+        className="!bg-blue-900/20 backdrop-blur-sm"
+      >
+        <Modal.Header className="bg-gradient-to-r from-blue-900 via-blue-800 to-purple-800 text-white border-none">
+          <span className="text-xl font-bold">
+            {isEdit ? "Edit Book" : "Add New Book"}
+          </span>
         </Modal.Header>
-        <Modal.Body className="bg-slate-800 space-y-6 overflow-y-auto max-h-[70vh] p-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <BookForm
-              bookData={bookData}
-              handleInputChange={handleInputChange}
-            />
-            <PricingSection
-              bookData={bookData}
-              handleInputChange={handleInputChange}
-            />
-            <ImageUploadSection
-              bookData={bookData}
-              setBookData={setBookData}
-              handleFileChange={handleFileChange}
-            />
-            <EbookSection
-              bookData={bookData}
-              handleInputChange={handleInputChange}
-              handleFileChange={handleFileChange}
-            />
+        <Modal.Body className="bg-white space-y-6 overflow-y-auto max-h-[70vh] p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
+              className="lg:col-span-2"
+            >
+              <BookForm
+                bookData={bookData}
+                handleInputChange={handleInputChange}
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.4 }}
+            >
+              <PricingSection
+                bookData={bookData}
+                handleInputChange={handleInputChange}
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.4 }}
+            >
+              <ImageUploadSection
+                bookData={bookData}
+                setBookData={setBookData}
+                handleFileChange={handleFileChange}
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.4 }}
+              className="lg:col-span-2"
+            >
+              <EbookSection
+                bookData={bookData}
+                handleInputChange={handleInputChange}
+                handleFileChange={handleFileChange}
+              />
+            </motion.div>
           </div>
         </Modal.Body>
-        <Modal.Footer className="bg-slate-800 border-t border-gray-700">
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <Button
-              onClick={handleAddEditBook}
-              className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-purple-600"
-            >
-              {isEdit ? "Update Book" : "Add Book"}
-            </Button>
-            <Button
-              color="gray"
+
+        <Modal.Footer className="bg-gray-50 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:justify-end">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setShowModal(false)}
-              className="w-full sm:w-auto"
+              className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors duration-200"
             >
               Cancel
-            </Button>
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleAddEditBook}
+              className="px-6 py-2.5 bg-gradient-to-r from-blue-900 via-blue-800 to-purple-800 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200"
+              disabled={loading}
+            >
+              {isEdit ? "Update Book" : "Add Book"}
+            </motion.button>
           </div>
         </Modal.Footer>
       </Modal>
-    </div>
+    </motion.div>
   );
 };
 
