@@ -7,7 +7,7 @@ import { DisableRightClickAndShortcuts } from "../components/RestrictShowPdf";
 import CategoryCard from "../components/ExamCard";
 export default function Home() {
   return (
-    <div className="mx-auto px-4 w-full">
+    <div className="w-full">
       {/* <DisableRightClickAndShortcuts/> */}
       <Hero />
       <CategoryCard/>

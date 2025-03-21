@@ -1,7 +1,7 @@
 import React from "react";
 import svg from "../assets/online-learning-concept.svg";
 import { motion } from "framer-motion";
-
+import { Link } from "react-router-dom";
 // Animation variants
 const floatingIconVariants = {
   animate: (custom) => ({
@@ -49,7 +49,7 @@ const buttonHoverVariants = {
 
 const Hero = () => {
   return (
-    <div className="bg-gray-50 min-h-screen max-w-full m-10 overflow-hidden">
+    <div className="bg-gray-50 min-h-screen max-w-full overflow-hidden">
       {/* Container */}
       <div className="w-full mx-auto px-4 sm:px-6">
         {/* Hero Section */}
@@ -90,8 +90,9 @@ const Hero = () => {
               variants={fadeInUpVariants}
               custom={4}
             >
-              <motion.a
-                href="#"
+              <Link to="/all-books">
+              <motion.div
+                
                 className="bg-gradient-to-r from-blue-900 via-blue-800 to-purple-800 text-white px-6 py-3 rounded-full font-medium flex items-center transition duration-300"
                 variants={buttonHoverVariants}
                 whileHover="hover"
@@ -125,7 +126,8 @@ const Hero = () => {
                     strokeLinejoin="round"
                   />
                 </motion.svg>
-              </motion.a>
+              </motion.div>
+              </Link>
               <motion.a
                 href="#"
                 className="border border-gray-300 text-gray-800 px-6 py-3 rounded-full font-medium hover:bg-gray-100 transition duration-300"
@@ -178,7 +180,7 @@ const Hero = () => {
 
             {/* Floating Icons - using existing SVGs but with enhanced animations */}
             <motion.div
-              className="absolute top-8 right-12 z-20"
+              className="absolute top-8 right-12 z-10"
               variants={floatingIconVariants}
               animate="animate"
               custom={0}
@@ -412,7 +414,7 @@ const Hero = () => {
 
           {/* Card 3 */}
           <motion.div 
-            className="bg-blue-50 rounded-xl overflow-hidden shadow-md flex h-36"
+            className="bg-blue-50 rounded-xl overflow-hidden shadow-md flex h-36 z-50"
             variants={fadeInUpVariants}
             whileHover={cardHoverVariants.hover}
           >
