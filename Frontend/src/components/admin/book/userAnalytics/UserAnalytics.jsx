@@ -25,14 +25,17 @@ import {
   Pie,
   Cell,
 } from "recharts";
-
-import Reviews from "../components/Reviews";
+import { motion, AnimatePresence } from "framer-motion";
+import Reviews from "./Reviews"
+import { HiShoppingBag } from "react-icons/hi";
+import { Spinner } from "../../../../utils/Loader/Spinner";
 
 const UserAnalytics = () => {
   const [analytics, setAnalytics] = useState(null);
   const [userList, setUserList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  
   const handleCheckboxChange = (userId) => {
     setSelectedUsers((prevSelectedUsers) => {
       if (prevSelectedUsers.includes(userId)) {
@@ -44,10 +47,10 @@ const UserAnalytics = () => {
       }
     });
   };
+  
   useEffect(() => {
     fetchAnalytics();
     fetchUserList();
-   
   }, []);
 
   const fetchAnalytics = async () => {
@@ -94,87 +97,225 @@ const UserAnalytics = () => {
   };
 
   if (loading) {
-    return (
-      <div className="w-full min-h-screen bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 p-6 flex items-center justify-center">
-        <div className="text-white">Loading analytics...</div>
-      </div>
-    );
+    return <Spinner />;
   }
 
   // Colors for charts
   const COLORS = ["#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#ef4444"];
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15
+      }
+    }
+  };
+
+  const chartVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    }
+  };
+
   return (
-    <div className="w-full min-h-screen bg-[#223876] p-6 space-y-6">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-white">
-          Education Platform Analytics
-        </h1>
-        <div className="text-sm text-slate-300">
-          Last updated: {new Date().toLocaleString()}
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="w-full min-h-screen bg-blue-950 p-6 space-y-6"
+    >
+      <motion.div
+        variants={itemVariants}
+        className="bg-gradient-to-br from-blue-900 via-blue-800 to-purple-800 text-white p-6 rounded-2xl shadow-xl mb-6"
+      >
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold">
+                Analytics Dashboard
+              </h1>
+              <p className="text-sm text-white/70 mt-1">
+                Monitor platform performance and user engagement
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={fetchAnalytics}
+              className="px-6 py-3 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-xl 
+              flex items-center gap-2 font-medium transition-all duration-200 shadow"
+              disabled={loading}
+            >
+              <TrendingUp className="w-5 h-5" />
+              Refresh Analytics
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-3 bg-white/10 backdrop-blur-sm hover:bg-white/20 rounded-xl
+              flex items-center gap-2 font-medium transition-all duration-200 shadow"
+            >
+              <Calendar className="w-5 h-5" />
+              Last updated: {new Date().toLocaleString()}
+            </motion.button>
+          </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <motion.div 
+        variants={containerVariants}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
         {/* Total Users */}
-        <div className="bg-gradient-to-r from-blue-500 to-blue-700 rounded-2xl p-6 shadow-xl">
+        <motion.div 
+          variants={itemVariants}
+          whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          className="bg-gradient-to-r from-blue-500 to-blue-700 rounded-2xl p-6 shadow-xl"
+        >
           <div className="text-sm text-white">Total Users</div>
-          <div className="text-2xl font-bold text-white">
+          <motion.div 
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="text-2xl font-bold text-white"
+          >
             {analytics.currentMetrics.totalUsers.toLocaleString()}
-          </div>
+          </motion.div>
           <div className="flex items-center mt-2 text-sm text-white/80">
-            <ChevronUp className="h-4 w-4 text-green-400" />
+            <motion.div
+              initial={{ rotate: 0 }}
+              animate={{ rotate: [0, 30, 0] }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+            >
+              <ChevronUp className="h-4 w-4 text-green-400" />
+            </motion.div>
             <span className="text-green-400">
               {analytics.currentMetrics.growthRate}%
             </span>
             <span className="text-white/60 ml-2">vs last month</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* Total Subscriptions */}
-        <div className="bg-gradient-to-r from-purple-500 to-purple-700 rounded-2xl p-6 shadow-xl">
+        <motion.div 
+          variants={itemVariants}
+          whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          className="bg-gradient-to-r from-purple-500 to-purple-700 rounded-2xl p-6 shadow-xl"
+        >
           <div className="flex items-center justify-between text-sm text-white/80">
             <p>Ebook Subscriptions</p>
-            <BookOpen className="h-4 w-4 text-yellow-400" />
+            <motion.div
+              initial={{ rotate: 0 }}
+              animate={{ rotate: [0, -15, 0, 15, 0] }}
+              transition={{ delay: 0.7, duration: 1, repeat: 0 }}
+            >
+              <BookOpen className="h-4 w-4 text-yellow-400" />
+            </motion.div>
           </div>
-          <div className="text-2xl font-bold text-white mt-4">
+          <motion.div 
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="text-2xl font-bold text-white mt-4"
+          >
             {analytics.currentMetrics.totalEbookSubscriptions.toLocaleString()}
-          </div>
+          </motion.div>
           <div className="text-sm text-white/60 mt-2">
             {analytics.currentMetrics.totalSubscribedUsers} subscribed users
           </div>
-        </div>
+        </motion.div>
 
         {/* New Users This Month */}
-        <div className="bg-gradient-to-r from-teal-500 to-teal-700 rounded-2xl p-6 shadow-xl">
+        <motion.div 
+          variants={itemVariants}
+          whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          className="bg-gradient-to-r from-teal-500 to-teal-700 rounded-2xl p-6 shadow-xl"
+        >
           <div className="flex items-center justify-between text-sm text-white/80">
             <p>New Users</p>
-            <TrendingUp className="h-4 w-4 text-green-400" />
+            <motion.div
+              initial={{ scale: 1 }}
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ delay: 0.9, duration: 0.5 }}
+            >
+              <TrendingUp className="h-4 w-4 text-green-400" />
+            </motion.div>
           </div>
-          <div className="text-2xl font-bold text-white mt-4">
+          <motion.div 
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="text-2xl font-bold text-white mt-4"
+          >
             {analytics.currentMetrics.newUsersThisMonth.toLocaleString()}
-          </div>
+          </motion.div>
           <div className="text-sm text-white/60 mt-2">This month</div>
-        </div>
+        </motion.div>
 
         {/* Active Target Exams */}
-        <div className="bg-gradient-to-r from-indigo-500 to-indigo-700 rounded-2xl p-6 shadow-xl">
+        <motion.div 
+          variants={itemVariants}
+          whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          className="bg-gradient-to-r from-indigo-500 to-indigo-700 rounded-2xl p-6 shadow-xl"
+        >
           <div className="flex items-center justify-between text-sm text-white/80">
             <p>Target Exams</p>
-            <Target className="h-4 w-4 text-yellow-300" />
+            <motion.div
+              initial={{ scale: 1, rotate: 0 }}
+              animate={{ scale: [1, 1.2, 1], rotate: [0, 360, 360] }}
+              transition={{ delay: 1.1, duration: 1 }}
+            >
+              <Target className="h-4 w-4 text-yellow-300" />
+            </motion.div>
           </div>
-          <div className="text-2xl font-bold text-white mt-4">
+          <motion.div 
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+            className="text-2xl font-bold text-white mt-4"
+          >
             {analytics.distributions.examTargets.length}
-          </div>
+          </motion.div>
           <div className="text-sm text-white/60 mt-2">Active exam targets</div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+      <motion.div 
+        variants={containerVariants}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6"
+      >
         {/* User Growth Chart */}
-        <div className="bg-slate-800 rounded-2xl shadow-xl p-4">
+        <motion.div 
+          variants={chartVariants}
+          whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          className="bg-slate-800 rounded-2xl shadow-xl p-4"
+        >
           <p className="text-sm text-white/80">User Growth Trend</p>
           <div className="h-[250px] mt-2">
             <ResponsiveContainer width="100%" height="100%">
@@ -201,10 +342,14 @@ const UserAnalytics = () => {
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
 
         {/* Class Distribution Chart */}
-        <div className="bg-slate-800 rounded-2xl shadow-xl p-4">
+        <motion.div 
+          variants={chartVariants}
+          whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          className="bg-slate-800 rounded-2xl shadow-xl p-4"
+        >
           <p className="text-sm text-white/80">Class Distribution</p>
           <div className="h-[250px] mt-2">
             <ResponsiveContainer width="100%" height="100%">
@@ -216,7 +361,8 @@ const UserAnalytics = () => {
                   cx="50%"
                   cy="50%"
                   outerRadius={100}
-                  label={(entry) => entry._id}>
+                  label={(entry) => entry._id}
+                >
                   {analytics.distributions.classes.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
@@ -239,10 +385,14 @@ const UserAnalytics = () => {
               </PieChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
 
         {/* Target Exam Distribution */}
-        <div className="bg-slate-800 rounded-2xl shadow-xl p-4">
+        <motion.div 
+          variants={chartVariants}
+          whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          className="bg-slate-800 rounded-2xl shadow-xl p-4"
+        >
           <p className="text-sm text-white/80">Popular Target Exams</p>
           <div className="h-[250px] mt-2">
             <ResponsiveContainer width="100%" height="100%">
@@ -258,10 +408,14 @@ const UserAnalytics = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Target Year Distribution (commented) */}
-        <div className="bg-slate-800 rounded-2xl shadow-xl p-4">
+        {/* Target Year Distribution */}
+        <motion.div 
+          variants={chartVariants}
+          whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          className="bg-slate-800 rounded-2xl shadow-xl p-4"
+        >
           <p className="text-sm text-white/80">Target Year Distribution</p>
           <div className="h-[250px] mt-2">
             <ResponsiveContainer width="100%" height="100%">
@@ -283,19 +437,35 @@ const UserAnalytics = () => {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </div>
-        <div className="bg-slate-800 rounded-2xl shadow-xl p-4 col-span-2 sm:col-span-4">
+        </motion.div>
+        
+        {/* User List */}
+        <motion.div 
+          variants={chartVariants}
+          className="bg-slate-800 rounded-2xl shadow-xl p-4 col-span-2 sm:col-span-4"
+        >
           <p className="text-sm text-white/80">User List</p>
+          
           {/* Show delete button if any user is selected */}
-          {selectedUsers.length > 0 && (
-            <div className="mt-4 ml-[80%]">
-              <button
-                onClick={handleDeleteUsers}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg">
-                Delete Selected Users
-              </button>
-            </div>
-          )}
+          <AnimatePresence>
+            {selectedUsers.length > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mt-4 ml-[80%]"
+              >
+                <motion.button
+                  whileHover={{ scale: 1.05, backgroundColor: "#ef4444" }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleDeleteUsers}
+                  className="bg-red-500 text-white px-4 py-2 rounded-lg"
+                >
+                  Delete Selected Users
+                </motion.button>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div className="mt-2 overflow-x-auto">
             <table className="min-w-full table-auto text-white">
@@ -308,8 +478,15 @@ const UserAnalytics = () => {
                 </tr>
               </thead>
               <tbody>
-                {userList.map((user) => (
-                  <tr key={user._id} className="hover:bg-gray-700">
+                {userList.map((user, index) => (
+                  <motion.tr 
+                    key={user._id} 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05, duration: 0.3 }}
+                    whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+                    className="hover:bg-gray-700"
+                  >
                     <td className="px-4 py-2">
                       <input
                         type="checkbox"
@@ -320,19 +497,35 @@ const UserAnalytics = () => {
                     </td>
                     <td className="px-4 py-2">{user.username}</td>
                     <td className="px-4 py-2">
-                      {user.active ? "Active" : "Inactive"}
+                      <motion.span
+                        initial={{ opacity: 0.5 }}
+                        animate={{ opacity: 1 }}
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          user.active 
+                            ? "bg-green-500/20 text-green-300" 
+                            : "bg-red-500/20 text-red-300"
+                        }`}
+                      >
+                        {user.active ? "Active" : "Inactive"}
+                      </motion.span>
                     </td>
                     <td className="px-4 py-2">{user.targetExam}</td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
-      <Reviews />
-    </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.2, duration: 0.5 }}
+      >
+        <Reviews />
+      </motion.div>
+    </motion.div>
   );
 };
 

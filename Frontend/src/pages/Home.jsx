@@ -1,9 +1,9 @@
 import PopularBooks from "../components/PopularBooks";
 import PopularQuizzes from "../components/PopularQuizzes";
 import { Hero } from "../components/Hero";
-import Reviews from "../components/Reviews";
+import Reviews from "../components/admin/book/userAnalytics/Reviews";
 import RecommendedBooks from "../components/RecommendedBooks";
-import { DisableRightClickAndShortcuts } from "../components/RestrictShowPdf";
+import { DisableRightClickAndShortcuts } from "../utils/RestrictShowPdf";
 import CategoryCard from "../components/ExamCard";
 export default function Home() {
   return (

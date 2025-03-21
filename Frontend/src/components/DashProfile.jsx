@@ -124,7 +124,7 @@ export default function DashProfile() {
         transition={{ duration: 0.8, delay: 0.2 }}
         className="max-w-lg mx-auto p-6 shadow-lg rounded-lg bg-white/30 backdrop-blur-md border border-white/10 relative z-10"
       >
-        <div className="bg-purple-600 text-white py-4 rounded-t-lg">
+        <div className="bg-blue-900 text-white py-4 rounded-t-lg">
           <h1 className="text-center text-3xl font-semibold">My Profile</h1>
         </div>
         <form className="flex flex-col gap-4 mt-6">

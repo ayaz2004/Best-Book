@@ -3,7 +3,7 @@ import ReviewCard from "./ReviewCard";
 import { CheckCircle } from "lucide-react";
 const ReviewSection = ({ title, subtitle, reviews, isPending = false, onApprove, onDisapprove }) => {
   return (
-    <div className="w-full bg-gradient-to-br from-slate-800 via-slate-800 to-purple-900 rounded-2xl shadow-xl p-6">
+    <div className="w-full bg-[#1E293B] rounded-2xl shadow-xl p-6">
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-white">{title}</h2>
         <p className="text-purple-400 text-sm mt-1">{subtitle}</p>
