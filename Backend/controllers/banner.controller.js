@@ -36,14 +36,11 @@ export const uploadBanner = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Banner upload error:", error);
-    res.status(500).json({
-      message: "Error uploading banner",
-      error: error.message,
-    });
+    next(errorHandler(500, "Error uploading banner"));
   }
 };
 
-export const getTopBanners = async (req, res) => {
+export const getTopBanners = async (req, res, next) => {
   try {
     const banners = await Banner.find({ isActive: true })
       .sort({ createdAt: -1 })
@@ -55,10 +52,7 @@ export const getTopBanners = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching banners:", error);
-    res.status(500).json({
-      message: "Error fetching banners",
-      error: error.message,
-    });
+    next(errorHandler(500, "Error fetching banners"));
   }
 };
 

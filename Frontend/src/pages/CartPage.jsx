@@ -85,7 +85,7 @@ export default function CartPage() {
     );
   }
 
-  const handleRemoveItem = async (productId) => {
+  const handleRemoveItem = async (productId,productType) => {
     try {
       const res = await fetch("/api/cart/remove", {
         method: "POST",
@@ -93,7 +93,7 @@ export default function CartPage() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${currentUser.token}`,
         },
-        body: JSON.stringify({ productId }),
+        body: JSON.stringify({ productId,productType }),
       });
 
       if (res.ok) {
@@ -206,7 +206,7 @@ export default function CartPage() {
                           </button>
                         </div>
                         <button
-                          onClick={() => handleRemoveItem(item.product._id)}
+                          onClick={() => handleRemoveItem(item.product._id,item.productType)}
                           className="text-red-500 hover:text-red-600"
                         >
                           Remove

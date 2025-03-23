@@ -12,7 +12,7 @@ export const getCart = async (req, res, next) => {
 
   try {
     const cart = await Cart.findOne({ belongTo: userId });
-    if (!cart) return res.status(404).json({ message: "Cart not found." });
+    if (!cart) return next(errorHandler(404, "Cart not found"));
 
     let cartData = { items: [] };
 
@@ -51,7 +51,7 @@ export const getCart = async (req, res, next) => {
       .status(200)
       .json({ success: true, message: "cart fetch successfully", cartData });
   } catch (error) {
-    next(error);
+    next(errorHandler(500, "Failed to fetch cart"));
   }
 };
 
@@ -98,20 +98,27 @@ export const addOrUpdateCartItem = async (req, res, next) => {
 
     // Update existing item or add new item
     const existingItemIndex = cart.items.findIndex(
-      (item) => item.productId.toString() === productId
+      (item) =>
+        item.productId.toString() === productId &&
+        item.productType === productType
     );
 
-    if (existingItemIndex !== -1) {
+
+    if (
+      existingItemIndex !== -1 &&
+      cart.items[existingItemIndex].productType === productType
+    ) {
       // Update existing item
-      cart.items[existingItemIndex].quantity = quantity;
+      cart.items[existingItemIndex].quantity += quantity;
     }
     // Add new item with productType
-    cart.items.push({
-      productId,
-      quantity,
-      productType, // Include the productType here
-    });
-
+    else {
+      cart.items.push({
+        productId,
+        quantity,
+        productType, // Include the productType here
+      });
+    }
     // Save cart
     await cart.save();
 
@@ -204,22 +211,22 @@ export const updateCartQuantity = async (req, res, next) => {
 
 // Remove Item from Cart
 export const removeCartItem = async (req, res, next) => {
-  const { productId } = req.body;
-  if (!productId)
-    return res.status(400).json({ message: "Product ID is required." });
+  const { productId, productType } = req.body;
+  if (!productId || !productType || productType.trim() === "")
+    return next(errorHandler(400, "Product ID and type are required."));
 
   try {
     const cart = await Cart.findOneAndUpdate(
       { belongTo: req.user.id },
-      { $pull: { items: { productId } } },
+      { $pull: { items: { productId, productType } } },
       { new: true }
     );
 
-    if (!cart) return res.status(404).json({ message: "Cart not found." });
+    if (!cart) return next(errorHandler(404, "Cart not found."));
 
     res.status(200).json(cart);
   } catch (error) {
-    next(error);
+    next(errorHandler(500, "Failed to remove item from cart"));
   }
 };
 
