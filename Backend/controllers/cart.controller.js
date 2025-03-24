@@ -12,7 +12,7 @@ export const getCart = async (req, res, next) => {
 
   try {
     const cart = await Cart.findOne({ belongTo: userId });
-    if (!cart) return res.status(404).json({ message: "Cart not found." });
+    if (!cart) return next(errorHandler(404, "Cart not found"));
 
     let cartData = { items: [] };
 
@@ -45,20 +45,21 @@ export const getCart = async (req, res, next) => {
         },
         quantity: item.quantity,
         productType: item.productType,
+        _id: item._id,
       });
     }
     return res
       .status(200)
       .json({ success: true, message: "cart fetch successfully", cartData });
   } catch (error) {
-    next(error);
+    next(errorHandler(500, "Failed to fetch cart"));
   }
 };
 
 export const addOrUpdateCartItem = async (req, res, next) => {
   const { productId, quantity, bookType } = req.body;
   const userId = req.user.id;
-  console.log(req.body);
+
   try {
     // Input validation
     if (!productId || !quantity || !bookType || quantity < 1) {
@@ -98,35 +99,60 @@ export const addOrUpdateCartItem = async (req, res, next) => {
 
     // Update existing item or add new item
     const existingItemIndex = cart.items.findIndex(
-      (item) => item.productId.toString() === productId
+      (item) =>
+        item.productId.toString() === productId &&
+        item.productType === productType
     );
 
     if (existingItemIndex !== -1) {
       // Update existing item
-      cart.items[existingItemIndex].quantity = quantity;
+      cart.items[existingItemIndex].quantity += quantity;
+    } else {
+      // Only add new item if one doesn't exist
+      cart.items.push({
+        productId,
+        quantity,
+        productType,
+      });
     }
-    // Add new item with productType
-    cart.items.push({
-      productId,
-      quantity,
-      productType, // Include the productType here
-    });
 
     // Save cart
     await cart.save();
 
-    // Return updated cart with populated data
-    const updatedCart = await Cart.findById(cart._id)
-      .populate("belongTo")
-      .populate({
-        path: "items.productId",
-        model: productType === "Book" ? Book : Quiz,
-      });
+    // Format response data consistently
+    let cartData = { items: [] };
+
+    for (const item of cart.items) {
+      let product = null;
+
+      if (item.productType === "Book" || item.productType === "ebook") {
+        product = await Book.findById(item.productId);
+      } else if (item.productType === "Quiz") {
+        product = await Quiz.findById(item.productId);
+      }
+
+      if (product) {
+        cartData.items.push({
+          product: {
+            _id: product._id,
+            title: product.title,
+            price: product.price,
+            coverImage: product.coverImage,
+            ebookDiscount: product.ebookDiscount,
+            hardcopyDiscount: product.hardcopyDiscount,
+            stock: product.stock || 0,
+          },
+          quantity: item.quantity,
+          productType: item.productType,
+          _id: item._id,
+        });
+      }
+    }
 
     res.status(200).json({
       success: true,
       message: "Cart updated successfully",
-      updatedCart,
+      cartData,
     });
   } catch (error) {
     console.error("Cart operation failed:", error);
@@ -135,14 +161,14 @@ export const addOrUpdateCartItem = async (req, res, next) => {
 };
 
 export const updateCartQuantity = async (req, res, next) => {
-  const { productId, quantity } = req.body;
+  const { productId, quantity, productType } = req.body;
 
   try {
     // Validate input
-    if (!productId || quantity < 1) {
+    if (!productId || quantity < 1 || !productType) {
       return res.status(400).json({
         message:
-          "Invalid input: Product ID and quantity (minimum 1) are required.",
+          "Invalid input: Product ID , product type, and quantity (minimum 1) are required.",
       });
     }
 
@@ -153,11 +179,15 @@ export const updateCartQuantity = async (req, res, next) => {
     }
 
     const itemIndex = cart.items.findIndex(
-      (item) => item.productId.toString() === productId
+      (item) =>
+        item.productId.toString() === productId &&
+        item.productType === productType
     );
 
     if (itemIndex === -1) {
-      return res.status(404).json({ message: "Item not found in cart." });
+      return res.status(404).json({
+        message: `Item with type '${productType}' not found in cart.`,
+      });
     }
 
     // Update quantity
@@ -185,9 +215,11 @@ export const updateCartQuantity = async (req, res, next) => {
             coverImage: product.coverImage,
             ebookDiscount: product.ebookDiscount,
             hardcopyDiscount: product.hardcopyDiscount,
+            stock: product.stock || 0,
           },
           quantity: item.quantity,
           productType: item.productType,
+          _id: item._id,
         });
       }
     }
@@ -204,22 +236,56 @@ export const updateCartQuantity = async (req, res, next) => {
 
 // Remove Item from Cart
 export const removeCartItem = async (req, res, next) => {
-  const { productId } = req.body;
-  if (!productId)
-    return res.status(400).json({ message: "Product ID is required." });
+  const { productId, productType } = req.body;
+  if (!productId || !productType || productType.trim() === "")
+    return next(errorHandler(400, "Product ID and type are required."));
 
   try {
     const cart = await Cart.findOneAndUpdate(
       { belongTo: req.user.id },
-      { $pull: { items: { productId } } },
+      { $pull: { items: { productId, productType } } },
       { new: true }
     );
 
-    if (!cart) return res.status(404).json({ message: "Cart not found." });
+    if (!cart) return next(errorHandler(404, "Cart not found."));
 
-    res.status(200).json(cart);
+    // Format response consistently with other cart endpoints
+    let cartData = { items: [] };
+
+    for (const item of cart.items) {
+      let product = null;
+
+      if (item.productType === "Book" || item.productType === "ebook") {
+        product = await Book.findById(item.productId);
+      } else if (item.productType === "Quiz") {
+        product = await Quiz.findById(item.productId);
+      }
+
+      if (product) {
+        cartData.items.push({
+          product: {
+            _id: product._id,
+            title: product.title,
+            price: product.price,
+            coverImage: product.coverImage,
+            ebookDiscount: product.ebookDiscount,
+            hardcopyDiscount: product.hardcopyDiscount,
+            stock: product.stock || 0,
+          },
+          quantity: item.quantity,
+          productType: item.productType,
+          _id: item._id,
+        });
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Item removed successfully",
+      cartData,
+    });
   } catch (error) {
-    next(error);
+    next(errorHandler(500, "Failed to remove item from cart"));
   }
 };
 

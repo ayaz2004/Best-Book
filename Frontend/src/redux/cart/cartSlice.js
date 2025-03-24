@@ -12,7 +12,7 @@ export const fetchCart = createAsyncThunk(
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message);
-      console.log(data)
+      console.log(data);
       return data.cartData;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -47,13 +47,20 @@ const cartSlice = createSlice({
     },
 
     removeFromCart: (state, action) => {
+      const { productId, productType } = action.payload;
       state.items = state.items.filter(
-        (item) => item.product._id !== action.payload
+        (item) =>
+          !(item.product._id === productId && item.productType === productType)
       );
-      state.subtotal = state.items.reduce(
-        (total, item) => total + item.product.price * item.quantity,
-        0
-      );
+      state.subtotal = state.items.reduce((total, item) => {
+        const price = item.product.price || 0;
+        const discount =
+          item.productType === "ebook"
+            ? item.product.ebookDiscount
+            : item.product.hardcopyDiscount;
+        const discountedPrice = price - (price * discount) / 100;
+        return total + discountedPrice * item.quantity;
+      }, 0);
       state.total = state.subtotal - state.discount;
     },
     clearCart: (state) => {
@@ -71,12 +78,11 @@ const cartSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchCart.fulfilled, (state, action) => {
-   
         state.loading = false;
-        state.items = action.payload.items;
-        state.subtotal = action.payload.subtotal;
-        state.total = action.payload.total;
-        state.discount = action.payload.discount;
+        state.items = action.payload?.items || [];
+        state.subtotal = action.payload?.subtotal || 0;
+        state.total = action.payload?.total || 0;
+        state.discount = action.payload?.discount || 0;
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.loading = false;

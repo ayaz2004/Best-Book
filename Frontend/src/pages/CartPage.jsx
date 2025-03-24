@@ -23,7 +23,7 @@ export default function CartPage() {
     dispatch(fetchCart());
   }, [dispatch, currentUser, navigate]);
 
-  const handleUpdateQuantity = async (e, productId, quantity) => {
+  const handleUpdateQuantity = async (e, productId, productType, quantity) => {
     e.stopPropagation(); // Prevent event bubbling
     try {
       const res = await fetch("/api/cart/update-quantity", {
@@ -32,7 +32,7 @@ export default function CartPage() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${currentUser.token}`,
         },
-        body: JSON.stringify({ productId, quantity }),
+        body: JSON.stringify({ productId, productType, quantity }),
       });
 
       if (res.ok) {
@@ -165,7 +165,7 @@ export default function CartPage() {
     );
   }
 
-  const handleRemoveItem = async (e, productId) => {
+  const handleRemoveItem = async (e, productId, productType) => {
     e.stopPropagation(); // Prevent event bubbling
     try {
       const res = await fetch("/api/cart/remove", {
@@ -174,11 +174,11 @@ export default function CartPage() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${currentUser.token}`,
         },
-        body: JSON.stringify({ productId }),
+        body: JSON.stringify({ productId, productType }),
       });
 
       if (res.ok) {
-        dispatch(removeFromCart(productId));
+        dispatch(fetchCart(productId));
       }
     } catch (error) {
       setError("Failed to remove item");
@@ -262,7 +262,7 @@ export default function CartPage() {
               const { original, discounted } = calculateItemPrice(item);
               return (
                 <div
-                  key={item.product._id}
+                  key={`${item.product._id}-${item.productType}`}
                   className="bg-white p-6 mb-4 rounded-xl shadow-md hover:shadow-lg transition-shadow"
                 >
                   <div className="flex space-x-6">
@@ -316,6 +316,7 @@ export default function CartPage() {
                               handleUpdateQuantity(
                                 e,
                                 item.product._id,
+                                item.productType,
                                 item.quantity - 1
                               )
                             }
@@ -338,6 +339,7 @@ export default function CartPage() {
                               handleUpdateQuantity(
                                 e,
                                 item.product._id,
+                                item.productType,
                                 item.quantity + 1
                               )
                             }
@@ -347,7 +349,13 @@ export default function CartPage() {
                           </button>
                         </div>
                         <button
-                          onClick={(e) => handleRemoveItem(e, item.product._id)}
+                          onClick={(e) =>
+                            handleRemoveItem(
+                              e,
+                              item.product._id,
+                              item.productType
+                            )
+                          }
                           className="text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-1 rounded-lg transition-colors"
                         >
                           Remove
