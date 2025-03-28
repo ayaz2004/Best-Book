@@ -81,7 +81,7 @@ var BookSchema = new Schema(
       type: Number,
       required: true,
     },
-    stoke: {
+    stock: {
       type: Number,
       // required: true,
     },
