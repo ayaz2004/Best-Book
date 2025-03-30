@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { AiOutlineSearch } from "react-icons/ai";
 import { FaShoppingCart } from "react-icons/fa";
+import { IoCloseOutline } from "react-icons/io5";
 import {
   handleSessionExpired,
   selectIsSessionValid,
@@ -20,6 +21,11 @@ export default function Header() {
   const cartCount = currentUser ? items?.length || 0 : 0;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  
+  // New state for search functionality
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const mobileSearchRef = useRef(null);
 
   const handleSignout = async () => {
     try {
@@ -68,9 +74,30 @@ export default function Header() {
       navigate("/sign-in");
     }
   };
+  
+  // New function to handle search
+  const handleSearch = (e) => {
+    if (e) e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setMobileSearchOpen(false);
+    }
+  };
+  
+  // Click outside to close mobile search
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (mobileSearchRef.current && !mobileSearchRef.current.contains(event.target)) {
+        setMobileSearchOpen(false);
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [mobileSearchRef]);
 
   return (
-    <header className="bg-gray-50 py-4 px-6 md:px-12 ">
+    <header className="bg-gray-50 py-4 px-6 md:px-12 relative">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
         <Link
@@ -111,44 +138,47 @@ export default function Header() {
         </nav>
 
         {/* Right Side Actions */}
-        <div className="flex items-center gap-3 ">
-          {/* Search */}
+        <div className="flex items-center gap-3">
+          {/* Desktop Search */}
           <div className="hidden lg:block relative group">
-            <input
-              type="text"
-              placeholder="Search for books..."
-              className="w-64 py-2 pl-4 pr-10 bg-white/80 backdrop-blur-sm border-0 
-      rounded-full shadow-sm transition-all duration-300
-      focus:w-72 focus:shadow-sm focus:outline-none focus:ring-2 
-      focus:ring-blue-900 group-hover:shadow-md"
-            />
-            <div className="absolute right-3 top-2.5">
-              <div
-                className="p-1 rounded-full text-gray-400 group-hover:text-indigo-500 
-      transition-colors duration-300"
+            <form onSubmit={handleSearch}>
+              <input
+                type="text"
+                placeholder="Search for books..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-64 py-2 pl-4 pr-10 bg-white/80 backdrop-blur-sm border-0 
+                rounded-full shadow-sm transition-all duration-300
+                focus:w-72 focus:shadow-sm focus:outline-none focus:ring-2 
+                focus:ring-blue-900 group-hover:shadow-md"
+              />
+              <button 
+                type="submit"
+                className="absolute right-3 top-2.5"
               >
-                <AiOutlineSearch className="text-lg" />
-              </div>
-            </div>
+                <div
+                  className="p-1 rounded-full text-gray-400 group-hover:text-indigo-500 
+                  transition-colors duration-300"
+                >
+                  <AiOutlineSearch className="text-lg" />
+                </div>
+              </button>
+            </form>
           </div>
 
           {/* Mobile Search Button */}
           <button
             className="lg:hidden p-2 text-gray-700 rounded-full 
-  hover:bg-gradient-to-r hover:from-indigo-500/10 hover:to-purple-500/10 
-  transition-all duration-300"
+            hover:bg-gradient-to-r hover:from-indigo-500/10 hover:to-purple-500/10 
+            transition-all duration-300"
+            onClick={() => setMobileSearchOpen(true)}
           >
-            <AiOutlineSearch className="text-xl" />
-          </button>
-
-          {/* Mobile Search Button */}
-          <button className="lg:hidden p-2 text-gray-700 rounded-full hover:bg-gray-100 hover:shadow-lg">
             <AiOutlineSearch className="text-xl" />
           </button>
 
           {/* Cart Button */}
           <button
-            className="hidden sm:block p-2 text-blue-900 rounded-full hover:bg-gray-100 relative shadow-sm "
+            className="hidden sm:block p-2 text-blue-900 rounded-full hover:bg-gray-100 relative shadow-sm"
             onClick={handleCartClick}
           >
             <FaShoppingCart className="text-xl" />
@@ -161,10 +191,10 @@ export default function Header() {
 
           {/* Auth Buttons */}
           {currentUser ? (
-            <div className="relative ">
+            <div className="relative">
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center space-x-2 "
+                className="flex items-center space-x-2"
               >
                 <img
                   src={currentUser.profilePicture}
@@ -184,7 +214,7 @@ export default function Header() {
                   <Link
                     to="/dashboard?tab=profile"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => setDropdownOpen(false)}
+                    onClick={() => setDropdownOpen(false)}
                   >
                     Profile
                   </Link>
@@ -274,6 +304,68 @@ export default function Header() {
                 </span>
               )}
             </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Mobile Search Overlay */}
+      {mobileSearchOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center pt-16 px-4 animate-fadeIn">
+          <div 
+            ref={mobileSearchRef}
+            className="w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden animate-slideDown"
+          >
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">Search Books</h3>
+                <button 
+                  onClick={() => setMobileSearchOpen(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <IoCloseOutline className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <form onSubmit={handleSearch} className="relative">
+                <input
+                  type="text"
+                  placeholder="Search for books..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  autoFocus
+                  className="w-full py-3 pl-4 pr-12 bg-gray-100 border-0 
+                    rounded-lg focus:ring-2 focus:ring-blue-800 focus:outline-none"
+                />
+                <button 
+                  type="submit"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                >
+                  <div className="p-1 rounded-full text-gray-500 hover:text-blue-800">
+                    <AiOutlineSearch className="text-xl" />
+                  </div>
+                </button>
+              </form>
+              
+              {/* Popular searches */}
+              <div className="mt-4">
+                <h4 className="text-sm font-medium text-gray-500 mb-2">Popular searches</h4>
+                <div className="flex flex-wrap gap-2">
+                  {["Fiction", "Self-help", "Biography", "Science", "History"].map(term => (
+                    <button
+                      key={term}
+                      onClick={() => {
+                        setSearchQuery(term);
+                        navigate(`/search?q=${encodeURIComponent(term)}`);
+                        setMobileSearchOpen(false);
+                      }}
+                      className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full hover:bg-gray-200"
+                    >
+                      {term}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
