@@ -1,6 +1,6 @@
 import React from "react";
 import { Star, Quote, User, ThumbsUp, ThumbsDown, Edit, Trash } from "lucide-react";
-import { DialogBox } from "./DialogBox";
+
 
 const ReviewCard = ({ review, username = null, isPending = false, onApprove, onDisapprove, theme = 'dark' }) => {
   const isDark = theme === 'dark';
