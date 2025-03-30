@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { FaStar } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import ReviewCard from "./admin/book/userAnalytics/ReviewCard";
+import ReviewCard from "./admin/userAnalytics/ReviewCard";
 
 export default function BookReviewSection({
   bookId,

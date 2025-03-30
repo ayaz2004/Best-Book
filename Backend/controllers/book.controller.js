@@ -324,7 +324,7 @@ export const getAllBooksByExams = async (req, res, next) => {
 // getting recently added 3 three books
 export const getRecentlyAddedBooks = async (req, res, next) => {
   try {
-    const books = await Book.find().sort({ createdAt: -1 }).limit(3);
+    const books = await Book.find().sort({ createdAt: -1 }).limit(4);
     res.status(200).json({
       success: true,
       message: "Recently added books fetched successfully",

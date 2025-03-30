@@ -13,7 +13,7 @@ import AdminQuizDashboard from "./pages/AdminQuizDashboard";
 import CreateQuiz from "./pages/CreateQuiz";
 import BookDetails from "./pages/BookDetails";
 import AllBooks from "./pages/AllBooks";
-import UserAnalytics from "./components/admin/book/userAnalytics/UserAnalytics";
+import UserAnalytics from "./components/admin/userAnalytics/UserAnalytics";
 import CartPage from "./pages/CartPage";
 import VerifyOTP from "./pages/VerifyOTP";
 import CheckoutPage from "./pages/CheckoutPage";

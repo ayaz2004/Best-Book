@@ -28,7 +28,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Reviews from "./Reviews"
 import { HiShoppingBag } from "react-icons/hi";
-import { Spinner } from "../../../../utils/Loader/Spinner";
+import { Spinner } from "../../../utils/Loader/Spinner"
 
 const UserAnalytics = () => {
   const [analytics, setAnalytics] = useState(null);

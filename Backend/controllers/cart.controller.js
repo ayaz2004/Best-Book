@@ -104,18 +104,22 @@ export const addOrUpdateCartItem = async (req, res, next) => {
         item.productType === productType
     );
 
-    if (existingItemIndex !== -1) {
+
+    if (
+      existingItemIndex !== -1 &&
+      cart.items[existingItemIndex].productType === productType
+    ) {
       // Update existing item
       cart.items[existingItemIndex].quantity += quantity;
-    } else {
-      // Only add new item if one doesn't exist
+    }
+    // Add new item with productType
+    else {
       cart.items.push({
         productId,
         quantity,
-        productType,
+        productType, // Include the productType here
       });
     }
-
     // Save cart
     await cart.save();
 
