@@ -24,11 +24,11 @@ const quizSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, lowercase: true },
 
-    chapterId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Chapter",
-      required: true,
-    },
+    // chapterId: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "Chapter",
+    //   required: true,
+    // },
     price: { type: Number },
     discountPrice: { type: Number, default: 0 },
     questions: [questionSchema], // Embedded questions
