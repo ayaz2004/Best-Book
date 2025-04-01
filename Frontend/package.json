@@ -32,7 +32,6 @@
     "recharts": "^2.15.0",
     "redux-persist": "^6.0.0",
     "slick-carousel": "^1.8.1"
-    // "tailwind-scrollbar": "^4.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

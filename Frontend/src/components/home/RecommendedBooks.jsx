@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { handleSessionExpired } from "../../redux/user/userSlice";
 import { motion } from "framer-motion";
-import { fadeIn } from "../utils/Anim/ScrollAnim";
+import { fadeIn } from "../../utils/Anim/ScrollAnim";
 function NextArrow(props) {
   const { className, style, onClick } = props;
   return (
@@ -57,32 +59,72 @@ function PrevArrow(props) {
 
 // Update the color palette to match theme
 function getRandomLightColor() {
-  const colors = [
-    "bg-purple-50",
-    "bg-blue-50",
-    "bg-indigo-50",
-    "bg-violet-50",
-  ];
+  const colors = ["bg-purple-50", "bg-blue-50", "bg-indigo-50", "bg-violet-50"];
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
-export default function PopularBooks() {
+export const authenticatedFetch = async (url, options = {}, dispatch) => {
+  try {
+    const response = await fetch(url, {
+      ...options,
+      credentials: "include",
+      headers: {
+        ...options.headers,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.status === 401) {
+      throw new Error("UNAUTHORIZED");
+    }
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || "Something went wrong");
+    }
+
+    return data;
+  } catch (error) {
+    if (error.message === "UNAUTHORIZED") {
+      dispatch(handleSessionExpired());
+      window.location.href = "/sign-in";
+    }
+    throw error;
+  }
+};
+
+export default function RecommendedBooks() {
   const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const { currentUser } = useSelector((state) => state.user);
 
   useEffect(() => {
-    const fetchBooks = async () => {
+    const fetchRecommendedBooks = async () => {
+      if (!currentUser?.targetExam) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const response = await fetch("/api/book/popularBooks");
-        if (!response.ok) throw new Error("Failed to fetch popular books.");
-        const data = await response.json();
-        setBooks(data.books);
+        setLoading(true);
+        const data = await authenticatedFetch(
+          `/api/book/getbookbyexam/${currentUser.targetExam}`,
+          {},
+          dispatch
+        );
+        setBooks(data.books || []);
       } catch (error) {
-        console.error("Error fetching popular books:", error);
+        console.error("Failed to fetch recommended books:", error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchBooks();
-  }, []);
+    fetchRecommendedBooks();
+  }, [currentUser?.targetExam, dispatch]);
 
   const settings = {
     dots: true,
@@ -119,6 +161,16 @@ export default function PopularBooks() {
     ],
   };
 
+  if (!currentUser) return null;
+  if (loading) {
+    return (
+      <div className="py-10">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500 mx-auto"></div>
+      </div>
+    );
+  }
+  if (error) return null;
+  if (books.length === 0) return null;
 
   return (
     <motion.div
@@ -128,35 +180,34 @@ export default function PopularBooks() {
       whileInView={"show"}
       viewport={{ once: false, amount: 0.2 }}
     >
-      <motion.h2 
+      <motion.h2
         className="text-3xl font-bold mb-8 text-blue-900 text-center"
         variants={fadeIn(0.3, "up")}
       >
-        Popular Books
+        Recommended Books for {currentUser.targetExam}
       </motion.h2>
       <Slider {...settings}>
         {books.map((book, index) => (
           <motion.div
             key={book._id}
             className="p-4"
-            variants={fadeIn(((index * 0.1) + 0.3) % 0.5, "up", "tween")}
+            variants={fadeIn((index * 0.1 + 0.3) % 0.5, "up", "tween")}
             initial="hidden"
             whileInView={"show"}
             viewport={{ once: false, amount: 0.2 }}
           >
             <Link to={`/book/${book._id}`}>
               <motion.div
-                className={`rounded-2xl shadow-lg overflow-hidden hover:shadow-xl 
-                  h-full  transition-shadow duration-300 ${getRandomLightColor()}`}
+                className={`rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 ${getRandomLightColor()}`}
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
               >
                 <img
                   src={book.coverImage}
                   alt={book.title}
-                  className="w-full h-96 object-scale-down align-middle "
+                  className="w-full h-96 object-scale-down"
                 />
-                <div className="p-4 align-baseline">
+                <div className="p-4">
                   <h3 className="text-lg font-semibold text-center text-blue-900 line-clamp-2">
                     {book.title}
                   </h3>
