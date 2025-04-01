@@ -10,7 +10,6 @@ const questionSchema = new mongoose.Schema({
   ],
   questionFig: { type: String },
   answerFig: { type: String },
-
   explanation: { type: String },
   difficulty: {
     type: String,
@@ -23,14 +22,16 @@ const questionSchema = new mongoose.Schema({
 const quizSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, lowercase: true },
-
-    // chapterId: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "Chapter",
-    //   required: true,
-    // },
-    price: { type: Number },
+    description: { type: String },
+    chapterId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Chapter",
+    },
+    price: { type: Number, default: 0 },
     discountPrice: { type: Number, default: 0 },
+    timeLimit: { type: Number, default: 30 }, // Time limit in minutes
+    passingScore: { type: Number, default: 60 }, // Percentage required to pass
+    isPublished: { type: Boolean, default: false },
     questions: [questionSchema], // Embedded questions
   },
   { timestamps: true }

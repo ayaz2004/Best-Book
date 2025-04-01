@@ -38,6 +38,12 @@ const userSchema = new mongoose.Schema(
         ref: "Book",
       },
     ],
+    subscribedQuiz: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Quiz",
+      },
+    ],
     isAdmin: {
       type: Boolean,
       default: false,

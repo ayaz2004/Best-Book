@@ -71,7 +71,6 @@ export const addQuiz = async (req, res, next) => {
       // Create a new quiz
       quiz = new Quiz({
         title,
-
         chapterId,
         questions: processedQuestions,
       });
@@ -83,6 +82,258 @@ export const addQuiz = async (req, res, next) => {
   } catch (error) {
     console.error("Error creating/updating quiz:", error);
     next(errorHandler(400, "An error occurred while creating the quiz."));
+  }
+};
+
+// New methods for admin functionality
+
+export const updateQuiz = async (req, res, next) => {
+  try {
+    const { quizId } = req.params;
+    const {
+      title,
+      description,
+      price,
+      discountPrice,
+      timeLimit,
+      passingScore,
+      isPublished,
+    } = req.body;
+
+    if (!quizId) {
+      return next(errorHandler(400, "Quiz ID is required"));
+    }
+
+    const quiz = await Quiz.findById(quizId);
+    if (!quiz) {
+      return next(errorHandler(404, "Quiz not found"));
+    }
+
+    // Update quiz properties if provided
+    if (title) quiz.title = title;
+    if (description !== undefined) quiz.description = description;
+    if (price !== undefined) quiz.price = price;
+    if (discountPrice !== undefined) quiz.discountPrice = discountPrice;
+    if (timeLimit !== undefined) quiz.timeLimit = timeLimit;
+    if (passingScore !== undefined) quiz.passingScore = passingScore;
+    if (isPublished !== undefined) quiz.isPublished = isPublished;
+
+    await quiz.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Quiz updated successfully",
+      quiz,
+    });
+  } catch (error) {
+    console.error("Error updating quiz:", error);
+    next(errorHandler(500, "Failed to update quiz"));
+  }
+};
+
+export const toggleQuizPublishStatus = async (req, res, next) => {
+  try {
+    const { quizId } = req.params;
+
+    if (!quizId) {
+      return next(errorHandler(400, "Quiz ID is required"));
+    }
+
+    const quiz = await Quiz.findById(quizId);
+    if (!quiz) {
+      return next(errorHandler(404, "Quiz not found"));
+    }
+
+    // Toggle the publish status
+    quiz.isPublished = !quiz.isPublished;
+    await quiz.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Quiz ${
+        quiz.isPublished ? "published" : "unpublished"
+      } successfully`,
+      isPublished: quiz.isPublished,
+    });
+  } catch (error) {
+    console.error("Error toggling quiz publish status:", error);
+    next(errorHandler(500, "Failed to update quiz publish status"));
+  }
+};
+
+export const updateQuizQuestion = async (req, res, next) => {
+  try {
+    const { quizId, questionId } = req.params;
+    const updates = req.body;
+
+    if (!quizId || !questionId) {
+      return next(errorHandler(400, "Quiz ID and Question ID are required"));
+    }
+
+    const quiz = await Quiz.findById(quizId);
+    if (!quiz) {
+      return next(errorHandler(404, "Quiz not found"));
+    }
+
+    // Find the question in the quiz
+    const question = quiz.questions.id(questionId);
+    if (!question) {
+      return next(errorHandler(404, "Question not found in this quiz"));
+    }
+
+    // Update question properties if provided
+    if (updates.text) question.text = updates.text;
+    if (updates.options) question.options = updates.options;
+    if (updates.explanation) question.explanation = updates.explanation;
+    if (updates.difficulty) question.difficulty = updates.difficulty;
+    if (updates.year) question.year = updates.year;
+
+    // Process question figure if provided
+    if (updates.questionFigPath) {
+      const uploadResult = await uploadImagesToCloudinary(
+        updates.questionFigPath,
+        "quizzes/questions"
+      );
+      question.questionFig = uploadResult.secure_url;
+    }
+
+    // Process answer figure if provided
+    if (updates.answerFigPath) {
+      const uploadResult = await uploadImagesToCloudinary(
+        updates.answerFigPath,
+        "quizzes/answers"
+      );
+      question.answerFig = uploadResult.secure_url;
+    }
+
+    await quiz.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Question updated successfully",
+      question,
+    });
+  } catch (error) {
+    console.error("Error updating quiz question:", error);
+    next(errorHandler(500, "Failed to update question"));
+  }
+};
+
+export const deleteQuizQuestion = async (req, res, next) => {
+  try {
+    const { quizId, questionId } = req.params;
+
+    if (!quizId || !questionId) {
+      return next(errorHandler(400, "Quiz ID and Question ID are required"));
+    }
+
+    const quiz = await Quiz.findById(quizId);
+    if (!quiz) {
+      return next(errorHandler(404, "Quiz not found"));
+    }
+
+    // Find and remove the question
+    const questionIndex = quiz.questions.findIndex(
+      (q) => q._id.toString() === questionId
+    );
+    if (questionIndex === -1) {
+      return next(errorHandler(404, "Question not found in this quiz"));
+    }
+
+    quiz.questions.splice(questionIndex, 1);
+    await quiz.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Question deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting quiz question:", error);
+    next(errorHandler(500, "Failed to delete question"));
+  }
+};
+
+export const getQuizStats = async (req, res, next) => {
+  try {
+    const { quizId } = req.params;
+
+    if (!quizId) {
+      return next(errorHandler(400, "Quiz ID is required"));
+    }
+
+    const quiz = await Quiz.findById(quizId);
+    if (!quiz) {
+      return next(errorHandler(404, "Quiz not found"));
+    }
+
+    // Get stats from QuizAttempt model - this would need to be adjusted based on your schema
+    const attemptsStats = await mongoose.model("QuizAttempt").aggregate([
+      { $match: { quizId: new mongoose.Types.ObjectId(quizId) } },
+      {
+        $group: {
+          _id: null,
+          totalAttempts: { $sum: 1 },
+          completedAttempts: {
+            $sum: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] },
+          },
+          avgScore: { $avg: "$score" },
+          highestScore: { $max: "$score" },
+          avgTimeSpent: { $avg: "$timeSpent" },
+        },
+      },
+    ]);
+
+    // Get subscription stats
+    const subscriptionStats = await mongoose
+      .model("QuizSubscription")
+      .aggregate([
+        { $match: { quizId: new mongoose.Types.ObjectId(quizId) } },
+        {
+          $group: {
+            _id: null,
+            totalSubscriptions: { $sum: 1 },
+            activeSubscriptions: {
+              $sum: { $cond: [{ $eq: ["$isActive", true] }, 1, 0] },
+            },
+            totalRevenue: { $sum: "$price" },
+          },
+        },
+      ]);
+
+    const stats = {
+      quiz: {
+        id: quiz._id,
+        title: quiz.title,
+        questionCount: quiz.questions.length,
+        isPublished: quiz.isPublished,
+      },
+      attempts:
+        attemptsStats.length > 0
+          ? attemptsStats[0]
+          : {
+              totalAttempts: 0,
+              completedAttempts: 0,
+              avgScore: 0,
+              highestScore: 0,
+              avgTimeSpent: 0,
+            },
+      subscriptions:
+        subscriptionStats.length > 0
+          ? subscriptionStats[0]
+          : {
+              totalSubscriptions: 0,
+              activeSubscriptions: 0,
+              totalRevenue: 0,
+            },
+    };
+
+    res.status(200).json({
+      success: true,
+      stats,
+    });
+  } catch (error) {
+    console.error("Error fetching quiz stats:", error);
+    next(errorHandler(500, "Failed to fetch quiz statistics"));
   }
 };
 
@@ -168,7 +419,7 @@ export const getAllQuizzes = async (req, res, next) => {
         },
       },
     });
-    res.status(200).json({ quizzes });
+    res.status(200).json({ success: true, quizzes });
   } catch (error) {
     console.error("Error fetching quizzes:", error);
     next(error);
