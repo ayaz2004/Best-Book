@@ -1,8 +1,6 @@
-import { QuizAttempt } from "../models/quizattempted.model.js";
+import { QuizAttempt } from "../models/quizAttempted.model.js";
 import { Quiz } from "../models/quiz.model.js";
-import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
-import mongoose from "mongoose";
 
 // Start a new quiz attempt
 export const startQuizAttempt = async (req, res, next) => {

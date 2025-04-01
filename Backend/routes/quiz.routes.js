@@ -17,14 +17,14 @@ import {
   completeQuizAttempt,
   getAttemptHistory,
   getAttemptDetails,
-} from "../controllers/quizattempted.controller.js";
+} from "../controllers/quizAttempted.controller.js";
 
 import {
   subscribeToQuiz,
   getUserSubscribedQuizzes,
   checkQuizAccess,
   revokeQuizSubscription,
-} from "../controllers/quizSubscription.controller.js";
+} from "../controllers/quizSubscribed.controller.js";
 
 import { verifyToken } from "../utils/verifyUser.js";
 

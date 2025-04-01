@@ -1,4 +1,4 @@
-import { QuizSubscription } from "../models/quizsubscribed.model.js";
+import { QuizSubscription } from "../models/quizSubscribed.model.js";
 import { Quiz } from "../models/quiz.model.js";
 import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
