@@ -5,7 +5,17 @@ import { uploadImagesToCloudinary } from "../utils/cloudinary.js";
 
 export const addQuiz = async (req, res, next) => {
   try {
-    const { title, chapterId, questions } = req.body;
+    const {
+      title,
+      chapterId,
+      questions,
+      description,
+      price,
+      discountPrice,
+      timeLimit,
+      passingScore,
+      isPublished,
+    } = req.body;
 
     // Validate input
     if (
@@ -17,6 +27,16 @@ export const addQuiz = async (req, res, next) => {
       return res
         .status(400)
         .json({ message: "Missing or invalid required fields." });
+    }
+
+    // Process price and discount
+    const quizPrice = price !== undefined ? Number(price) : 0;
+    let quizDiscountPrice =
+      discountPrice !== undefined ? Number(discountPrice) : 0;
+
+    // Ensure discount price doesn't exceed the original price
+    if (quizDiscountPrice > quizPrice) {
+      quizDiscountPrice = quizPrice;
     }
 
     // Process each question's figures (if provided)
@@ -63,6 +83,18 @@ export const addQuiz = async (req, res, next) => {
     if (existingQuiz) {
       // Update the existing quiz's questions array
       existingQuiz.questions.push(...processedQuestions); // Append new questions
+
+      // Update other fields if provided
+      if (description !== undefined) existingQuiz.description = description;
+      if (price !== undefined) existingQuiz.price = quizPrice;
+      if (discountPrice !== undefined)
+        existingQuiz.discountPrice = quizDiscountPrice;
+      if (timeLimit !== undefined) existingQuiz.timeLimit = Number(timeLimit);
+      if (passingScore !== undefined)
+        existingQuiz.passingScore = Number(passingScore);
+      if (isPublished !== undefined)
+        existingQuiz.isPublished = Boolean(isPublished);
+
       quiz = await existingQuiz.save(); // Save the updated quiz
       res
         .status(200)
@@ -72,6 +104,12 @@ export const addQuiz = async (req, res, next) => {
       quiz = new Quiz({
         title,
         chapterId,
+        description: description || "",
+        price: quizPrice,
+        discountPrice: quizDiscountPrice,
+        timeLimit: timeLimit || 30,
+        passingScore: passingScore || 60,
+        isPublished: isPublished !== undefined ? Boolean(isPublished) : false,
         questions: processedQuestions,
       });
       await quiz.save();
@@ -84,8 +122,6 @@ export const addQuiz = async (req, res, next) => {
     next(errorHandler(400, "An error occurred while creating the quiz."));
   }
 };
-
-// New methods for admin functionality
 
 export const updateQuiz = async (req, res, next) => {
   try {
@@ -453,3 +489,91 @@ export const getPopularQuizzes = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getQuizById = async (req, res, next) => {
+  try {
+    const { quizId } = req.params;
+
+    if (!quizId) {
+      return next(errorHandler(400, "Quiz ID is required"));
+    }
+
+    const quiz = await Quiz.findById(quizId).populate({
+      path: "chapterId",
+      populate: {
+        path: "subject",
+        populate: {
+          path: "exam",
+        },
+      },
+    });
+
+    if (!quiz) {
+      return next(errorHandler(404, "Quiz not found"));
+    }
+
+    // Calculate discount percentage if both price and discountPrice are set
+    let discountPercentage = 0;
+    if (
+      quiz.price > 0 &&
+      quiz.discountPrice > 0 &&
+      quiz.discountPrice < quiz.price
+    ) {
+      discountPercentage = Math.round(
+        ((quiz.price - quiz.discountPrice) / quiz.price) * 100
+      );
+    }
+
+    // Format response with pricing information
+    const quizDetails = {
+      _id: quiz._id,
+      title: quiz.title,
+      description: quiz.description,
+      chapterId: quiz.chapterId,
+      price: quiz.price,
+      discountPrice: quiz.discountPrice > 0 ? quiz.discountPrice : null,
+      discountPercentage: discountPercentage,
+      timeLimit: quiz.timeLimit,
+      passingScore: quiz.passingScore,
+      isPublished: quiz.isPublished,
+      questionCount: quiz.questions.length,
+      difficultyDistribution: getDifficultyDistribution(quiz.questions),
+      createdAt: quiz.createdAt,
+      updatedAt: quiz.updatedAt,
+      isFree: quiz.price === 0,
+      effectivePrice: quiz.discountPrice > 0 ? quiz.discountPrice : quiz.price,
+    };
+
+    res.status(200).json({
+      success: true,
+      quiz: quizDetails,
+    });
+  } catch (error) {
+    console.error("Error fetching quiz details:", error);
+    next(errorHandler(500, "Failed to fetch quiz details"));
+  }
+};
+
+// Helper function to calculate difficulty distribution
+function getDifficultyDistribution(questions) {
+  if (!questions || questions.length === 0) return {};
+
+  const distribution = {
+    Easy: 0,
+    Medium: 0,
+    Hard: 0,
+  };
+
+  questions.forEach((question) => {
+    distribution[question.difficulty] =
+      (distribution[question.difficulty] || 0) + 1;
+  });
+
+  // Convert to percentages
+  const total = questions.length;
+  return {
+    Easy: Math.round((distribution.Easy / total) * 100) || 0,
+    Medium: Math.round((distribution.Medium / total) * 100) || 0,
+    Hard: Math.round((distribution.Hard / total) * 100) || 0,
+  };
+}

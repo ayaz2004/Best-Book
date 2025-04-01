@@ -10,6 +10,7 @@ import {
   updateQuizQuestion,
   deleteQuizQuestion,
   getQuizStats,
+  getQuizById,
 } from "../controllers/quiz.controller.js";
 import {
   startQuizAttempt,
@@ -44,6 +45,7 @@ router.post(
   ]),
   addQuiz
 );
+router.get("/quiz-details/:quizId", getQuizById);
 
 router.put("/update/:quizId", verifyToken, updateQuiz);
 router.put("/toggle-publish/:quizId", verifyToken, toggleQuizPublishStatus);

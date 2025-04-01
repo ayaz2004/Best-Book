@@ -24,6 +24,8 @@ import EbookLibrary from "./components/EbookLibrary";
 import ForgetPassword from "./components/ForgetPassword";
 import ResetPassword from "./components/ResetPassword";
 import AdminBannerDashboard from "./pages/AdminBannerDashboard";
+import AllQuizzes from "./pages/AllQuizzes";
+import QuizDetails from "./pages/QuizDetails";
 
 export default function App() {
   return (
@@ -35,6 +37,8 @@ export default function App() {
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/all-books" element={<AllBooks />} />
+        <Route path="all-quizzes" element={<AllQuizzes />} />
+        <Route path="/quiz/:quizId" element={<QuizDetails />} />
         <Route path="/book/:bookId" element={<BookDetails />} />
         <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/forgetpassword" element={<ForgetPassword />} />

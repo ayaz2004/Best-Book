@@ -10,7 +10,7 @@ export const subscribeToQuiz = async (req, res, next) => {
   session.startTransaction();
 
   try {
-    const { quizId, paymentId, price } = req.body;
+    const { quizId, paymentId } = req.body;
     const userId = req.user.id;
 
     if (!quizId || !paymentId) {
@@ -23,19 +23,62 @@ export const subscribeToQuiz = async (req, res, next) => {
       return next(errorHandler(404, "Quiz not found"));
     }
 
+    // Check if quiz is published
+    if (!quiz.isPublished) {
+      return next(
+        errorHandler(400, "This quiz is not available for subscription")
+      );
+    }
+
     // Check if subscription already exists
     const existingSubscription = await QuizSubscription.findOne({
       userId,
       quizId,
     });
+
     if (existingSubscription && existingSubscription.isActive) {
       return next(errorHandler(400, "You are already subscribed to this quiz"));
     }
 
-    // Get the actual price from the quiz if not provided
-    const finalPrice = price || quiz.discountPrice || quiz.price;
+    // Calculate the actual price to charge
+    // If discountPrice is set and greater than 0 but less than the regular price, use it. Otherwise, use regular price
+    let finalPrice = quiz.price;
+    if (quiz.discountPrice > 0 && quiz.discountPrice < quiz.price) {
+      finalPrice = quiz.discountPrice;
+    }
 
-    // Create subscription
+    // Handle free quizzes
+    if (finalPrice === 0) {
+      const subscription = new QuizSubscription({
+        userId,
+        quizId,
+        paymentId: "free",
+        price: 0,
+        purchaseDate: new Date(),
+        isActive: true,
+      });
+
+      await subscription.save({ session });
+
+      // Update user's subscribedQuiz array
+      await User.findByIdAndUpdate(
+        userId,
+        { $addToSet: { subscribedQuiz: quizId } },
+        { session }
+      );
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return res.status(201).json({
+        success: true,
+        message: "Successfully subscribed to the free quiz",
+        subscription,
+        isFree: true,
+      });
+    }
+
+    // Create subscription for paid quiz
     const subscription = new QuizSubscription({
       userId,
       quizId,
@@ -61,6 +104,15 @@ export const subscribeToQuiz = async (req, res, next) => {
       success: true,
       message: "Successfully subscribed to the quiz",
       subscription,
+      price: {
+        original: quiz.price,
+        final: finalPrice,
+        discount: quiz.price - finalPrice,
+        discountPercentage:
+          quiz.price > 0
+            ? Math.round(((quiz.price - finalPrice) / quiz.price) * 100)
+            : 0,
+      },
     });
   } catch (error) {
     await session.abortTransaction();
