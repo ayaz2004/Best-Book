@@ -8,7 +8,6 @@ import {
   addToCartFailure,
 } from "../redux/cart/cartSlice";
 import {
-  ChevronLeft,
   ShoppingCart,
   Clock,
   Award,
@@ -101,10 +100,9 @@ export default function QuizDetails() {
           Authorization: `Bearer ${currentUser.token}`,
         },
         body: JSON.stringify({
-          itemId: quiz._id,
-          itemType: "quiz",
+          productId: quiz._id,
           quantity: 1,
-          price: quiz.discountPrice > 0 ? quiz.discountPrice : quiz.price,
+          bookType: "Quiz",
         }),
       });
 
