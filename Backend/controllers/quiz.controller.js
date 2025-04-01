@@ -8,7 +8,7 @@ export const addQuiz = async (req, res, next) => {
     const {
       title,
       chapterId,
-      questions,
+      questions: questionsJson,
       description,
       price,
       discountPrice,
@@ -16,6 +16,12 @@ export const addQuiz = async (req, res, next) => {
       passingScore,
       isPublished,
     } = req.body;
+
+    // Parse the JSON string if questions are sent as a string
+    const questions =
+      typeof questionsJson === "string"
+        ? JSON.parse(questionsJson)
+        : questionsJson;
 
     // Validate input
     if (

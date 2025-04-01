@@ -25,7 +25,7 @@ import {
   getUserSubscribedQuizzes,
   checkQuizAccess,
   revokeQuizSubscription,
-} from "../controllers/quizSubscribed.controller.js";
+} from "../controllers/quizSubscription.controller.js";
 
 import { verifyToken } from "../utils/verifyUser.js";
 
@@ -36,11 +36,11 @@ router.post(
   upload.fields([
     {
       name: "questionFigure",
-      maxCount: 1,
+      maxCount: 4,
     },
     {
       name: "answerFigure",
-      maxCount: 1,
+      maxCount: 4,
     },
   ]),
   addQuiz
