@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeIn } from "../utils/Anim/ScrollAnim";
@@ -425,25 +425,27 @@ export default function AllQuiz() {
                             <div className="flex items-baseline">
                               <span className="text-lg font-bold text-blue-900">
                                 ₹
-                                {quiz.discountPrice > 0
+                                {quiz.discountPrice > 0 &&
+                                quiz.discountPrice < quiz.price
                                   ? quiz.discountPrice
                                   : quiz.price}
                               </span>
-                              {quiz.discountPrice > 0 && (
-                                <>
-                                  <span className="ml-2 text-sm text-gray-500 line-through">
-                                    ₹{quiz.price}
-                                  </span>
-                                  <span className="ml-2 text-sm text-green-500">
-                                    (
-                                    {Math.round(
-                                      (1 - quiz.discountPrice / quiz.price) *
-                                        100
-                                    )}
-                                    % off)
-                                  </span>
-                                </>
-                              )}
+                              {quiz.discountPrice > 0 &&
+                                quiz.discountPrice < quiz.price && (
+                                  <>
+                                    <span className="ml-2 text-sm text-gray-500 line-through">
+                                      ₹{quiz.price}
+                                    </span>
+                                    <span className="ml-2 text-sm text-green-500">
+                                      (
+                                      {Math.round(
+                                        (1 - quiz.discountPrice / quiz.price) *
+                                          100
+                                      )}
+                                      % off)
+                                    </span>
+                                  </>
+                                )}
                             </div>
                           </div>
                         )}

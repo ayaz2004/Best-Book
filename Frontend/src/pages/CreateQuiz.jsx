@@ -274,14 +274,21 @@ const CreateQuiz = () => {
           }
         }
 
+        const originalPrice = Number(formData.price);
+        const discountAmount = Number(formData.discount) || 0;
+        const calculatedDiscountPrice = Math.max(
+          0,
+          originalPrice - discountAmount
+        );
+
         // Create quiz FormData
         const quizFormData = new FormData();
         quizFormData.append("title", formData.quizTitle);
         quizFormData.append("description", formData.quizDescription || "");
         quizFormData.append("chapterId", ids.chapterId);
         quizFormData.append("isPublished", isPublished ? "true" : "false");
-        quizFormData.append("price", formData.price);
-        quizFormData.append("discountPrice", formData.discount || 0);
+        quizFormData.append("price", originalPrice);
+        quizFormData.append("discountPrice", calculatedDiscountPrice);
         quizFormData.append("timeLimit", formData.timeLimit);
         quizFormData.append("passingScore", formData.passingScore);
 
