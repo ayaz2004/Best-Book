@@ -99,7 +99,7 @@ export const addQuiz = async (req, res, next) => {
       if (passingScore !== undefined)
         existingQuiz.passingScore = Number(passingScore);
       if (isPublished !== undefined)
-        existingQuiz.isPublished = Boolean(isPublished);
+        existingQuiz.isPublished = undefined ? Boolean(isPublished) : false;
 
       quiz = await existingQuiz.save(); // Save the updated quiz
       res
@@ -472,7 +472,7 @@ export const getAllQuizzes = async (req, res, next) => {
 export const getPopularQuizzes = async (req, res, next) => {
   try {
     // Fetch quizzes sorted by some criteria as an example
-    const quizzes = await Quiz.find()
+    const quizzes = await Quiz.find({ isPublished: true })
       .populate({
         path: "chapterId",
         populate: {
@@ -583,3 +583,31 @@ function getDifficultyDistribution(questions) {
     Hard: Math.round((distribution.Hard / total) * 100) || 0,
   };
 }
+
+export const getPublishedQuizzes = async (req, res, next) => {
+  try {
+    const publishedQuizzes = await Quiz.find({ isPublished: true })
+      .populate({
+        path: "chapterId",
+        populate: {
+          path: "subject",
+          populate: {
+            path: "exam",
+          },
+        },
+      })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      quizzes: publishedQuizzes,
+      count: publishedQuizzes.length,
+    });
+  } catch (error) {
+    console.error("Error fetching published quizzes:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching published quizzes",
+    });
+  }
+};

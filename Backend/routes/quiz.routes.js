@@ -11,6 +11,7 @@ import {
   deleteQuizQuestion,
   getQuizStats,
   getQuizById,
+  getPublishedQuizzes,
 } from "../controllers/quiz.controller.js";
 import {
   startQuizAttempt,
@@ -71,5 +72,6 @@ router.get("/getquizbyid/:chapterId", getQuizbyChapterId);
 router.delete("/deletequiz/:quizId", verifyToken, deleteQuiz);
 router.get("/getallquizzes", getAllQuizzes);
 router.get("/popularQuizzes", getPopularQuizzes);
+router.get("/publishedQuizzes", getPublishedQuizzes);
 
 export default router;

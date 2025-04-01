@@ -1078,7 +1078,6 @@ const CreateQuiz = () => {
                 <HiPlus className="h-5 w-5" />
                 Add New Question
               </motion.button>
-
               <div className="mt-8 p-5 border border-gray-200 rounded-xl bg-gray-50 shadow-sm">
                 <div className="flex items-center mb-4">
                   <input
@@ -1143,7 +1142,13 @@ const CreateQuiz = () => {
               whileTap={{ scale: 0.98 }}
               type="button"
               onClick={handleNext}
-              className={`px-6 py-3 bg-gradient-to-r from-blue-900 via-blue-800 to-purple-800 text-white rounded-xl hover:shadow-lg flex items-center justify-center gap-2 shadow-md transition-all duration-200 ${
+              className={`px-6 py-3 ${
+                step === 4
+                  ? isPublished
+                    ? "bg-gradient-to-r from-green-600 to-green-700"
+                    : "bg-gradient-to-r from-blue-800 to-purple-800"
+                  : "bg-gradient-to-r from-blue-900 via-blue-800 to-purple-800"
+              } text-white rounded-xl hover:shadow-lg flex items-center justify-center gap-2 shadow-md transition-all duration-200 ${
                 step === 1 ? "w-full sm:w-auto sm:ml-auto" : "sm:ml-auto"
               }`}
               disabled={loading}
@@ -1152,8 +1157,17 @@ const CreateQuiz = () => {
                 <Spinner size="sm" color="white" />
               ) : step === 4 ? (
                 <>
-                  <HiOutlineCloudUpload className="h-5 w-5" />
-                  {isPublished ? "Create & Publish Quiz" : "Create as Draft"}
+                  {isPublished ? (
+                    <>
+                      <HiCheck className="h-5 w-5" />
+                      Create & Publish Quiz
+                    </>
+                  ) : (
+                    <>
+                      <HiOutlineDuplicate className="h-5 w-5" />
+                      Save as Draft
+                    </>
+                  )}
                 </>
               ) : (
                 <>

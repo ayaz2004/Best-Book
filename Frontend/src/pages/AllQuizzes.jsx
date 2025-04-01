@@ -33,7 +33,8 @@ export default function AllQuiz() {
     const fetchQuizzes = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/quizzes/getallquizzes");
+        // Changed endpoint to only get published quizzes
+        const response = await fetch("/api/quizzes/publishedQuizzes");
         if (!response.ok) throw new Error("Failed to fetch quizzes");
         const data = await response.json();
 
