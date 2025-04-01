@@ -291,7 +291,7 @@ export default function PopularQuizzes() {
                       </div>
                     </div>
 
-                    {/* Card Footer */}
+                    {/* Card Footer
                     <div className="px-5 pb-5">
                       <motion.div
                         className="bg-gradient-to-r from-blue-700 to-purple-700 text-white py-2 px-4 rounded-xl font-medium text-center"
@@ -300,7 +300,7 @@ export default function PopularQuizzes() {
                       >
                         Start Quiz
                       </motion.div>
-                    </div>
+                    </div> */}
 
                     {/* "New" Badge */}
                     {index < 2 && (
